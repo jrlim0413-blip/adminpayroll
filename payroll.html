@@ -3,182 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payroll System</title>
-<style>
-  /* CSS Variables for theme */
-  :root {
-    --bg-color: #f2f2f7;
-    --text-color: #1c1c1e;
-    --card-bg: #fff;
-    --border-color: #d1d1d6;
-    --tab-active: #007aff;
-  }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg-color);
-    margin: 0;
-    padding: 0;
-    color: var(--text-color);
-  }
-
-  /* Header */
-  header {
-    background: var(--card-bg);
-    padding: 16px;
-    text-align: center;
-    font-size: 22px;
-    font-weight: 600;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    border-bottom: 1px solid var(--border-color);
-    position: relative;
-  }
-
-  #themeToggle, #logoutBtn {
-    position: absolute;
-    top: 12px;
-    padding:6px 12px;
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
-  }
-
-  #themeToggle {
-    right: 16px;
-    background: var(--tab-active);
-    color: #fff;
-  }
-
-  #logoutBtn {
-    right: 120px;
-    background: #ff3b30;
-    color: #fff;
-  }
-
-  /* Tabs */
-  .tabs {
-    display: flex;
-    background: var(--card-bg);
-    border-bottom: 1px solid var(--border-color);
-    border-radius: 12px 12px 0 0;
-    overflow: hidden;
-    margin-top: 0;
-  }
-
-  .tab {
-    flex: 1;
-    padding: 14px 0;
-    text-align: center;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background 0.2s, color 0.2s;
-    color: #8e8e93;
-    font-size: 16px;
-  }
-
-  .tab.active {
-    color: var(--tab-active);
-    background: #f0f0f5;
-  }
-
-  /* Tab content */
-  .tab-content {
-    display: none;
-    padding: 16px;
-  }
-
-  .tab-content.active {
-    display: block;
-  }
-
-  /* Filters */
-  .filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-
-  .filters input, .filters select, .filters button {
-    padding: 10px 14px;
-    font-size: 14px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    outline: none;
-    background: var(--card-bg);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    color: var(--text-color);
-  }
-
-  .filters input:focus, .filters select:focus {
-    border-color: var(--tab-active);
-  }
-
-  .filters button {
-    background: var(--tab-active);
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .filters button:hover {
-    opacity: 0.8;
-  }
-
-  /* --- Attendance table --- */
-  .table-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-  }
-
-  table {
-    border-collapse: separate;
-    border-spacing: 0 6px;
-    width: 80%;              
-    max-width: 1300px;        
-    table-layout: fixed;     
-    text-align: center;
-  }
-
-  th, td {
-    padding: 12px;
-    font-size: 14px;
-    width: 20%;              
-    white-space: nowrap;
-  }
-
-  th {
-    color: #6e6e73;
-    font-weight: 600;
-    font-size: 13px;
-    text-transform: uppercase;
-  }
-
-  tbody tr {
-    background: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-
-  tbody tr td:first-child {
-    border-top-left-radius: 12px;
-    border-bottom-left-radius: 12px;
-  }
-
-  tbody tr td:last-child {
-    border-top-right-radius: 12px;
-    border-bottom-right-radius: 12px;
-  }
-
-  tbody tr:hover {
-    background: #f0f0f5;
-  }
-</style>
+<title>PAYROLL SYSTEM</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/6SF5KQG.png">
+<link rel="stylesheet" href="payroll-print.css">
+<!-- CryptoJS for AES decryption -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<style></style>
 </head>
 <body>
-
 <header>
   Payroll System
   <button id="logoutBtn">Logout</button>
@@ -187,183 +19,583 @@
 
 <div class="tabs">
   <div class="tab active" data-tab="logs">Attendance Logs</div>
-  <div class="tab" data-tab="tab2">Tab 2</div>
-  <div class="tab" data-tab="tab3">Tab 3</div>
+  <div class="tab" data-tab="tab2">Employee Deductions</div>
+  <div class="tab" data-tab="tab3">Printing Section</div>
 </div>
 
 <div class="tab-content active" id="logs">
   <div class="filters">
-    <select id="areaFilter">
-      <option value="">All Areas</option>
-    </select>
+    <select id="areaFilter"><option value="">All Areas</option></select>
     <input type="month" id="monthFilter">
     <input type="text" id="searchName" placeholder="Search by Name...">
     <button onclick="loadLogs()">Search</button>
   </div>
-
   <div class="table-container">
     <table>
       <thead>
-        <tr>
-          <th>NAME</th>
-          <th>AREA</th>
-          <th>TIME IN</th>
-          <th>TIME OUT</th>
-          <th>DATE</th>
-        </tr>
+        <tr><th>NAME</th><th>AREA</th><th>TIME IN</th><th>TIME OUT</th><th>DATE</th></tr>
       </thead>
-      <tbody id="logsTable">
-        <tr><td colspan="5">Loading...</td></tr>
-      </tbody>
+      <tbody id="logsTable"><tr><td colspan='5'>Loading...</td></tr></tbody>
     </table>
   </div>
 </div>
 
 <div class="tab-content" id="tab2">
-  <p>Tab 2 content here...</p>
+  <div class="filters">
+    <span style="font-size: 24px; cursor: pointer;">🔍</span>
+    <input type="text" id="rateSearch" placeholder="Search employee...">
+    <button id="scanQRBtn" class="btn btn-success">📷 Scan QR to Add Employee</button>
+  </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>NAME</th><th>AREA</th><th>DESIGNATION</th><th>MONTHLY SALARY</th><th>ACTION</th>
+        </tr>
+      </thead>
+      <tbody id="ratesTable"><tr><td colspan='5'>Loading...</td></tr></tbody>
+    </table>
+  </div>
 </div>
+
+<div id="qrModal" class="modal">
+  <div class="modal-content">
+    <span id="closeQrModal" class="close-btn">&times;</span>
+    <h2 class="modal-title">Scan QR Code</h2>
+      <div class="qr-section">
+        <input type="text" id="qrInput" placeholder="Scan QR code...."autofocus>
+      </div>
+      
+    <div class="modal-body">
+      <div class="info-fields">
+        <input type="text" id="empID" placeholder="Employee ID" readonly>
+        <input type="text" id="empName" placeholder="Employee Name" readonly>
+        <input type="text" id="empArea" placeholder="Area" readonly>
+      </div>
+
+      <div class="edit-section">
+        
+        <label class="switch">
+          <input type="checkbox" id="toggleEditBtn">
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-label">Edit</span>
+
+
+        <input type="text" id="empDesignation" placeholder="Designation" disabled>
+        <input type="text" id="empSalary" placeholder="Monthly Salary" disabled>
+      </div>
+
+      <button id="submitQRBtn" class="submit-btn">Add Employee</button>
+    </div>
+  </div>
+</div>
+
 
 <div class="tab-content" id="tab3">
-  <p>Tab 3 content here...</p>
+  <div class="print-controls">
+    <label>Date Covered: <input type="date" id="dateStart"> - <input type="date" id="dateEnd"></label>
+    <button onclick="window.print()">🖨 Print</button>
+    <button onclick="downloadExcel()">⬇ Download Excel</button>
+  </div>
+      <h3 style="text-align:center;margin:0;">SIMPAL GROUP OF COMPANIES</h3>
+      <p style="text-align:center;margin:0;">ADMIN OFFICE</p>
+      <p style="text-align:center;margin:0;">SALARY AND COMPENSATION</p>
+      <p style="text-align:center;margin:0;">DATE COVERED: </p>
+
+  <div class="table-container">
+    <table id="tab3Table" border="1">
+      <thead>
+        <tr>
+          <th>EMPLOYEE NAME</th>
+          <th>DESIGNATION</th>
+          <th>BASIC MONTHLY SALARY</th>
+          <th>RATE PER DAY</th>
+          <th>RATE PER HOUR</th>
+          <th># OF DAYS</th>
+          <th>TOTAL BASIC PAY</th>
+          <th>ALLOWANCE</th>
+          <th>RESTDAY</th>
+          <th>OVERTIME</th>
+          <th>PHIC</th>
+          <th>HDMF</th>
+          <th>SSS</th>
+          <th>SALARY ADVANCEMENT</th>
+          <th>LATE/UNDERTIME</th>
+          <th>NET PAY</th>
+          <th>SIGNATURE</th>
+        </tr>
+      </thead>
+      <tbody id="tab3Body"><tr><td colspan="17">Loading...</td></tr></tbody>
+       <tfoot>
+        <tr id="totalRow" style="background:yellow;font-weight:bold">
+          <td colspan="1">TOTAL</td>
+          <td></td> <!-- Basic Salary -->
+          <td></td> <!-- Rate/Day -->
+          <td></td> <!-- Rate/Hour -->
+          <td></td> <!-- Days -->
+          <td></td> <!-- Total Basic Pay -->
+          <td></td> <!-- Allowance -->
+          <td></td> <!-- Restday -->
+          <td></td> <!-- Overtime -->
+          <td></td> <!-- PHIC -->
+          <td></td> <!-- HDMF -->
+          <td></td> <!-- SSS -->
+          <td></td> <!-- Salary Adv -->
+          <td></td> <!-- Late -->
+          <td></td> <!-- Net Pay -->
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+
+<!-- Signatories -->
+<div style="margin-left:500px; display:flex; justify-content:space-between; width:100%;">
+  <div style="text-align:center;">
+    <p>Prepared by:</p>
+    <p><u>QUENNIE R. CAPUYAN</u><br>HR Admin Payroll</p>
+  </div>
+  <div style="text-align:center; margin-right:1000px;" >
+    <p>Reviewed & Released by:</p>
+    <p><u>JEVINCE JAYE S. JUBAY</u><br>HRMD Manager</p>
+  </div>
 </div>
 
+ 
+
+
+
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec"; // Palitan ng actual URL
+const SECRET_KEY = "jayryan"; // Secret key for AES
 
-// --- Require login ---
-if (!sessionStorage.getItem("loggedIn")) {
-  window.location.replace("login.html");
-}
+if (!sessionStorage.getItem("loggedIn")) window.location.replace("login.html");
 
-// --- Logout ---
 document.getElementById("logoutBtn").addEventListener("click", () => {
   sessionStorage.clear();
   window.location.replace("login.html");
 });
 
-// --- Block back navigation after logout ---
-window.history.pushState(null, "", window.location.href);
-window.addEventListener("popstate", () => {
-  if (!sessionStorage.getItem("loggedIn")) {
-    window.location.replace("login.html");
-  } else {
-    window.history.pushState(null, "", window.location.href);
+window.history.pushState(null,"",window.location.href);
+window.addEventListener("popstate",()=>{if(!sessionStorage.getItem("loggedIn"))window.location.replace("login.html");else window.history.pushState(null,"",window.location.href);});
+
+const toggleBtn = document.getElementById('themeToggle');
+let darkMode=false;
+toggleBtn.addEventListener('click',()=>{
+  darkMode=!darkMode;
+  if(darkMode){
+    document.documentElement.style.setProperty('--bg-color','#1c1c1e');
+    document.documentElement.style.setProperty('--text-color','#f2f2f7');
+    document.documentElement.style.setProperty('--card-bg','#2c2c2e');
+    document.documentElement.style.setProperty('--border-color','#3a3a3c');
+    document.documentElement.style.setProperty('--tab-active','#0a84ff');
+    toggleBtn.textContent='Light Mode';
+  }else{
+    document.documentElement.style.setProperty('--bg-color','#f2f2f7');
+    document.documentElement.style.setProperty('--text-color','#1c1c1e');
+    document.documentElement.style.setProperty('--card-bg','#fff');
+    document.documentElement.style.setProperty('--border-color','#d1d1d6');
+    document.documentElement.style.setProperty('--tab-active','#007aff');
+    toggleBtn.textContent='Dark Mode';
   }
 });
 
-// --- Tab switching ---
-document.querySelectorAll(".tab").forEach(tab => {
-  tab.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
     tab.classList.add("active");
     document.getElementById(tab.dataset.tab).classList.add("active");
+    if(tab.dataset.tab==="tab2") loadRates();
+    if(tab.dataset.tab==="tab3") loadTab3Data();
   });
 });
 
-// --- 12-hour civilian time format ---
-function formatTimeCell(value) {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (isNaN(date)) return value;
-  let hours = date.getHours();
-  const minutes = String(date.getMinutes()).padStart(2,'0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12;
-  if (hours === 0) hours = 12;
-  return `${hours}:${minutes} ${ampm}`;
+async function loadLogs(){
+  const area=document.getElementById("areaFilter").value;
+  const monthInput=document.getElementById("monthFilter");
+  if(!monthInput.value){const today=new Date();monthInput.value=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}`;}
+  const month=monthInput.value;
+  const search=document.getElementById("searchName").value.trim();
+  const tbody=document.getElementById("logsTable");
+  tbody.innerHTML="<tr><td colspan='5'>Loading...</td></tr>";
+  try{
+    const res=await fetch(WEB_APP_URL,{method:"POST",body:new URLSearchParams({action:"getLogs",area:area,month:month,search:search})});
+    const data=await res.json();
+    if(!data||data.length===0){tbody.innerHTML="<tr><td colspan='5'>No logs found</td></tr>";return;}
+    data.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const uniqueAreas=[...new Set(data.map(r=>r.area).filter(a=>a))];
+    const areaFilter=document.getElementById("areaFilter");areaFilter.innerHTML='<option value="">All Areas</option>';uniqueAreas.forEach(a=>{const opt=document.createElement("option");opt.value=a;opt.textContent=a;areaFilter.appendChild(opt);});
+    tbody.innerHTML="";
+    data.forEach(log=>{
+      const row=`<tr>
+        <td>${log.name?log.name.toUpperCase():"UNKNOWN"}</td>
+        <td>${log.area?log.area.toUpperCase():"-"}</td>
+        <td>${formatTimeCell(log.timeIn)}</td>
+        <td>${formatTimeCell(log.timeOut)}</td>
+        <td>${log.date}</td>
+      </tr>`;tbody.insertAdjacentHTML("beforeend",row);
+    });
+  }catch(err){console.error(err);tbody.innerHTML="<tr><td colspan='5'>Error loading logs</td></tr>";}
+}
+function formatTimeCell(value){if(!value)return"-";const date=new Date(value);if(isNaN(date))return value;let h=date.getHours();const m=String(date.getMinutes()).padStart(2,'0');const ampm=h>=12?"PM":"AM";h=h%12;h=h===0?12:h;return`${h}:${m} ${ampm}`;}
+document.addEventListener("DOMContentLoaded",loadLogs);
+
+// --- Employee Deductions ---
+window.employeeRates=[];
+async function loadRates(){
+  const tbody=document.getElementById("ratesTable");
+  tbody.innerHTML="<tr><td colspan='5'>Loading...</td></tr>";
+  try{
+    const res=await fetch(WEB_APP_URL,{method:"POST",body:new URLSearchParams({action:"getRates"})});
+    const data=await res.json();
+    if(!data||data.length===0){tbody.innerHTML="<tr><td colspan='5'>No rates found</td></tr>";return;}
+    
+    window.employeeRates = data.map(emp => ({
+      name: emp.employeeName || "UNKNOWN",
+      area: emp.area || "-",
+      designation: emp.designation || "-",
+      monthlySalary: emp.basicmonthlySalary ? Number(emp.basicmonthlySalary).toFixed(2) : "0.00",
+      mandatoryDeduction: emp.mandatoryDeduction || "",
+      applyMandatoryAll: emp.applyMandatoryAll || false,
+      voluntaryDeduction: emp.voluntaryDeduction || "",
+      voluntaryStart: emp.voluntaryStart || "",
+      voluntaryEnd: emp.voluntaryEnd || "",
+      attendanceDeduction: emp.attendanceDeduction || ""
+    }));
+
+    renderRates(window.employeeRates);
+  }catch(err){console.error(err);tbody.innerHTML="<tr><td colspan='5'>Error loading rates</td></tr>";}
 }
 
-// --- Load logs ---
-async function loadLogs() {
-  const area = document.getElementById("areaFilter").value;
-  const monthInput = document.getElementById("monthFilter");
-  if (!monthInput.value) {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    monthInput.value = `${year}-${month}`;
-  }
-  const month = monthInput.value;
-  const search = document.getElementById("searchName").value.trim();
+function renderRates(rates){
+  const tbody=document.getElementById("ratesTable");tbody.innerHTML="";
+  if(rates.length===0){tbody.innerHTML="<tr><td colspan='5'>No matching employees</td></tr>";return;}
+  rates.forEach(emp=>{
+    const row=document.createElement("tr");
+    row.innerHTML=`
+      <td>${emp.name}</td>
+      <td>${emp.area}</td>
+      <td>${emp.designation}</td>
+      <td>₱${emp.monthlySalary}</td>
+      <td>
+        <button class="update-btn" onclick='openUpdateEmployeeModal(${JSON.stringify(emp)})'>✏️ Update</button>
 
-  const tbody = document.getElementById("logsTable");
-  tbody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+    `;
+    tbody.appendChild(row);
+  });
+}
 
-  try {
-    const response = await fetch(WEB_APP_URL, {
-      method: "POST",
-      body: new URLSearchParams({
-        action: "getLogs",
-        area: area,
-        month: month,
-        search: search
-      })
+document.getElementById("rateSearch").addEventListener("input",()=>{
+  const search=document.getElementById("rateSearch").value.toLowerCase();
+  const filtered=window.employeeRates.filter(emp=>emp.name.toLowerCase().includes(search));
+  renderRates(filtered);
+});
+
+
+
+// ---------------- Tab3: Payroll Printing ----------------
+async function loadTab3Data(){
+  const tbody=document.getElementById("tab3Body");
+  tbody.innerHTML="<tr><td colspan='17'>Loading...</td></tr>";
+  try{
+    const res=await fetch(WEB_APP_URL,{method:"POST",body:new URLSearchParams({action:"getRates"})});
+    const data=await res.json();
+    if(!data||data.length===0){tbody.innerHTML="<tr><td colspan='17'>No data found</td></tr>";return;}
+    tbody.innerHTML="";
+    data.forEach(emp=>{
+      const days=30; // placeholder # of days
+      const ratePerDay=(emp.basicmonthlySalary/30).toFixed(2);
+      const ratePerHour=(ratePerDay/8).toFixed(2);
+      const totalBasicPay=(ratePerDay*days).toFixed(2);
+      const allowance=emp.allowance||0;
+      const restday=0,overtime=0,phic=0,hdmf=0,sss=0,salaryAdv=0,late=0;
+      const netPay=(parseFloat(totalBasicPay)+parseFloat(allowance)-phic-hdmf-sss-salaryAdv-late).toFixed(2);
+
+      const row=`<tr>
+        <td>${emp.employeeName}</td>
+        <td>${emp.designation||""}</td>
+        <td>${Number(emp.basicmonthlySalary).toLocaleString()}</td>
+        <td>${Number(ratePerDay).toLocaleString()}</td>
+        <td>${ratePerHour}</td>
+        <td>${days}</td>
+        <td>${Number(totalBasicPay).toLocaleString()}</td>
+        <td>${allowance}</td>
+        <td>${restday}</td>
+        <td>${overtime}</td>
+        <td>${phic}</td>
+        <td>${hdmf}</td>
+        <td>${sss}</td>
+        <td>${salaryAdv}</td>
+        <td>${late}</td>
+        <td>${Number(netPay).toLocaleString()}</td>
+        <td></td>
+      </tr>`;
+      tbody.insertAdjacentHTML("beforeend",row);
     });
-    const result = await response.json();
-    if (!result || result.length === 0) {
-      tbody.innerHTML = "<tr><td colspan='5'>No logs found</td></tr>";
-      return;
+    computeTotals();
+  }catch(err){console.error(err); tbody.innerHTML="<tr><td colspan='17'>Error loading data</td></tr>";}
+}
+
+// ---------------- Download Excel ----------------
+function downloadExcel(){
+  const table = document.getElementById("tab3Table").outerHTML;
+  const html=`<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>${table}</body></html>`;
+  const blob=new Blob([html],{type:"application/vnd.ms-excel"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="payroll_tab3.xls";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+function computeTotals(){
+  const tbody = document.getElementById("tab3Body");
+  const rows = tbody.querySelectorAll("tr");
+  const totalRow = document.getElementById("totalRow");
+  const totalCells = totalRow.querySelectorAll("td");
+
+  // initialize totals per column
+  let totals = Array(totalCells.length).fill(0);
+
+  rows.forEach(row=>{
+    const cells = row.querySelectorAll("td");
+    cells.forEach((cell,i)=>{
+      let val = cell.textContent.replace(/,/g,"").trim(); 
+      if(!isNaN(val) && val !== "" && i >= 2 && i <= 15){ 
+        totals[i] += parseFloat(val);
+      }
+    });
+  });
+
+  // apply totals
+  totals.forEach((t,i)=>{
+    if(i >= 2 && i <= 15){
+      totalCells[i].textContent = t.toLocaleString(undefined,{
+        minimumFractionDigits:0,
+        maximumFractionDigits:2
+      });
+    }
+  });
+}
+// --- QR Modal ---
+const qrModal = document.getElementById("qrModal");
+const openQrBtn = document.getElementById("scanQRBtn");
+const closeQrBtn = document.getElementById("closeQrModal");
+const qrInput = document.getElementById("qrInput");
+
+openQrBtn.addEventListener("click", () => {
+  qrModal.classList.add("show");
+  qrInput.value = "";
+  qrInput.focus();
+});
+
+closeQrBtn.addEventListener("click", () => qrModal.classList.remove("show"));
+window.addEventListener("click", e => { if(e.target===qrModal) qrModal.classList.remove("show"); });
+
+
+// --- Function to open modals dynamically ---
+function openModal(modalId){
+  document.getElementById(modalId).classList.add("show");
+}
+function closeModal(modalId){
+  document.getElementById(modalId).classList.remove("show");
+}
+
+// --- Toggle Designation & Salary ---
+const toggleEditBtn = document.getElementById("toggleEditBtn");
+const empDesignation = document.getElementById("empDesignation");
+const empSalary = document.getElementById("empSalary");
+
+toggleEditBtn.addEventListener("click", () => {
+  const editable = empDesignation.disabled; // true if currently disabled
+  empDesignation.disabled = !editable;
+  empSalary.disabled = !editable;
+  empDesignation.style.backgroundColor = editable ? "#fff" : "#f0f0f0";
+  empSalary.style.backgroundColor = editable ? "#fff" : "#f0f0f0";
+  toggleEditBtn.textContent = editable ? "Lock Details" : "Edit Details";
+});
+
+// --- Pending Employees after QR scan ---
+window.pendingEmployees = [];
+
+
+// Render pending employees table
+function renderPendingEmployees(){
+  const tbody = document.getElementById("ratesTable");
+  tbody.innerHTML = "";
+
+  if(window.pendingEmployees.length === 0){
+    tbody.innerHTML = "<tr><td colspan='5'>No employees scanned</td></tr>";
+    return;
+  }
+
+  window.pendingEmployees.forEach(emp => {
+    const row = document.createElement("tr");
+
+    // Highlight if designation or salary is blank
+    let highlightClass = "";
+    if(!emp.designation || !emp.salary) highlightClass = "incomplete";
+
+    row.innerHTML = `
+      <td class="${highlightClass}">${emp.name}</td>
+      <td class="${highlightClass}">${emp.area}</td>
+      <td class="${highlightClass}">${emp.designation || "-"}</td>
+      <td class="${highlightClass}">${emp.salary ? "₱" + Number(emp.salary).toFixed(2) : "-"}</td>
+      <td>
+        <button onclick='editPendingEmployee("${emp.id}")'>✏️ Update</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// Edit employee from pending table
+function editPendingEmployee(empId){
+  const emp = window.pendingEmployees.find(e => e.id === empId);
+  if(!emp) return alert("Employee not found");
+
+  // Fill modal
+  document.getElementById("empID").value = emp.id;
+  document.getElementById("empName").value = emp.name;
+  document.getElementById("empArea").value = emp.area;
+  empDesignation.value = emp.designation || "";
+  empSalary.value = emp.salary || "";
+
+  // Enable editing
+  empDesignation.disabled = false;
+  empSalary.disabled = false;
+  empDesignation.style.backgroundColor = "#fff";
+  empSalary.style.backgroundColor = "#fff";
+  toggleEditBtn.textContent = "Lock Details";
+
+  // Remove from pending array (will re-add on submit)
+  window.pendingEmployees = window.pendingEmployees.filter(e => e.id !== empId);
+  renderPendingEmployees();
+
+  qrModal.classList.add("show");
+}
+
+// Add CSS for incomplete highlight dynamically (optional if not in CSS file)
+const style = document.createElement('style');
+style.textContent = `
+  .incomplete {
+    background-color: #fff3cd;
+    font-weight: bold;
+  }
+`;
+document.head.appendChild(style);
+
+function decryptQR(encrypted) {
+  try {
+    const bytes = CryptoJS.AES.decrypt(encrypted, SECRET_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+
+    if (!decrypted) {
+      console.error("⚠️ Empty decrypted text - possible wrong key or corrupted QR.");
+      return null;
     }
 
-    result.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    // Update area dropdown dynamically
-    const areaFilter = document.getElementById("areaFilter");
-    const uniqueAreas = [...new Set(result.map(r => r.area).filter(a => a))];
-    areaFilter.innerHTML = '<option value="">All Areas</option>';
-    uniqueAreas.forEach(a => {
-      const opt = document.createElement("option");
-      opt.value = a;
-      opt.textContent = a;
-      areaFilter.appendChild(opt);
-    });
-
-    // Render table
-    tbody.innerHTML = "";
-    result.forEach(log => {
-      const row = `
-        <tr>
-          <td>${log.name.toUpperCase()}</td>
-          <td>${log.area.toUpperCase()}</td>
-          <td>${formatTimeCell(log.timeIn)}</td>
-          <td>${formatTimeCell(log.timeOut)}</td>
-          <td>${log.date}</td>
-        </tr>
-      `;
-      tbody.insertAdjacentHTML("beforeend", row);
-    });
-  } catch (err) {
-    console.error(err);
-    tbody.innerHTML = "<tr><td colspan='5'>Error loading logs</td></tr>";
+    return JSON.parse(decrypted);
+  } catch (err) {   
+    console.error("Decryption error:", err);
+    return null;
   }
 }
 
-// --- Auto load ---
-document.addEventListener("DOMContentLoaded", loadLogs);
+qrInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault(); // para hindi mag-submit form
 
-// --- Theme toggle ---
-const toggleBtn = document.getElementById('themeToggle');
-let darkMode = false;
+    const qrData = qrInput.value.trim();
+    if (!qrData) return;
 
-toggleBtn.addEventListener('click', () => {
-  darkMode = !darkMode;
-  if(darkMode){
-    document.documentElement.style.setProperty('--bg-color', '#1c1c1e');
-    document.documentElement.style.setProperty('--text-color', '#f2f2f7');
-    document.documentElement.style.setProperty('--card-bg', '#2c2c2e');
-    document.documentElement.style.setProperty('--border-color', '#3a3a3c');
-    document.documentElement.style.setProperty('--tab-active', '#0a84ff');
-    toggleBtn.textContent = 'Light Mode';
-  } else {
-    document.documentElement.style.setProperty('--bg-color', '#f2f2f7');
-    document.documentElement.style.setProperty('--text-color', '#1c1c1e');
-    document.documentElement.style.setProperty('--card-bg', '#fff');
-    document.documentElement.style.setProperty('--border-color', '#d1d1d6');
-    document.documentElement.style.setProperty('--tab-active', '#007aff');
-    toggleBtn.textContent = 'Dark Mode';
+    try {
+      const bytes = CryptoJS.AES.decrypt(qrData, SECRET_KEY);
+      const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+
+      console.log("🔓 Raw decrypted text:", decrypted);
+
+      if (!decrypted) throw new Error("Empty result");
+
+      const data = JSON.parse(decrypted);
+
+      // Auto-fill inputs
+      document.getElementById("empID").value = data.id || "";
+      document.getElementById("empName").value = data.name || "";
+      document.getElementById("empArea").value = data.area || "";
+
+      empDesignation.value = data.designation || "";
+      empSalary.value = data.salary || "";
+      empDesignation.disabled = true;
+      empSalary.disabled = true;
+      toggleEditBtn.textContent = "Edit Details";
+
+      qrInput.value = ""; // clear after successful scan
+    } catch (err) {
+      alert("Invalid or corrupted QR code!");
+      console.error("Decryption error:", err);
+    }
   }
 });
+// --- Add Employee to Google Sheet ---
+document.getElementById("submitQRBtn").addEventListener("click", async () => {
+  const id = document.getElementById("empID").value.trim();
+  const name = document.getElementById("empName").value.trim();
+  const area = document.getElementById("empArea").value.trim();
+  const designation = empDesignation.value.trim();
+  const salary = empSalary.value.trim();
+
+  if (!id || !name || !area) {
+    alert("⚠️ Employee ID, Name, and Area are required!");
+    return;
+  }
+
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: new URLSearchParams({
+        action: "addEmployee",
+        id,
+        name,
+        area,
+        designation,
+        salary
+      })
+    });
+
+    const result = await res.json();
+    console.log("Backend response:", result);
+    if (result.success) {
+      alert("✅ Employee added successfully!");
+
+      // refresh rates table
+      loadRates();
+
+      // close modal
+      qrModal.classList.remove("show");
+
+      // clear fields
+      document.getElementById("empID").value = "";
+      document.getElementById("empName").value = "";
+      document.getElementById("empArea").value = "";
+      empDesignation.value = "";
+      empSalary.value = "";
+    } else {
+      alert("❌ Failed to add employee!");
+    }
+  } catch (err) {
+    console.error("Add Employee error:", err);
+    alert("⚠️ Error saving employee!");
+  }
+});
+
+
+  
+
 </script>
 
 </body>
