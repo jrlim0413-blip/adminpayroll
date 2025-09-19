@@ -585,7 +585,7 @@ document.getElementById("submitQRBtn").addEventListener("click", async () => {
       empDesignation.value = "";
       empSalary.value = "";
     } else {
-      alert("❌ Failed to add employee!");
+      alert(result.message || "❌ Failed to add employee!");
     }
   } catch (err) {
     console.error("Add Employee error:", err);
