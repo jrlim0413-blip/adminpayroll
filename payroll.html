@@ -5,12 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PAYROLL SYSTEM</title>
 <link rel="icon" type="image/png" href="https://i.imgur.com/6SF5KQG.png">
-<link rel="stylesheet" href="payroll-print.css">
+<link rel="stylesheet" type="text/css" href="payroll-print.css">
 <!-- CryptoJS for AES decryption -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-<style></style>
+<style>
+ 
+
+
+</style>
 </head>
 <body>
+
+  
 <header>
   Payroll System
   <button id="logoutBtn">Logout</button>
@@ -47,7 +53,7 @@
     <button id="scanQRBtn" class="btn btn-success">📷 Scan QR to Add Employee</button>
   </div>
   <div class="table-container">
-    <table>
+    <table id="myTable">
       <thead>
         <tr>
           <th>EMPLOYEE ID</th><th>NAME</th><th>AREA</th><th>DESIGNATION</th><th>MONTHLY SALARY</th><th>ACTION</th>
@@ -76,7 +82,7 @@
       <div class="edit-section">
         
         <label class="switch">
-          <input type="checkbox" id="toggleEditBtn">
+          <input type="checkbox" id="toggleEditBtnAdd">
           <span class="slider"></span>
         </label>
         <span class="toggle-label">Edit</span>
@@ -106,30 +112,181 @@
       <div class="modal-tab" data-tab="tab4modal">Attendance-Based Deductions</div>
     </div>
 
-    <div class="modal-tab-content active" id="employee">
-      <div class="input-group" >
-        <label for="empNameUp">Name</label>
-        <input type="text" id="empNameUp"  readonly>
-      </div>
-         <div class="empInfo">
+        <div class="modal-tab-content active" id="employee">
           <div class="input-group">
-            <label for="empIDUp">Employment Information</label>
-            <input type="text" id="empIDUp"  readonly>
-            <input type="text" id="empAreaUp"  readonly>
+            <label for="empNameUp">Name</label>
+            <input type="text" id="empNameUp" readonly>
           </div>
-          <div class="input-group" id="desSal">
-            <input type="text" id="empDesignationUp" disabled>
-            <input type="number" id="empSalaryUp"  disabled>
-            <button class="toggle-btn">Edit</button>
-          </div>
-         </div>
-    </div>
+          <div class="empInfo">
+            <div class="input-group">
+              <label for="empIDUp">Employment Information</label>
+              <input type="text" id="empIDUp" readonly>
+              <input type="text" id="empAreaUp" readonly>
+            </div>
 
-    <div style="padding: 16px 24px; text-align: right;">
+            <div class="input-group" id="desSal">
+              <input type="text" id="empDesignationUp" placeholder="Designation" disabled>
+              <input type="number" id="empSalaryUp" placeholder="Salary" disabled>
+              <!-- Toggle button -->
+              <label class="switch">
+                <input type="checkbox" id="toggleEditUpdate">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+
+
+
+       <div class="modal-tab-content" id="tab2modal">
+
+        <div class="deduction-row">
+          <p class="note">
+            <b>SSS Computation Rule (2025):</b><br>
+            - Monthly Salary Credit (MSC) = Salary rounded to nearest bracket (₱4,000 min, ₱30,000 max)<br>
+            - Total Contribution = MSC × 15%<br>
+            - Employee Share = MSC × 4.5%<br>
+            - Employer Share = MSC × 8.5% + EC (₱10–₱30)
+          </p>
+          <div class="input-group">
+            <label for="sssDeduction">SSS</label>
+            <input type="number" id="sssDeduction" placeholder="MSC × 15%" disabled>
+                <label class="switch">
+                    <input type="checkbox" id="toggleSSS">
+                    <span class="slider"></span>
+                </label>
+          </div>
+        </div>
+
+        <div class="deduction-row">
+          <p class="note">
+            <b>PhilHealth Computation Rule (2025):</b><br>
+            - Premium Rate = 5% of Monthly Salary<br>
+            - Salary Floor = ₱10,000 | Salary Ceiling = ₱100,000<br>
+            - Total Contribution = Salary × 5% (min ₱10,000, max ₱100,000)<br>
+            - Employee Share = 50% of Total Contribution<br>
+            - Employer Share = 50% of Total Contribution
+          </p>
+          <div class="input-group">
+            <label for="phicDeduction">PhilHealth</label>
+            <input type="number" id="phicDeduction" placeholder="5% of salary (₱10k–₱100k)" disabled>
+                 <label class="switch">
+                    <input type="checkbox" id="togglePHIC">
+                    <span class="slider"></span>
+                </label>
+          </div>
+        </div>
+
+        <div class="deduction-row">
+          <p class="note">
+            <b>Pag-IBIG Contribution Rule:</b><br>
+            - Salary Ceiling = ₱5,000<br>
+            - Employee Share = 1% (≤ ₱1,500) or 2% (> ₱1,500)<br>
+            - Employer Share = 2%<br>
+            - Total = Employee + Employer
+          </p>
+          <div class="input-group">
+            <label for="hdmfDeduction">Pag-IBIG</label>
+            <input type="number" id="hdmfDeduction" placeholder="1%/2% + 2% (₱5k max)" disabled>
+                  <label class="switch">
+                    <input type="checkbox" id="toggleHDMF">
+                    <span class="slider"></span>
+                </label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-tab-content" id="tab3modal">
+
+          <div class="voluntary-row">
+            <div class="input-group">
+              <label for="volDeductionType">Deduction Type</label>
+              <select id="volDeductionType" disabled>
+                <option value="">-- Select Deduction --</option disabled>
+                <option value="salaryLoan">Salary Loan</option>
+                <option value="calamityLoan">Calamity Loan</option>
+                <option value="cashAdvance">Cash Advance (CA)</option>
+                <option value="other">Other Deduction</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label for="volDeductionAmount">Amount</label>
+              <input type="number" id="volDeductionAmount" placeholder="0.00" disabled>
+            </div>
+          </div>
+
+          <!-- Hidden by default: lalabas lang kung Cash Advance -->
+          <div id="cashAdvanceOptions" class="cash-advance-box" style="display:none;">
+            <label>
+              <input type="checkbox" id="caInstallment"> Pay by Installment
+            </label>
+
+            <div class="ca-fields" style="display:none;">
+              <div class="input-group">
+                <label for="caTotal">Total Cash Advance</label>
+                <input type="number" id="caTotal" placeholder="0.00">
+              </div>
+
+              <div class="input-group">
+                <label for="caPerCutoff">Deduction per Cutoff (15/30)</label>
+                <input type="number" id="caPerCutoff" placeholder="0.00">
+                <!-- Result preview -->
+                  <div id="caComputation" style="margin-top:8px; font-size:13px; color:#333;">
+                  </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="deduction-toggle">
+            <label class="switch">
+              <input type="checkbox" id="voluntaryToggle">
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-label">Apply Voluntary Deductions</span>
+          </div>
+        </div>
+
+       
+                    <!-- Tab 4: Attendance-Based Deduction -->
+            <div class="modal-tab-content" id="tab4modal">
+              <p class="note">
+                <b>Rate & Deduction Computation:</b><br>
+                - <strong>Rate per Day</strong> = Monthly Salary ÷ 26 (o 30)<br>
+                - <strong>Rate per Hour</strong> = Rate per Day ÷ 8<br>
+                - <strong>Rate per Minute</strong> = Rate per Hour ÷ 60<br>
+                - <strong>Deduction</strong> = (# of lates in minutes × rate/minute) + (undertime × rate/minute) + (absences × rate/day)
+              </p>
+
+              <div class="input-group">
+                <label for="dailyRate">Rate per Day</label>
+                <input type="text" id="dailyRate" placeholder="Auto-calculated" disabled>
+              </div>
+              <div class="input-group">
+                <label for="hourlyRate">Rate per Hour</label>
+                <input type="text" id="hourlyRate" placeholder="Auto-calculated" disabled>
+              </div>
+              <div class="input-group">
+                <label for="minuteRate">Rate per Minute</label>
+                <input type="text" id="minuteRate" placeholder="Auto-calculated" disabled>
+              </div>
+              <div class="input-group">
+                <label for="totalDeduction">Deduction</label>
+                <input type="text" id="totalDeduction" placeholder="Auto-calculated" disabled>
+              </div>
+            </div>
+
+
+
+       <div style="padding: 16px 24px; text-align: right;">
       <button class="btn" id="saveUpdateBtn">Save</button>
     </div>
   </div>
 </div>
+
+
 
 
 
@@ -209,7 +366,7 @@
 
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec"; // Palitan ng actual URL
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec"; 
 const SECRET_KEY = "jayryan"; // Secret key for AES
 
 if (!sessionStorage.getItem("loggedIn")) window.location.replace("login.html");
@@ -218,6 +375,9 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
   sessionStorage.clear();
   window.location.replace("login.html");
 });
+
+
+
 
 window.history.pushState(null,"",window.location.href);
 window.addEventListener("popstate",()=>{if(!sessionStorage.getItem("loggedIn"))window.location.replace("login.html");else window.history.pushState(null,"",window.location.href);});
@@ -312,18 +472,26 @@ async function loadRates(){
     if(!data||data.length===0){tbody.innerHTML="<tr><td colspan='6'>No rates found</td></tr>";return;}
     
     window.employeeRates = data.map(emp => ({
-      id: emp.id || "",
-      name: emp.employeeName || "UNKNOWN",
-      area: emp.area || "-",
-      designation: emp.designation || "-",
-      monthlySalary: emp.basicmonthlySalary ? Number(emp.basicmonthlySalary).toFixed(2) : "0.00",
-      mandatoryDeduction: emp.mandatoryDeduction || "",
-      applyMandatoryAll: emp.applyMandatoryAll || false,
-      voluntaryDeduction: emp.voluntaryDeduction || "",
-      voluntaryStart: emp.voluntaryStart || "",
-      voluntaryEnd: emp.voluntaryEnd || "",
-      attendanceDeduction: emp.attendanceDeduction || ""
-    }));
+  id: emp.id || "",
+  name: emp.employeeName || "UNKNOWN",
+  area: emp.area || "-",
+  designation: emp.designation || "-",
+  monthlySalary: emp.basicmonthlySalary ? Number(emp.basicmonthlySalary).toFixed(2) : "0.00",
+
+  // Mandatory deductions (manual input)
+  sssDeduction: emp.sssDeduction || "",         // SSS deduction
+  phicDeduction: emp.phicDeduction || "",       // PhilHealth deduction
+  hdmfDeduction: emp.hdmfDeduction || "",       // Pag-IBIG deduction
+  applyMandatoryAll: emp.applyMandatoryAll || false, // Checkbox para apply lahat ng mandatory
+
+  // Voluntary deductions
+  voluntaryDeduction: emp.voluntaryDeduction || "",
+  voluntaryStart: emp.voluntaryStart || "",
+  voluntaryEnd: emp.voluntaryEnd || "",
+
+  attendanceDeduction: emp.attendanceDeduction || ""
+}));
+
 
     renderRates(window.employeeRates);
   }catch(err){console.error(err);tbody.innerHTML="<tr><td colspan='6'>Error loading rates</td></tr>";}
@@ -370,46 +538,50 @@ document.getElementById("rateSearch").addEventListener("input",()=>{
 
 // ---------------- Tab3: Payroll Printing ----------------
 async function loadTab3Data(){
-  const tbody=document.getElementById("tab3Body");
-  tbody.innerHTML="<tr><td colspan='17'>Loading...</td></tr>";
+  const tbody = document.getElementById("tab3Body");
+  tbody.innerHTML = "<tr><td colspan='17'>Loading...</td></tr>";
   try{
-    const res=await fetch(WEB_APP_URL,{method:"POST",body:new URLSearchParams({action:"getRates"})});
-    const data=await res.json();
-    if(!data||data.length===0){tbody.innerHTML="<tr><td colspan='17'>No data found</td></tr>";return;}
-    tbody.innerHTML="";
-    data.forEach(emp=>{
-      const days=30; // placeholder # of days
-      const ratePerDay=(emp.basicmonthlySalary/30).toFixed(2);
-      const ratePerHour=(ratePerDay/8).toFixed(2);
-      const totalBasicPay=emp.basicmonthlySalary.toFixed(2);
-      const allowance=emp.allowance||0;
-      const restday=0,overtime=0,phic=0,hdmf=0,sss=0,salaryAdv=0,late=0;
-      const netPay=(parseFloat(totalBasicPay)+parseFloat(allowance)-phic-hdmf-sss-salaryAdv-late).toFixed(2);
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: new URLSearchParams({ action: "payroll" })
+    });
+    const data = await res.json();
 
-      const row=`<tr>
-        <td>${emp.employeeName}</td>
-        <td>${emp.designation||""}</td>
-        <td>${Number(emp.basicmonthlySalary).toLocaleString()}</td>
-        <td>${Number(ratePerDay).toLocaleString()}</td>
-        <td>${ratePerHour}</td>
-        <td>${days}</td>
-        <td>${Number(totalBasicPay).toLocaleString()}</td>
-        <td>${allowance}</td>
-        <td>${restday}</td>
-        <td>${overtime}</td>
-        <td>${phic}</td>
-        <td>${hdmf}</td>
-        <td>${sss}</td>
-        <td>${salaryAdv}</td>
-        <td>${late}</td>
-        <td>${Number(netPay).toLocaleString()}</td>
+    if(!data || data.length === 0){
+      tbody.innerHTML = "<tr><td colspan='17'>No data found</td></tr>";
+      return;
+    }
+
+    tbody.innerHTML = "";
+    data.forEach(emp=>{
+      const row = `<tr>
+        <td>${emp.name}</td>
+        <td>${emp.designation || ""}</td>
+        <td>${Number(emp.monthly).toLocaleString()}</td>
+        <td>${(emp.totalBasic/emp.days || 0).toFixed(2)}</td>
+        <td>${((emp.totalBasic/emp.days || 0)/8).toFixed(2)}</td>
+        <td>${emp.days}</td>
+        <td>${Number(emp.totalBasic).toLocaleString()}</td>
+        <td>${emp.allowance}</td>
+        <td>${emp.restday || 0}</td>
+        <td>${emp.overtime || 0}</td>
+        <td>${emp.phic}</td>
+        <td>${emp.hdmf}</td>
+        <td>${emp.sss}</td>
+        <td>${emp.salaryAdv}</td>
+        <td>${emp.lateUndertime}</td>
+        <td>${Number(emp.netPay).toLocaleString()}</td>
         <td></td>
       </tr>`;
-      tbody.insertAdjacentHTML("beforeend",row);
+      tbody.insertAdjacentHTML("beforeend", row);
     });
     computeTotals();
-  }catch(err){console.error(err); tbody.innerHTML="<tr><td colspan='17'>Error loading data</td></tr>";}
+  }catch(err){
+    console.error(err);
+    tbody.innerHTML="<tr><td colspan='17'>Error loading data</td></tr>";
+  }
 }
+
 
 // ---------------- Download Excel ----------------
 function downloadExcel(){
@@ -482,7 +654,7 @@ closeQrBtn.addEventListener("click", () => {
   // Reset toggle and disable fields
   empDesignation.disabled = true;
   empSalary.disabled = true;
-  toggleEditBtn.textContent = "Edit Details";
+  toggleEditBtnAdd.textContent = "Edit Details";
 });
 
 window.addEventListener("click", e => { if(e.target===qrModal) qrModal.classList.remove("show"); });
@@ -500,18 +672,52 @@ function closeModal(modalId){
 }
 
 // --- Toggle Designation & Salary ---
-const toggleEditBtn = document.getElementById("toggleEditBtn");
+const toggleEditBtnAdd = document.getElementById("toggleEditBtnAdd");
 const empDesignation = document.getElementById("empDesignation");
 const empSalary = document.getElementById("empSalary");
 
-toggleEditBtn.addEventListener("click", () => {
+toggleEditBtnAdd.addEventListener("click", () => {
   const editable = empDesignation.disabled; // true if currently disabled
   empDesignation.disabled = !editable;
   empSalary.disabled = !editable;
   empDesignation.style.backgroundColor = editable ? "#fff" : "#f0f0f0";
   empSalary.style.backgroundColor = editable ? "#fff" : "#f0f0f0";
-  toggleEditBtn.textContent = editable ? "Lock Details" : "Edit Details";
+  toggleEditBtnAdd.textContent = editable ? "Lock Details" : "Edit Details";
 });
+
+const toggleEditUpdate = document.getElementById("toggleEditUpdate");
+const empDesignationUp = document.getElementById("empDesignationUp");
+const empSalaryUp = document.getElementById("empSalaryUp");
+
+// toggle handler
+toggleEditUpdate.addEventListener("change", () => {
+  if (toggleEditUpdate.checked) {
+    empDesignationUp.disabled = false;
+    empSalaryUp.disabled = false;
+    empDesignationUp.style.backgroundColor = "#fff";
+    empSalaryUp.style.backgroundColor = "#fff";
+  } else {
+    empDesignationUp.disabled = true;
+    empSalaryUp.disabled = true;
+    empDesignationUp.style.backgroundColor = "#e9ecef";
+    empSalaryUp.style.backgroundColor = "#e9ecef";
+  }
+});
+
+// ✅ force reset on page load
+window.addEventListener("load", () => {
+  toggleEditUpdate.checked = false;
+  empDesignationUp.disabled = true;
+  empSalaryUp.disabled = true;
+  empDesignationUp.style.backgroundColor = "#e9ecef";
+  empSalaryUp.style.backgroundColor = "#e9ecef";
+});
+
+
+
+
+
+
 
 // --- Pending Employees after QR scan ---
 window.pendingEmployees = [];
@@ -720,8 +926,8 @@ function openUpdateEmployeeModal(emp) {
   document.getElementById("empSalaryUp").value = emp.monthlySalary || "";
 
   // Enable editing if you want
-  document.getElementById("empDesignationUp").disabled = false;
-  document.getElementById("empSalaryUp").disabled = false;
+  document.getElementById("empDesignationUp").disabled = true;
+  document.getElementById("empSalaryUp").disabled = true;
 
   // Show modal
   document.getElementById("updateModal").classList.add("show");
@@ -738,12 +944,23 @@ document.getElementById("closeModal").addEventListener("click", () => {
   
 // --- Save Update Button ---
 document.getElementById("saveUpdateBtn").addEventListener("click", async () => {
+  // Employee Information
   const id = document.getElementById("empIDUp").value.trim();
+  const name = document.getElementById("empNameUp").value.trim();
+  const area = document.getElementById("empAreaUp").value.trim();
   const designation = document.getElementById("empDesignationUp").value.trim();
   const salary = document.getElementById("empSalaryUp").value.trim();
 
-  if (!id || !designation || !salary) {
-    alert("⚠️ Please fill in all fields!");
+  // Mandatory Deductions
+  const phic = document.getElementById("phicDeduction")?.value.trim() || "";
+  const hdmf = document.getElementById("hdmfDeduction")?.value.trim() || "";
+  const sss = document.getElementById("sssDeduction")?.value.trim() || "";
+
+  // Voluntary Deductions
+  const voluntary = document.getElementById("empVoluntaryUp")?.value.trim() || "";
+
+  if (!id || !name) {
+    alert("⚠️ Missing Employee ID or Name!");
     return;
   }
 
@@ -751,10 +968,16 @@ document.getElementById("saveUpdateBtn").addEventListener("click", async () => {
     const res = await fetch(WEB_APP_URL, {
       method: "POST",
       body: new URLSearchParams({
-        action: "updateEmployee",
+        action: "updateEmployeeAll",
         id,
+        name,
+        area,
         designation,
-        salary
+        salary,
+        phic,
+        hdmf,
+        sss,
+        voluntary
       })
     });
 
@@ -762,7 +985,7 @@ document.getElementById("saveUpdateBtn").addEventListener("click", async () => {
     console.log("Update response:", result);
 
     if (result === "OK") {
-      alert("✅ Employee updated successfully!");
+      alert("✅ Employee info and deductions updated successfully!");
       document.getElementById("updateModal").classList.remove("show");
       loadRates(); // refresh table
     } else if (result === "NOT_FOUND") {
@@ -776,31 +999,106 @@ document.getElementById("saveUpdateBtn").addEventListener("click", async () => {
   }
 });
 
-document.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("deleteBtn")) {
-    const empId = e.target.dataset.id;
-    if (!confirm("Are you sure you want to delete this employee?")) return;
 
-    try {
-      const res = await fetch(scriptURL, {
-        method: "POST",
-        body: new URLSearchParams({
-          action: "deleteEmployee",
-          id: empId
-        })
-      });
-      const result = await res.json();
-      alert(result.message);
+const volDeductionType = document.getElementById("volDeductionType");
+const volDeductionAmount = document.getElementById("volDeductionAmount");
+const volToggle = document.getElementById("voluntaryToggle");
+const caOptions = document.getElementById("cashAdvanceOptions");
+const caInstallment = document.getElementById("caInstallment");
+const caFields = document.querySelector(".ca-fields");
 
-      if (result.success) {
-        // refresh the employee list
-        loadRates();
-      }
-    } catch (err) {
-      alert("❌ Error deleting employee: " + err.message);
-    }
+volToggle.addEventListener("change", function(){
+  const enabled = this.checked;
+  volDeductionType.disabled = !enabled;
+  volDeductionAmount.disabled = !enabled;
+  if(!enabled){
+    volDeductionType.value = "";
+    volDeductionAmount.value = "";
+    caOptions.style.display = "none";
+    caInstallment.checked = false;
+    caFields.style.display = "none";
   }
 });
+
+volDeductionType.addEventListener("change", function(){
+  volDeductionAmount.disabled = this.value === "";
+  
+  if(this.value === "cashAdvance"){
+    caOptions.style.display = "block"; // show extra options
+  } else {
+    caOptions.style.display = "none"; // hide if not CA
+    caInstallment.checked = false;
+    caFields.style.display = "none";
+  }
+});
+
+caInstallment.addEventListener("change", function(){
+  caFields.style.display = this.checked ? "grid" : "none";
+});
+volDeductionType.addEventListener("change", function(){
+  if(this.value === "cashAdvance"){
+    volDeductionAmount.disabled = true; // disable main amount input
+    volDeductionAmount.value = "";      // clear it
+    caOptions.style.display = "block";  // show extra options
+  } else {
+    volDeductionAmount.disabled = this.value === ""; // normal logic
+    caOptions.style.display = "none";   // hide CA options
+    caInstallment.checked = false;
+    caFields.style.display = "none";
+  }
+});
+
+
+
+document.getElementById("voluntaryToggle").addEventListener("change", function(){
+  const disabled = !this.checked;
+  document.querySelectorAll("#tab3modal input").forEach(inp=>{
+    if(inp.type !== "checkbox") inp.disabled = disabled;
+  });
+});
+
+// helper function para mag toggle
+function setupToggle(toggleId, inputId) {
+  const toggle = document.getElementById(toggleId);
+  const input = document.getElementById(inputId);
+
+  // default disabled + gray
+  input.disabled = true;
+  input.style.backgroundColor = "#e9ecef";
+
+  toggle.addEventListener("change", () => {
+    if (toggle.checked) {
+      input.disabled = false;
+      input.style.backgroundColor = "#fff";
+    } else {
+      input.disabled = true;
+      input.style.backgroundColor = "#e9ecef";
+    }
+  });
+}
+
+// setup bawat deduction
+setupToggle("toggleSSS", "sssDeduction");
+setupToggle("togglePHIC", "phicDeduction");
+setupToggle("toggleHDMF", "hdmfDeduction");
+
+// kapag save, lahat balik sa disabled at untoggle
+document.getElementById("saveUpdateBtn").addEventListener("click", () => {
+  ["toggleSSS", "togglePHIC", "toggleHDMF"].forEach((toggleId) => {
+    const toggle = document.getElementById(toggleId);
+    const input = document.getElementById(toggle.dataset.inputId || toggleId.replace("toggle","").toLowerCase() + "Deduction");
+    
+    toggle.checked = false;
+    input.disabled = true;
+    input.style.backgroundColor = "#e9ecef";
+  });
+
+  alert("Deductions saved successfully!");
+});
+
+
+
+
 
 </script>
 
