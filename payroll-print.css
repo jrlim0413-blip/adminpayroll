@@ -1,4 +1,6 @@
-/* ====== TAB 3 Payroll Table Styling ====== */
+  /* ====== TAB 3 Payroll Table Styling ====== */
+
+
 #tab3 table {
   width: 100%;
   border-collapse: collapse;
@@ -517,6 +519,194 @@ input[disabled] {
   border-color: #2e7d32;
   box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
 }
+
+.note {
+  background: #f9f9f9;
+  border-left: 4px solid #007aff;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 8px;
+  color: #333;
+  border-radius: 6px;
+}
+
+.deductions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.deduction-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.deduction-row .note {
+  flex: 2;
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+  background: #fdfdfd;
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.deduction-row .input-group {
+  flex: 1;
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.deduction-row .input-group label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-align: left;
+  color: #444;
+}
+
+.deduction-row .input-group input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  color: #555;
+  box-sizing: border-box;
+}
+
+
+#tab2modal input::placeholder {
+  font-size: 15px;
+  color: #888;
+}
+
+.voluntary-row {
+   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border: 1px solid #ddd;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  gap: 12px;
+}
+
+.voluntary-row .input-group {
+   flex: 0 0 250px; 
+
+
+}
+
+.voluntary-row label {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.voluntary-row select,
+.voluntary-row input {
+ width: 100%;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.voluntary-row .note {
+  flex: 1;
+  font-size: 12px;
+  margin: 0;
+}
+#cashAdvanceOptions .input-group {
+  display: flex;
+  flex-direction: column; /* stack inputs vertically */
+  gap: 8px;               /* space between inputs */
+  flex: 0 0 250px;        /* fixed width para di lumampas */
+}
+
+#cashAdvanceOptions .input-group input[type="number"] {
+  width: 100%; 
+  box-sizing: border-box;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.cash-advance-box {
+  margin-top: 15px;
+  padding: 10px;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 6px;
+  background: #f9f9f9;
+}
+
+.cash-advance-box label {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cash-advance-box .ca-fields {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.cash-advance-box .input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.cash-advance-box input {
+  padding: 6px 10px;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+
+#tab4modal .note {
+  background: #fff8dc;
+  border-left: 5px solid #f39c12;
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+#tab4modal .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+#tab4modal .input-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+}
+
 
 
 
