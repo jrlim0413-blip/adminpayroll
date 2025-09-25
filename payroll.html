@@ -15,12 +15,129 @@
 </style>
 </head>
 <body>
+<div class="payroll-modal-overlay" id="payrollModalOverlay">
+    <div class="payroll-modal" id="payrollModalBox">
+      <div class="payroll-modal-header">Payroll Settings</div>
+      <div class="payroll-modal-body">
+        <table>
+          <thead>
+            <tr>
+              <th rowspan="2">Area</th>
+              <th colspan="2">Rates</th>
+              <th colspan="3">Cut-Off</th>
+            </tr>
+            <tr>
+              <th>Fixed Rate</th>
+              <th>Daily Rate</th>
+              <th>Monthly</th>
+              <th>Semi Monthly</th>
+              <th>Weekly</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ADMIN</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+            <tr>
+              <td>AWANG</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+            <tr>
+              <td>SOUTH UPI</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+            <tr>
+              <td>NORTH UPI</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+            <tr>
+              <td>PARANG</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+            <tr>
+              <td>COTABATO</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+            <tr>
+              <td>ILIGAN</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+            <tr>
+              <td>WAO</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+            <tr>
+              <td>LALA</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="payroll-modal-footer">
+        <button class="payroll-btn payroll-btn-close" onclick="closePayrollModal()">Cancel</button>
+        <button class="payroll-btn payroll-btn-primary" onclick="savePayrollSettings()">Save</button>
+      </div>
+    </div>
+  </div>
+ 
 
   
-<header>
-  Payroll System
-  <button id="logoutBtn">Logout</button>
-  <button id="themeToggle">Dark Mode</button>
+<header class="payroll-header">
+ <div class="header-title"> Payroll System</div>
+  <div class="header-actions">
+    <!-- Settings Dropdown -->
+    <div class="settings-dropdown">
+      <button class="settings-btn">
+        ⚙️
+      </button>
+      <div class="settings-menu">
+            <h3 class="title">Settings</h3>
+
+            <button onclick="openPayrollModal()" class="payroll-btn-primary payroll-btn" id="payrollbtn">Payroll Settings</button>
+            <button id="themeToggle">Dark Mode</button>
+            <button id="logoutBtn">Logout</button>
+
+      </div>
+    </div>
+  </div>
+
 </header>
 
 <div class="tabs">
@@ -361,11 +478,45 @@
   </div>
 </div>
 
- 
-
-
+  
 
 <script>
+  function openPayrollModal() {
+      document.getElementById("payrollModalOverlay").style.display = "flex";
+      setTimeout(() => {
+        document.getElementById("payrollModalBox").classList.add("show");
+      }, 10);
+    }
+
+    function closePayrollModal() {
+      const modal = document.getElementById("payrollModalBox");
+      modal.classList.remove("show");
+      setTimeout(() => {
+        document.getElementById("payrollModalOverlay").style.display = "none";
+      }, 300);
+    }
+
+    function savePayrollSettings() {
+      alert("Payroll settings saved!");
+      closePayrollModal();
+    }
+
+
+    const settingsBtn = document.querySelector('.settings-btn');
+    const settingsDropdown = document.querySelector('.settings-dropdown');
+
+    settingsBtn.addEventListener('click', () => {
+      settingsDropdown.classList.toggle('show');
+    });
+
+    // Close dropdown kapag nag-click sa labas
+    window.addEventListener('click', (e) => {
+      if (!e.target.closest('.settings-dropdown')) {
+        settingsDropdown.classList.remove('show');
+      }
+    });
+
+
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec"; 
 const SECRET_KEY = "jayryan"; // Secret key for AES
 
@@ -383,25 +534,35 @@ window.history.pushState(null,"",window.location.href);
 window.addEventListener("popstate",()=>{if(!sessionStorage.getItem("loggedIn"))window.location.replace("login.html");else window.history.pushState(null,"",window.location.href);});
 
 const toggleBtn = document.getElementById('themeToggle');
-let darkMode=false;
-toggleBtn.addEventListener('click',()=>{
-  darkMode=!darkMode;
-  if(darkMode){
-    document.documentElement.style.setProperty('--bg-color','#1c1c1e');
-    document.documentElement.style.setProperty('--text-color','#f2f2f7');
-    document.documentElement.style.setProperty('--card-bg','#2c2c2e');
-    document.documentElement.style.setProperty('--border-color','#3a3a3c');
-    document.documentElement.style.setProperty('--tab-active','#0a84ff');
-    toggleBtn.textContent='Light Mode';
-  }else{
-    document.documentElement.style.setProperty('--bg-color','#f2f2f7');
-    document.documentElement.style.setProperty('--text-color','#1c1c1e');
-    document.documentElement.style.setProperty('--card-bg','#fff');
-    document.documentElement.style.setProperty('--border-color','#d1d1d6');
-    document.documentElement.style.setProperty('--tab-active','#007aff');
-    toggleBtn.textContent='Dark Mode';
-  }
+let darkMode = localStorage.getItem("theme") === "dark";
+
+// Apply initial theme
+applyTheme(darkMode);
+
+toggleBtn.addEventListener('click', () => {
+  darkMode = !darkMode;
+  applyTheme(darkMode);
+  localStorage.setItem("theme", darkMode ? "dark" : "light");
 });
+
+function applyTheme(isDark) {
+  if (isDark) {
+    document.documentElement.style.setProperty('--bg-color', '#1c1c1e');
+    document.documentElement.style.setProperty('--text-color', '#f2f2f7');
+    document.documentElement.style.setProperty('--card-bg', '#2c2c2e');
+    document.documentElement.style.setProperty('--border-color', '#3a3a3c');
+    document.documentElement.style.setProperty('--tab-active', '#0a84ff');
+    toggleBtn.textContent = '☀️ Light Mode';
+  } else {
+    document.documentElement.style.setProperty('--bg-color', '#f2f2f7');
+    document.documentElement.style.setProperty('--text-color', '#1c1c1e');
+    document.documentElement.style.setProperty('--card-bg', '#fff');
+    document.documentElement.style.setProperty('--border-color', '#d1d1d6');
+    document.documentElement.style.setProperty('--tab-active', '#007aff');
+    toggleBtn.textContent = '🌙 Dark Mode';
+  }
+}
+
 
 document.querySelectorAll(".tab").forEach(tab=>{
   tab.addEventListener("click",()=>{
@@ -1101,6 +1262,5 @@ document.getElementById("saveUpdateBtn").addEventListener("click", () => {
 
 
 </script>
-
 </body>
 </html>
