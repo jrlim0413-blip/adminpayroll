@@ -119,32 +119,54 @@
  
 
   
-<header class="payroll-header">
- <div class="header-title"> Payroll System</div>
-  <div class="header-actions">
-    <!-- Settings Dropdown -->
+<header class="ios-header">
+  <div class="ios-logo">
+    <img src="https://i.imgur.com/6SF5KQG.png" alt="Logo">
+    <span class="app-name">Payroll System</span>
+  </div>
+
+  <div class="ios-right">
+    <div class="ios-tabs">
+      <!-- Only Attendance Logs is a main tab -->
+      <div class="ios-tab ios-tab--simple tab" data-tab="logs" data-target="logs">Attendance Logs</div>
+
+      <!-- Adjustments dropdown -->
+      <div class="ios-tab ios-tab--dropdown" data-dropdown="adjustmentsMenu">
+        Adjustments <span class="chev">▾</span>
+        <div class="ios-dropdown" id="adjustmentsMenu">
+          <a href="#" data-target="tab2">Deduction</a>
+          <a href="#" data-target="tabX">Addition</a>
+          <a href="#" data-target="tabY">Exempted</a>
+        </div>
+      </div>
+
+      <!-- Reports dropdown -->
+      <div class="ios-tab ios-tab--dropdown" data-dropdown="reportsMenu">
+        Reports <span class="chev">▾</span>
+        <div class="ios-dropdown" id="reportsMenu">
+          <a href="#" data-target="tab3">Payroll</a>
+          <a href="#" data-target="tab4">Time In Per Area</a>
+          <a href="#" data-target="tab5">13th Month Pay</a>
+        </div>
+      </div>
+  </div>
+    </div>
+
+    <!-- Settings -->
     <div class="settings-dropdown">
-      <button class="settings-btn">
-        ⚙️
-      </button>
+      <button class="settings-btn">⚙️</button>
       <div class="settings-menu">
-            <h3 class="title">Settings</h3>
-
-            <button onclick="openPayrollModal()" class="payroll-btn-primary payroll-btn" id="payrollbtn">Payroll Settings</button>
-            <button id="themeToggle">Dark Mode</button>
-            <button id="logoutBtn">Logout</button>
-
+        <h3 class="title">Settings</h3>
+        <button onclick="openPayrollModal()">Payroll Settings</button>
+        <button id="themeToggle">Dark Mode</button>
+        <button id="logoutBtn">Logout</button>
       </div>
     </div>
   </div>
 
+
 </header>
 
-<div class="tabs">
-  <div class="tab active" data-tab="logs">Attendance Logs</div>
-  <div class="tab" data-tab="tab2">Employee Deductions</div>
-  <div class="tab" data-tab="tab3">Printing Section</div>
-</div>
 
 <div class="tab-content active" id="logs">
   <div class="filters">
@@ -1256,8 +1278,63 @@ document.getElementById("saveUpdateBtn").addEventListener("click", () => {
 
   alert("Deductions saved successfully!");
 });
+document.querySelectorAll('.ios-tab--dropdown').forEach(tab => {
+  tab.addEventListener('click', function (e) {
+    e.stopPropagation(); // para hindi agad magsara
 
+    let dropdownId = this.getAttribute('data-dropdown');
+    let dropdown = document.getElementById(dropdownId);
 
+    // isara muna lahat ng dropdowns
+    document.querySelectorAll('.ios-dropdown').forEach(menu => {
+      if (menu !== dropdown) menu.style.display = "none";
+    });
+
+    // toggle yung napiling dropdown
+    dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+  });
+});
+
+// kapag nag-click sa labas ng header, isasara lahat ng dropdowns
+window.addEventListener('click', function () {
+  document.querySelectorAll('.ios-dropdown').forEach(menu => {
+    menu.style.display = "none";
+  });
+});
+
+// Attendance Logs (main tab button)
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    // remove all active
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+
+    // activate selected
+    tab.classList.add("active");
+    document.getElementById(tab.dataset.tab).classList.add("active");
+  });
+});
+
+// Dropdown links (Adjustments + Reports)
+document.querySelectorAll("[data-target]").forEach(link=>{
+  link.addEventListener("click", function(e){
+    e.preventDefault();
+
+    const targetId = this.dataset.target;
+
+    // remove all active
+    document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+
+    // activate the selected section
+    document.getElementById(targetId).classList.add("active");
+
+    // load functions kung meron
+    if(targetId==="tab2") loadRates();
+    if(targetId==="tab3") loadTab3Data(); // payroll na ito
+    if(targetId==="tab4") loadTimeInArea();
+    if(targetId==="tab5") load13thMonth();
+  });
+});
 
 
 
