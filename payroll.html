@@ -107,6 +107,47 @@
               <td><input type="checkbox"></td>
               <td><input type="checkbox"></td>
             </tr>
+            <tr>
+              <td>BALOI</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+            <tr>
+              <td>MARAWI</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+            <tr>
+              <td>MALABANG</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+            <tr>
+              <td>BALAGAN</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+            <tr>
+              <td>SET B ILIGAN</td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
           </tbody>
         </table>
       </div>
@@ -134,8 +175,7 @@
       <div class="ios-tab ios-tab--dropdown" data-dropdown="adjustmentsMenu">
         Adjustments <span class="chev">▾</span>
         <div class="ios-dropdown" id="adjustmentsMenu">
-          <a href="#" data-target="tab2">Deduction</a>
-          <a href="#" data-target="tabX">Addition</a>
+          <a href="#" data-target="tab2">Addition & Deduction</a>
           <a href="#" data-target="tabY">Exempted</a>
         </div>
       </div>
@@ -518,10 +558,35 @@
       }, 300);
     }
 
-    function savePayrollSettings() {
+   function savePayrollSettings() {
+  const table = document.querySelector("#payrollModalBox tbody");
+  const rows = table.querySelectorAll("tr");
+  const data = [];
+
+  rows.forEach(row => {
+    const cells = row.querySelectorAll("td");
+    const area = cells[0].textContent.trim();
+    const fixed = cells[1].querySelector("input").checked ? 1 : 0;
+    const daily = cells[2].querySelector("input").checked ? 1 : 0;
+    const monthly = cells[3].querySelector("input").checked ? 1 : 0;
+    const semi = cells[4].querySelector("input").checked ? 1 : 0;
+    const weekly = cells[5].querySelector("input").checked ? 1 : 0;
+
+    data.push({ area, fixed, daily, monthly, semi, weekly });
+  });
+
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `action=savePayrollSettings&data=${encodeURIComponent(JSON.stringify(data))}`
+  })
+    .then(res => res.text())
+    .then(res => {
       alert("Payroll settings saved!");
       closePayrollModal();
-    }
+    })
+    .catch(err => console.error("Error saving payroll settings:", err));
+}
 
 
     const settingsBtn = document.querySelector('.settings-btn');
@@ -680,26 +745,55 @@ async function loadRates(){
   }catch(err){console.error(err);tbody.innerHTML="<tr><td colspan='6'>Error loading rates</td></tr>";}
 }
 
+
+function preloadEmployees() {
+  fetch(`${WEB_APP_URL}?action=getAllEmployeesWithDeductions`)
+    .then(res => res.json())
+    .then(data => {
+      employeesData = data; // lahat ng deductions kasama
+      renderEmployeeTable(data); // i-populate ang table
+    })
+    .catch(err => console.error("Failed to preload employees:", err));
+}
+
+// Call on page load
+preloadEmployees();
+
 function renderRates(rates){
-  const tbody=document.getElementById("ratesTable");tbody.innerHTML="";
-  if(rates.length===0){tbody.innerHTML="<tr><td colspan='6'>No matching employees</td></tr>";return;}
-  rates.forEach(emp=>{
-    const row=document.createElement("tr");
-    row.innerHTML=`
+  const tbody = document.getElementById("ratesTable");
+  tbody.innerHTML = "";
+
+  if(rates.length === 0){
+    tbody.innerHTML = "<tr><td colspan='6'>No matching employees</td></tr>";
+    return;
+  }
+
+  rates.forEach(emp => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
       <td>${emp.id}</td>
       <td>${emp.name}</td>
       <td>${emp.area}</td>
       <td>${emp.designation}</td>
       <td>₱${emp.monthlySalary}</td>
       <td>
-        <button class="update-btn"  onclick='openUpdateEmployeeModal(${JSON.stringify(emp)})'>✏️ Update Information</button>
-
+        <button class="addition-btn">➕ Addition</button>
+        <button class="update-btn">➖ Deduction</button>
+      </td>
     `;
+
     tbody.appendChild(row);
-    const btn = row.querySelector(".update-btn");
-    btn.addEventListener("click", () => openUpdateEmployeeModal(emp));
+
+    // Add event listeners safely
+    const updateBtn = row.querySelector(".update-btn");
+    updateBtn.addEventListener("click", () => openUpdateEmployeeModal(emp));
+
+    const additionBtn = row.querySelector(".addition-btn");
+    additionBtn.addEventListener("click", () => openAdditionModal(emp));
   });
 }
+
 
 
 
@@ -1099,23 +1193,88 @@ document.getElementById("submitQRBtn").addEventListener("click", async () => {
 });
 
 
+let employeesData = [];
+
+// ----------------------
+// 1️⃣ Preload all employees
+// ----------------------
+function preloadEmployees() {
+  fetch(`${WEB_APP_URL}?action=getAllEmployeesWithDeductions`)
+    .then(res => res.json())
+    .then(data => {
+      employeesData = data; // lahat ng deductions kasama
+      renderEmployeeTable(data); // optional kung gusto mo ipakita sa table
+    })
+    .catch(err => console.error("Failed to preload employees:", err));
+}
+
+// ----------------------
+// 2️⃣ Render employee table (optional)
+// ----------------------
+function renderEmployeeTable(data) {
+  const tbody = document.getElementById("ratesTable");
+  tbody.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = "<tr><td colspan='6'>No employees found</td></tr>";
+    return;
+  }
+
+  data.forEach(emp => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${emp.id}</td>
+      <td>${emp.name}</td>
+      <td>${emp.area}</td>
+      <td>${emp.designation}</td>
+      <td>₱${emp.monthlySalary}</td>
+      <td>
+        <button class="update-btn">➖ Deduction</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+
+    // Click event → instant modal fill
+    const btn = row.querySelector(".update-btn");
+    btn.addEventListener("click", () => openUpdateEmployeeModal(emp));
+  });
+}
+
+// ----------------------
+// 3️⃣ Open update modal instantly
+// ----------------------
 function openUpdateEmployeeModal(emp) {
-   console.log("EMP object received:", emp);
-  // Fill fields
+  console.log("EMP object received:", emp);
+
+  // Fill basic info
   document.getElementById("empNameUp").value = emp.name || "";
   document.getElementById("empIDUp").value = emp.id || "";
   document.getElementById("empAreaUp").value = emp.area || "";
   document.getElementById("empDesignationUp").value = emp.designation || "";
   document.getElementById("empSalaryUp").value = emp.monthlySalary || "";
 
-  // Enable editing if you want
+  // Fill deductions instantly
+  document.getElementById("phicDeduction").value = emp.phicDeduction || 0;
+  document.getElementById("hdmfDeduction").value = emp.hdmfDeduction || 0;
+  document.getElementById("sssDeduction").value = emp.sssDeduction || 0;
+
+  // Lock fields if needed
   document.getElementById("empDesignationUp").disabled = true;
   document.getElementById("empSalaryUp").disabled = true;
 
   // Show modal
-  document.getElementById("updateModal").classList.add("show");
+  const modal = document.getElementById("updateModal");
+  modal.classList.add("show");
+  modal.style.display = "flex";
 }
 
+// ----------------------
+// 4️⃣ Initialize on page load
+// ----------------------
+document.addEventListener("DOMContentLoaded", preloadEmployees);
+
+
+// ✅ Move this outside the function
 document.getElementById("closeModal").addEventListener("click", () => {
   document.getElementById("updateModal").classList.remove("show");
 
@@ -1245,20 +1404,26 @@ function setupToggle(toggleId, inputId) {
   const toggle = document.getElementById(toggleId);
   const input = document.getElementById(inputId);
 
-  // default disabled + gray
+  // Default: disabled
   input.disabled = true;
-  input.style.backgroundColor = "#e9ecef";
 
   toggle.addEventListener("change", () => {
     if (toggle.checked) {
+      // Enable editing
       input.disabled = false;
       input.style.backgroundColor = "#fff";
+      input.style.fontStyle = "normal";
+      input.style.color = "#000";
     } else {
+      // Disable again, keep value
       input.disabled = true;
-      input.style.backgroundColor = "#e9ecef";
+      input.style.backgroundColor = "#f1f1f1";
+      input.style.fontStyle = "italic";
+      input.style.color = "#555";
     }
   });
 }
+
 
 // setup bawat deduction
 setupToggle("toggleSSS", "sssDeduction");
