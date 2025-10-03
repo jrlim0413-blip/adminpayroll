@@ -185,7 +185,7 @@
         Reports <span class="chev">▾</span>
         <div class="ios-dropdown" id="reportsMenu">
           <a href="#" data-target="tab3">Payroll</a>
-          <a href="#" data-target="tab4">Time In Per Area</a>
+          <a href="#" data-target="tab4">Time In / Time Out</a>
           <a href="#" data-target="tab5">13th Month Pay</a>
         </div>
       </div>
@@ -526,8 +526,6 @@
       </tfoot>
     </table>
   </div>
-
-
 <!-- Signatories -->
 <div style="margin-left:500px; display:flex; justify-content:space-between; width:100%;">
   <div style="text-align:center;">
@@ -537,6 +535,40 @@
   <div style="text-align:center; margin-right:1000px;" >
     <p>Reviewed & Released by:</p>
     <p><u>JEVINCE JAYE S. JUBAY</u><br>HRMD Manager</p>
+  </div>
+</div>
+</div>
+
+<div class="tab-content" id="tab4">
+  <div class="print-controls">
+   <label>Date Covered: 
+      <input type="date" id="timeinStart"> - 
+      <input type="date" id="timeinEnd">
+  </label>
+   <label>Area: 
+    <select id="areaFilter">
+      <option value="">All Areas</option> <!-- default: show all -->
+    </select>
+  </label>
+
+    <button onclick="loadTimeInArea()">🔍 Apply Filter</button>
+    <button onclick="window.print()">🖨 Print</button>
+    <button onclick="downloadTimeInExcel()">⬇ Download Excel</button>
+
+  </div>
+
+  <h3 style="text-align:center;margin:0;">SIMPAL GROUP OF COMPANIES</h3>
+  <p style="text-align:center;margin:0;">TIME IN / TIME OUT REPORT</p>
+  <p style="text-align:center;margin:0;">DATE COVERED: <span id="dateRangeLabel"></span></p>
+
+  <div class="table-container">
+    <table id="tab4Table" border="1">
+      <!-- Dynamic header & body will be injected -->
+      <thead id="tab4Head"></thead>
+      <tbody id="tab4Body">
+        <tr><td>Loading...</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
@@ -1501,6 +1533,177 @@ document.querySelectorAll("[data-target]").forEach(link=>{
   });
 });
 
+  function formatTime(dateStr) {
+    if (!dateStr) return "-";
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return "-"; // kapag invalid
+    return d.toLocaleTimeString("en-PH", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
+    });
+  }
+
+
+
+function renderTimeInOutReport(logs) {
+  const tableHead = document.getElementById("tab4Head");
+  const tableBody = document.getElementById("tab4Body");
+
+  tableHead.innerHTML = "";
+  tableBody.innerHTML = "";
+
+  if (!logs || logs.length === 0) {
+    tableBody.innerHTML = "<tr><td colspan='100%'>No records found</td></tr>";
+    return;
+  }
+
+  // ✅ Apply area filter
+  const selectedArea = document.getElementById("areaFilter").value;
+  const filteredLogs = selectedArea ? logs.filter(l => l.area === selectedArea) : logs;
+
+  if (!filteredLogs.length) {
+    tableBody.innerHTML = "<tr><td colspan='100%'>No records found</td></tr>";
+    return;
+  }
+
+  // ✅ Unique dates
+  const allDates = [...new Set(filteredLogs.map(l => l.date))].sort();
+
+ // ✅ HEADER: Row 1 (dates only)
+let headerRow1 = "<tr><th></th>"; // empty for EMPLOYEE NAME
+allDates.forEach(d => {
+  headerRow1 += `<th colspan='2'>${d}</th>`;
+});
+headerRow1 += "</tr>";
+
+// ✅ HEADER: Row 2 (EMPLOYEE NAME + IN/OUT)
+let headerRow2 = "<tr><th>EMPLOYEE NAME</th>";
+allDates.forEach(() => {
+  headerRow2 += "<th>IN</th><th>OUT</th>";
+});
+headerRow2 += "</tr>";
+
+tableHead.innerHTML = headerRow1 + headerRow2;
+
+
+  // ✅ Group logs by employee
+  const grouped = {};
+  filteredLogs.forEach(log => {
+    if (!grouped[log.name]) grouped[log.name] = {};
+    grouped[log.name][log.date] = log;
+  });
+
+  // ✅ BODY rows
+  Object.keys(grouped).forEach(name => {
+    let rowHtml = `<tr><td class="nameCell">${name}</td>`;
+
+    allDates.forEach(d => {
+      const log = grouped[name][d];
+      if (log) {
+        rowHtml += `<td>${formatTime(log.timeIn)}</td><td>${formatTime(log.timeOut)}</td>`;
+      } else {
+        rowHtml += "<td>-</td><td>-</td>";
+      }
+    });
+
+    rowHtml += "</tr>";
+    tableBody.innerHTML += rowHtml;
+  });
+
+  // ✅ AUTO ADJUST: Make columns fit content
+  const table = document.getElementById("tab4Table");
+  const nameCells = table.querySelectorAll("th:first-child, td.nameCell");
+
+  // Sticky first column
+  nameCells.forEach(cell => {
+    cell.style.position = "sticky";
+    cell.style.left = "0";
+    cell.style.background = "#f0f0f0";
+    cell.style.zIndex = 3;
+    cell.style.paddingLeft = "5px";
+    cell.style.textAlign = "left";
+    cell.style.whiteSpace = "nowrap"; // prevent line break
+  });
+
+  // Let other columns auto-fit content
+  table.querySelectorAll("thead th:not(:first-child), tbody td:not(.nameCell)").forEach(cell => {
+    cell.style.whiteSpace = "nowrap";  // optional: prevents breaking
+    cell.style.textAlign = "center";
+  });
+}
+
+
+function formatTime(timeStr) {
+  if (!timeStr) return "-";
+  const d = new Date(timeStr);
+  if (isNaN(d.getTime())) return "-";
+
+  let hours = d.getHours();
+  const minutes = d.getMinutes().toString().padStart(2, "0");
+
+  // Convert to 12-hour format
+  hours = hours % 12;
+  if (hours === 0) hours = 12; // midnight/noon correction
+
+  return `${hours}:${minutes}`; // ✅ 12-hour without AM/PM
+}
+
+
+
+async function loadTimeInArea() {
+  const start = document.getElementById("timeinStart").value;
+  const end = document.getElementById("timeinEnd").value;
+  
+  document.getElementById("dateRangeLabel").textContent = `${start} - ${end}`;
+
+  try {
+    const res = await fetch(
+      `https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec?action=getTimeLogs&start=${start}&end=${end}`
+    );
+    const data = await res.json();
+
+    console.log("Logs response:", data); // 🟢 DEBUG
+
+    if (!Array.isArray(data)) {
+      document.getElementById("tab4Body").innerHTML =
+        "<tr><td colspan='4'>No valid data found</td></tr>";
+      return;
+    }
+
+    // Populate area dropdown dynamically
+    populateAreaDropdown(data);
+
+    // Render table initially with all data
+    renderTimeInOutReport(data);
+
+  } catch (err) {
+    console.error("Fetch error:", err);
+    document.getElementById("tab4Body").innerHTML =
+      "<tr><td colspan='4'>Error loading data</td></tr>";
+  }
+}
+
+function populateAreaDropdown(data) {
+  const areaSelect = document.getElementById("areaFilter");
+
+  // Get unique areas
+  const areas = [...new Set(data.map(item => item.area))].sort();
+
+  // Clear existing options except "All Areas"
+  areaSelect.innerHTML = '<option value="">All Areas</option>';
+
+  // Add options
+  areas.forEach(area => {
+    const option = document.createElement("option");
+    option.value = area;
+    option.textContent = area;
+    areaSelect.appendChild(option);
+  });
+}
+
+// ✅ Debug: check if function is defined
+console.log("populateAreaDropdown defined?", typeof populateAreaDropdown);
 
 
 </script>
