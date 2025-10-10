@@ -1,74 +1,148 @@
-  /* ====== TAB 3 Payroll Table Styling ====== */
-
-
+/* =======================
+   MAIN TABLE WRAPPER
+======================= */
 #tab3 table {
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0;
+  margin: 25px 0 40px 0;
   font-size: 14px;
   background: #fff;
   table-layout: auto;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-#tab3 th, 
+/* =======================
+   CELLS (ALL)
+======================= */
+#tab3 th,
 #tab3 td {
   border: 1px solid #ccc;
   padding: 8px 12px;
-  white-space: nowrap; /* nagpapahintulot sa text na mag-wrap */
-  word-wrap: break-word; /* pinipilit na humati ang long words */
-  max-width: 150px; /* optional, para kontrolado ang lapad ng cell */
+  white-space: nowrap;
+  word-wrap: break-word;
+  max-width: 150px;
+  vertical-align: middle;
 }
 
+/* =======================
+   AREA TITLE HEADER (ex: COTABATO)
+======================= */
+#tab3 .area-header td {
+  background-color: #00264d; /* darker blue for area title */
+  color: #fff;
+  text-align: center;
+  font-weight: bold;
+  padding: 10px;
+  font-size: 15px;
+  letter-spacing: 1px;
+  border: none;
+}
 
-#tab3 th {
-  background: #f4f4f4;
+/* =======================
+   COLUMN HEADER (per area)
+======================= */
+#tab3 .table-header th {
+  background-color: #004080;
+  color: #fff;
   font-weight: bold;
   text-align: center;
+  padding: 8px;
   font-size: 13px;
   white-space: normal;
 }
 
-
-/* Text alignment */
-#tab3 td /* Employee Name */
-#tab3 td:nth-child(2)  /* Designation */ {
+/* =======================
+   COLUMN ALIGNMENTS
+======================= */
+#tab3 td:nth-child(1),
+#tab3 td:nth-child(2) {
   text-align: left;
   white-space: nowrap;
+  min-width: 230px;
+  padding: 8px 12px;
 }
 
-#tab3 td:nth-child(17) { /* Signature */
+#tab3 td:nth-child(17) { /* Signature column */
   text-align: center;
 }
 
 #tab3 td:nth-child(n+3):nth-child(-n+16) {
-  text-align: center; /* Numbers from Basic Salary up to Net Pay */
+  text-align: center;
 }
 
-/* Zebra striping for readability */
+/* =======================
+   TOTAL ROW (per area)
+======================= */
+#tab3 tfoot tr,
+#tab3 .total-row td {
+  background: #fff8b3; /* soft yellow */
+  font-weight: bold;
+  text-align: right;
+}
+
+#tab3 .total-row td:first-child {
+  text-align: left;
+}
+
+/* =======================
+   STRIPING
+======================= */
 #tab3 tbody tr:nth-child(even) {
   background: #fafafa;
 }
 
-/* Rounded look */
-#tab3 td, #tab3 th {
-  border-radius: 1px;
+/* =======================
+   ROUNDED LOOK
+======================= */
+#tab3 td, 
+#tab3 th {
+  border-radius: 2px;
 }
-th:nth-child(2), td:nth-child(2) {
-  white-space: nowrap;   /* hindi mag-wrap ang pangalan */
-  min-width: 230px;      /* puwede i-adjust ayon sa kailangan */
-  padding: 8px 12px;     /* dagdag space sa cell */
+
+/* =======================
+   SIGNATORIES (per area)
+======================= */
+#tab3 .signatories {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-around;
+  gap: 60px;
+  text-align: center;
 }
-th:nth-child(1), td:nth-child(1) {
-  white-space: nowrap;   /* hindi mag-wrap ang pangalan */
-  min-width: 230px;      /* puwede i-adjust ayon sa kailangan */
-  padding: 8px 12px;     /* dagdag space sa cell */
+
+#tab3 .signatory p {
+  margin: 5px 0;
+  font-size: 13px;
+  line-height: 1.2;
 }
-#tab3 thead th {
-  background-color: #004080; /* dark blue background */
-  color: white;             /* white text */
-  text-align: center;       /* para nakagitna ang text */
-  padding: 8px;             /* dagdag space sa loob ng cell */
+
+#tab3 .signatory .name {
+  font-weight: bold;
+  text-decoration: underline;
+  margin-bottom: 3px;
 }
+
+/* =======================
+   OPTIONAL: COMPANY HEADER (global)
+======================= */
+#tab3 .company-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#tab3 .company-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #00264d;
+}
+
+#tab3 .company-header p {
+  margin: 0;
+  font-size: 13px;
+  color: #333;
+}
+
+
 :root {
   --bg-color: #f2f2f7;
   --text-color: #1c1c1e;
@@ -1078,43 +1152,183 @@ header .title,
 
 
 .table-container {
-  overflow-x: auto;
-  width: 100%;
-}
+    overflow-x: auto;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  #tab4Table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed; /* 🔹 Let colgroup control width */
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+  }
+
+  #tab4Table th,
+  #tab4Table td {
+    border: 1px solid #ccc;
+    padding: 5px 7px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: ellipsis;
+  }
+
+  /* Sticky Employee Column */
+  #tab4Table th:first-child,
+  #tab4Table td.nameCell {
+    position: sticky;
+    left: 0;
+    background: #f9f9f9;
+    z-index: 5;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  /* Area header row */
+  .areaRow td {
+    background-color: #bfdbfe;
+    font-weight: bold;
+    text-align: left;
+    padding: 6px 8px;
+    font-size: 14px;
+  }
+
+  /* Zebra row */
+  #tab4Table tbody tr:nth-child(even) td {
+    background-color: #fafafa;
+  }
+
+  /* Header rows */
+  #tab4Table thead th {
+    background-color: #eaf4ff;
+    font-weight: bold;
+  }
+
+  /* Print-friendly */
+  @media print {
+    .print-controls {
+      display: none;
+    }
+    .table-container {
+      overflow: visible;
+    }
+  }
 
 
-#tab4Table {
-  border-collapse: collapse;
-  width: 100%;
-
-}
-
-/* Header at body cells */
-#tab4Table th,
-#tab4Table td {
-  border: 1px solid #ccc;
-  padding: 4px 8px;
+#tab5 {
+    padding: 20px;
+    background: #eaf4f4;
+  }
+  .thirteenth-container {
   text-align: center;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
+  padding: 20px;
+  background-color: transparent; /* tanggal green background */
+  }
 
-/* Sticky first column (Name) */
-#tab4Table th:first-child,
-#tab4Table td.nameCell {
-  position: sticky;
-  left: 0;
-  background: #f0f0f0;
-  z-index: 3;
-  padding-left: 5px;
+  .thirteenth-container h2 {
+  font-weight: 700;
+  color: #004d4d;
+  margin-bottom: 10px;
   text-align: left;
+  }
+  .table-wrapper {
+  display: flex;
+  justify-content: center; /* center table horizontally */
+  overflow-x: auto; /* scrollable kung masikip */
+}
+
+.thirteenth-table {
+  border-collapse: collapse;
+  width: 90%;
+  background-color: #fff; /* puti para malinis tingnan */
+  table-layout: fixed;
+}
+
+.thirteenth-table th,
+.thirteenth-table td {
+  border: 1px solid #006666;
+  padding: 8px;
+  text-align: center;
   white-space: nowrap;
-  width: 200px;  /* fixed width para hindi mag-overlap */
-  min-width: 200px;
-}
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis; /* prevent overflow */
 
 }
 
+  .thirteenth-table thead th {
+    background-color: #007777;
+    color: black;
+    font-weight: 600;
+  }
 
+  .thirteenth-table .months th {
+  background-color: #b8e0de; /* light teal sa months */
+}
 
+  .thirteenth-table tbody td {
+    background-color: #f1fafa;
+  }
+
+  .thirteenth-table .total-row td {
+    font-weight: 600;
+    background-color: #e0f4f4;
+  }
+
+  
+  .thirteenth-table th[colspan="15"] {
+  background-color: #00797a;
+  color: #000;
+  font-size: 14px;
+  padding-top: 10px;
+  padding-bottom: 2px;
+  }
+
+  .thirteenth-table th[colspan="15"]::after {
+    content: " (exclude overtime, holiday pay, allowances, etc.)";
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: #d1eaea;
+    margin-top: 2px;
+  }
+
+  .thirteenth-table td:first-child,
+  .thirteenth-table th:first-child {
+  text-align: left;
+  width: 500px; /* adjust mo kung gusto mo mas lapad */
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Buwan columns pantay lahat */
+.thirteenth-table th:not(:first-child),
+.thirteenth-table td:not(:first-child) {
+  width: 90px; /* equal width per month */
+}
+
+.thirteenth-table .total-row td {
+  background-color: #b8e0de; /* same shade sa months */
+  font-weight: bold;
+}
+
+body {
+  background-color: #f4f7f8; /* light neutral background */
+}
+
+.area-header {
+  background: #003366;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+
+.sub-header th {
+  background: #1a4d8f;
+  color: white;
+  text-align: center;
+  font-size: 13px;
+  padding: 5px;
+}
