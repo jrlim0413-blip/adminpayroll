@@ -184,7 +184,7 @@
       <div class="ios-tab ios-tab--dropdown" data-dropdown="reportsMenu">
         Reports <span class="chev">▾</span>
         <div class="ios-dropdown" id="reportsMenu">
-          <a href="#" data-target="tab3">Payroll</a>
+          <a href="#" data-target="tab3">Payroll Report</a>
           <a href="#" data-target="tab4">Time In / Time Out</a>
           <a href="#" data-target="tab5">13th Month Pay</a>
         </div>
@@ -470,87 +470,32 @@
 
 
 <div class="tab-content" id="tab3">
+  <!-- Controls -->
   <div class="print-controls">
-    <label>Date Covered: <input type="date" id="dateStart"> - <input type="date" id="dateEnd"></label>
+    <label>Date Covered:
+      <input type="date" id="dateStart"> -
+      <input type="date" id="dateEnd">
+    </label>
+    <button id="generatePayrollBtn">📅 Generate Payroll</button>
     <button onclick="window.print()">🖨 Print</button>
     <button onclick="downloadExcel()">⬇ Download Excel</button>
   </div>
-      <h3 style="text-align:center;margin:0;">SIMPAL GROUP OF COMPANIES</h3>
-      <p style="text-align:center;margin:0;">ADMIN OFFICE</p>
-      <p style="text-align:center;margin:0;">SALARY AND COMPENSATION</p>
-      <p style="text-align:center;margin:0;">DATE COVERED: </p>
 
-  <div class="table-container">
-    <table id="tab3Table" border="1">
-      <thead>
-        <tr>
-          <th>EMPLOYEE NAME</th>
-          <th>DESIGNATION</th>
-          <th>BASIC MONTHLY SALARY</th>
-          <th>RATE PER DAY</th>
-          <th>RATE PER HOUR</th>
-          <th># OF DAYS</th>
-          <th>TOTAL BASIC PAY</th>
-          <th>ALLOWANCE</th>
-          <th>RESTDAY</th>
-          <th>OVERTIME</th>
-          <th>PHIC</th>
-          <th>HDMF</th>
-          <th>SSS</th>
-          <th>SALARY ADVANCEMENT</th>
-          <th>LATE/UNDERTIME</th>
-          <th>NET PAY</th>
-          <th>SIGNATURE</th>
-        </tr>
-      </thead>
-      <tbody id="tab3Body"><tr><td colspan="17">Loading...</td></tr></tbody>
-       <tfoot>
-        <tr id="totalRow" style="background:yellow;font-weight:bold">
-          <td colspan="1">TOTAL</td>
-          <td></td> <!-- Basic Salary -->
-          <td></td> <!-- Rate/Day -->
-          <td></td> <!-- Rate/Hour -->
-          <td></td> <!-- Days -->
-          <td></td> <!-- Total Basic Pay -->
-          <td></td> <!-- Allowance -->
-          <td></td> <!-- Restday -->
-          <td></td> <!-- Overtime -->
-          <td></td> <!-- PHIC -->
-          <td></td> <!-- HDMF -->
-          <td></td> <!-- SSS -->
-          <td></td> <!-- Salary Adv -->
-          <td></td> <!-- Late -->
-          <td></td> <!-- Net Pay -->
-          <td></td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-<!-- Signatories -->
-<div style="margin-left:500px; display:flex; justify-content:space-between; width:100%;">
-  <div style="text-align:center;">
-    <p>Prepared by:</p>
-    <p><u>QUENNIE R. CAPUYAN</u><br>HR Admin Payroll</p>
-  </div>
-  <div style="text-align:center; margin-right:1000px;" >
-    <p>Reviewed & Released by:</p>
-    <p><u>JEVINCE JAYE S. JUBAY</u><br>HRMD Manager</p>
-  </div>
+          <!-- Payroll Table -->
+          <div class="table-container">
+          <div id="tab3BodyContainer">
+            <p style="text-align:center;">Loading...</p>
+          </div>
+        </div>
 </div>
-</div>
+
 
 <div class="tab-content" id="tab4">
   <div class="print-controls">
    <label>Date Covered: 
       <input type="date" id="timeinStart"> - 
       <input type="date" id="timeinEnd">
-  </label>
-   <label>Area: 
-    <select id="areaFilter">
-      <option value="">All Areas</option> <!-- default: show all -->
-    </select>
-  </label>
-
+ 
     <button onclick="loadTimeInArea()">🔍 Apply Filter</button>
     <button onclick="window.print()">🖨 Print</button>
     <button onclick="downloadTimeInExcel()">⬇ Download Excel</button>
@@ -563,16 +508,87 @@
 
   <div class="table-container">
     <table id="tab4Table" border="1">
-      <!-- Dynamic header & body will be injected -->
+      <colgroup>
+        <col> <!-- 1st column: Employee Name -->
+        <col span="n"> <!-- n = total number of date columns -->
+      </colgroup>
       <thead id="tab4Head"></thead>
-      <tbody id="tab4Body">
-        <tr><td>Loading...</td></tr>
-      </tbody>
+      <tbody id="tab4Body"></tbody>
     </table>
   </div>
 </div>
 
-  
+<!-- 🟦 TAB 5: 13th Month Pay Computation -->
+<div id="tab5" class="tab-content">
+  <div class="thirteenth-container">
+    <h2>13th Month Pay January - December 2025 Computation</h2>
+
+    <div class="table-wrapper">
+      <table class="thirteenth-table">
+        <!-- 👇 Added colgroup for consistent column widths -->
+        <colgroup>
+          <col style="width: 230px;"> <!-- NAME -->
+          <col span="13" style="width: 90px;"> <!-- JAN to YEAR -->
+          <col style="width: 120px;"> <!-- 13TH MONTH PAY -->
+        </colgroup>
+
+        <thead>
+          <tr>
+            <th colspan="15">MONTHLY BASIC PAY</th>
+          </tr>
+          <tr class="months">
+            <th>NAME</th>
+            <th>JAN</th>
+            <th>FEB</th>
+            <th>MAR</th>
+            <th>APR</th>
+            <th>MAY</th>
+            <th>JUN</th>
+            <th>JUL</th>
+            <th>AUG</th>
+            <th>SEP</th>
+            <th>OCT</th>
+            <th>NOV</th>
+            <th>DEC</th>
+            <th>YEAR</th>
+            <th>13 MONTH PAY</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>CHARMIE SIMPAL</td>
+            <td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td>
+            <td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td>
+            <td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td>
+          </tr>
+
+          <tr>
+            <td>JAY RYAN LIM</td>
+            <td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td>
+            <td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td>
+            <td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td>
+          </tr>
+
+          <tr>
+            <td>QUEENNIE LIM</td>
+            <td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td>
+            <td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td>
+            <td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td>
+          </tr>
+
+          <tr class="total-row">
+            <td>Total</td>
+            <td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td>
+            <td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td>
+            <td>₱0.00</td><td>₱0.00</td><td>₱0.00</td><td>₱0.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 
 <script>
   function openPayrollModal() {
@@ -778,18 +794,6 @@ async function loadRates(){
 }
 
 
-function preloadEmployees() {
-  fetch(`${WEB_APP_URL}?action=getAllEmployeesWithDeductions`)
-    .then(res => res.json())
-    .then(data => {
-      employeesData = data; // lahat ng deductions kasama
-      renderEmployeeTable(data); // i-populate ang table
-    })
-    .catch(err => console.error("Failed to preload employees:", err));
-}
-
-// Call on page load
-preloadEmployees();
 
 function renderRates(rates){
   const tbody = document.getElementById("ratesTable");
@@ -846,51 +850,134 @@ document.getElementById("rateSearch").addEventListener("input",()=>{
 
 
 // ---------------- Tab3: Payroll Printing ----------------
-async function loadTab3Data(){
-  const tbody = document.getElementById("tab3Body");
-  tbody.innerHTML = "<tr><td colspan='17'>Loading...</td></tr>";
-  try{
+// ---------------- Tab3: Payroll Printing ----------------
+async function loadTab3Data() {
+  const container = document.getElementById("tab3BodyContainer");
+  container.innerHTML = "<p style='text-align:center;'>Loading...</p>";
+
+  const start = document.getElementById("dateStart").value;
+  const end = document.getElementById("dateEnd").value;
+
+  const dateText = (start && end)
+    ? `DATE COVERED: ${start} - ${end}`
+    : (start ? `DATE COVERED: FROM ${start}` : "DATE COVERED: —");
+
+  try {
     const res = await fetch(WEB_APP_URL, {
       method: "POST",
-      body: new URLSearchParams({ action: "payroll" })
+      body: new URLSearchParams({
+        action: "payroll",
+        startDate: start,
+        endDate: end
+      })
     });
-    const data = await res.json();
 
-    if(!data || data.length === 0){
-      tbody.innerHTML = "<tr><td colspan='17'>No data found</td></tr>";
-      return;
-    }
+    const grouped = await res.json();
+    container.innerHTML = ""; // clear container
 
-    tbody.innerHTML = "";
-    data.forEach(emp=>{
-      const row = `<tr>
-        <td>${emp.name}</td>
-        <td>${emp.designation || ""}</td>
-        <td>${Number(emp.monthly).toLocaleString()}</td>
-        <td>${(emp.totalBasic/emp.days || 0).toFixed(2)}</td>
-        <td>${((emp.totalBasic/emp.days || 0)/8).toFixed(2)}</td>
-        <td>${emp.days}</td>
-        <td>${Number(emp.totalBasic).toLocaleString()}</td>
-        <td>${emp.allowance}</td>
-        <td>${emp.restday || 0}</td>
-        <td>${emp.overtime || 0}</td>
-        <td>${emp.phic}</td>
-        <td>${emp.hdmf}</td>
-        <td>${emp.sss}</td>
-        <td>${emp.salaryAdv}</td>
-        <td>${emp.lateUndertime}</td>
-        <td>${Number(emp.netPay).toLocaleString()}</td>
-        <td></td>
-      </tr>`;
-      tbody.insertAdjacentHTML("beforeend", row);
+    // ✅ Loop per area
+    Object.keys(grouped).forEach(area => {
+      const employees = grouped[area];
+      let totalMonthly = 0, totalNet = 0;
+
+      // 🔹 HEADER SECTION
+      let html = `
+        <div class="company-header">
+          <h3>SIMPAL GROUP OF COMPANIES</h3>
+          <p>${area.toUpperCase()} OFFICE</p>
+          <p>SALARY AND COMPENSATION</p>
+          <p>${dateText}</p>
+        </div>
+
+        <table class="area-table" border="1">
+          <thead class="table-header">
+            <tr>
+              <th>EMPLOYEE NAME</th>
+              <th>DESIGNATION</th>
+              <th>BASIC MONTHLY SALARY</th>
+              <th>RATE PER DAY</th>
+              <th>RATE PER HOUR</th>
+              <th># OF DAYS</th>
+              <th>TOTAL BASIC PAY</th>
+              <th>ALLOWANCE</th>
+              <th>RESTDAY</th>
+              <th>OVERTIME</th>
+              <th>PHIC</th>
+              <th>HDMF</th>
+              <th>SSS</th>
+              <th>SALARY ADVANCEMENT</th>
+              <th>LATE/UNDERTIME</th>
+              <th>NET PAY</th>
+              <th>SIGNATURE</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      // 🔹 EMPLOYEE ROWS
+      employees.forEach(emp => {
+        html += `
+          <tr>
+            <td>${emp.name}</td>
+            <td>${emp.designation || ""}</td>
+            <td>${Number(emp.monthly).toLocaleString()}</td>
+            <td>${emp.ratePerDay.toFixed(2)}</td>
+            <td>${emp.ratePerHour.toFixed(2)}</td>
+            <td>${emp.days}</td>
+            <td>${Number(emp.totalBasic).toLocaleString()}</td>
+            <td>${emp.allowance}</td>
+            <td>${emp.restday}</td>
+            <td>${emp.overtime}</td>
+            <td>${emp.phic}</td>
+            <td>${emp.hdmf}</td>
+            <td>${emp.sss}</td>
+            <td>${emp.salaryAdv}</td>
+            <td>${emp.lateUndertime}</td>
+            <td>${Number(emp.netPay).toLocaleString()}</td>
+          </tr>
+        `;
+        totalMonthly += Number(emp.monthly);
+        totalNet += Number(emp.netPay);
+      });
+
+      // 🔹 TOTAL + SIGNATORIES
+      html += `
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2">TOTAL (${area.toUpperCase()})</td>
+              <td>${totalMonthly.toLocaleString()}</td>
+              <td colspan="12"></td>
+              <td>${totalNet.toLocaleString()}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="signatories">
+          <div class="signatory">
+            <p>Prepared by:</p>
+            <p class="name">QUENNIE R. CAPUYAN</p>
+            <p>HR Admin Payroll</p>
+          </div>
+          <div class="signatory">
+            <p>Reviewed & Released by:</p>
+            <p class="name">JEVINCE JAYE S. JUBAY</p>
+            <p>HRMD Manager</p>
+          </div>
+        </div>
+      `;
+
+      container.insertAdjacentHTML("beforeend", html);
     });
-    computeTotals();
-  }catch(err){
+
+  } catch (err) {
     console.error(err);
-    tbody.innerHTML="<tr><td colspan='17'>Error loading data</td></tr>";
+    container.innerHTML = "<p style='text-align:center; color:red;'>Error loading data</p>";
   }
 }
 
+document.getElementById("generatePayrollBtn").addEventListener("click", loadTab3Data);
 
 // ---------------- Download Excel ----------------
 function downloadExcel(){
@@ -1316,21 +1403,16 @@ document.getElementById("closeModal").addEventListener("click", () => {
 });
 
   
-// --- Save Update Button ---
 document.getElementById("saveUpdateBtn").addEventListener("click", async () => {
-  // Employee Information
   const id = document.getElementById("empIDUp").value.trim();
   const name = document.getElementById("empNameUp").value.trim();
   const area = document.getElementById("empAreaUp").value.trim();
   const designation = document.getElementById("empDesignationUp").value.trim();
   const salary = document.getElementById("empSalaryUp").value.trim();
 
-  // Mandatory Deductions
   const phic = document.getElementById("phicDeduction")?.value.trim() || "";
   const hdmf = document.getElementById("hdmfDeduction")?.value.trim() || "";
   const sss = document.getElementById("sssDeduction")?.value.trim() || "";
-
-  // Voluntary Deductions
   const voluntary = document.getElementById("empVoluntaryUp")?.value.trim() || "";
 
   if (!id || !name) {
@@ -1343,33 +1425,31 @@ document.getElementById("saveUpdateBtn").addEventListener("click", async () => {
       method: "POST",
       body: new URLSearchParams({
         action: "updateEmployeeAll",
-        id,
-        name,
-        area,
-        designation,
-        salary,
-        phic,
-        hdmf,
-        sss,
-        voluntary
+        id, name, area, designation, salary,
+        phic, hdmf, sss, voluntary
       })
     });
 
-    const result = await res.text();
-    console.log("Update response:", result);
+ const result = await res.json();
 
-    if (result === "OK") {
-      alert("✅ Employee info and deductions updated successfully!");
+    if (result.success) {
+      // disable deduction inputs after successful update
+      ["toggleSSS", "togglePHIC", "toggleHDMF"].forEach((toggleId) => {
+        const toggle = document.getElementById(toggleId);
+        if (!toggle) return; // skip kung wala
+        toggle.checked = false;
+        toggle.disabled = true;
+      });
+
+        alert(result.message || "✅ Employee updated successfully!");
       document.getElementById("updateModal").classList.remove("show");
-      loadRates(); // refresh table
-    } else if (result === "NOT_FOUND") {
-      alert("❌ Employee not found!");
+      loadRates();
     } else {
-      alert("⚠️ Error updating employee!");
+      alert(result.message || "❌ Failed to update employee!");
     }
   } catch (err) {
-    console.error("Update error:", err);
-    alert("❌ Network error, please try again!");
+    console.error("Error updating employee:", err);
+    alert("⚠️ Error saving update!");
   }
 });
 
@@ -1394,17 +1474,6 @@ volToggle.addEventListener("change", function(){
   }
 });
 
-volDeductionType.addEventListener("change", function(){
-  volDeductionAmount.disabled = this.value === "";
-  
-  if(this.value === "cashAdvance"){
-    caOptions.style.display = "block"; // show extra options
-  } else {
-    caOptions.style.display = "none"; // hide if not CA
-    caInstallment.checked = false;
-    caFields.style.display = "none";
-  }
-});
 
 caInstallment.addEventListener("change", function(){
   caFields.style.display = this.checked ? "grid" : "none";
@@ -1547,109 +1616,131 @@ document.querySelectorAll("[data-target]").forEach(link=>{
 
 
 function renderTimeInOutReport(logs) {
+  const table = document.getElementById("tab4Table");
   const tableHead = document.getElementById("tab4Head");
   const tableBody = document.getElementById("tab4Body");
 
   tableHead.innerHTML = "";
   tableBody.innerHTML = "";
+  table.querySelector("colgroup")?.remove(); // Remove old colgroup if any
 
   if (!logs || logs.length === 0) {
-    tableBody.innerHTML = "<tr><td colspan='100%'>No records found</td></tr>";
+    tableBody.innerHTML = "<tr><td colspan='100%'>Set Date Range</td></tr>";
     return;
   }
 
-  // ✅ Apply area filter
-  const selectedArea = document.getElementById("areaFilter").value;
-  const filteredLogs = selectedArea ? logs.filter(l => l.area === selectedArea) : logs;
+  // ✅ Get all areas and employees
+  const allAreas = [...new Set(logs.map(l => l.area))];
 
-  if (!filteredLogs.length) {
-    tableBody.innerHTML = "<tr><td colspan='100%'>No records found</td></tr>";
-    return;
-  }
+  // ✅ Apply date range filter
+  const startDate = document.getElementById("timeinStart").value;
+  const endDate = document.getElementById("timeinEnd").value;
+  const start = startDate ? new Date(startDate) : null;
+  const end = endDate ? new Date(endDate) : null;
 
-  // ✅ Unique dates
+  // ✅ Filter logs within range
+  const filteredLogs = logs.filter(l => {
+    const logDate = new Date(l.date);
+    if (start && logDate < start) return false;
+    if (end && logDate > end) return false;
+    return true;
+  });
+
+  // ✅ Get all unique dates
   const allDates = [...new Set(filteredLogs.map(l => l.date))].sort();
 
- // ✅ HEADER: Row 1 (dates only)
-let headerRow1 = "<tr><th></th>"; // empty for EMPLOYEE NAME
-allDates.forEach(d => {
-  headerRow1 += `<th colspan='2'>${d}</th>`;
-});
-headerRow1 += "</tr>";
+  if (allDates.length === 0) {
+    tableBody.innerHTML = "<tr><td colspan='100%'>No records found in date range</td></tr>";
+    return;
+  }
 
-// ✅ HEADER: Row 2 (EMPLOYEE NAME + IN/OUT)
-let headerRow2 = "<tr><th>EMPLOYEE NAME</th>";
-allDates.forEach(() => {
-  headerRow2 += "<th>IN</th><th>OUT</th>";
-});
-headerRow2 += "</tr>";
+  // ✅ Build <colgroup> dynamically (compact layout)
+  const colgroupHTML = `
+    <colgroup>
+      <col style="width:180px;"> <!-- Employee Name -->
+      ${allDates.map(() => `<col style="width:48px;"><col style="width:48px;">`).join("")}
+    </colgroup>`;
+  table.insertAdjacentHTML("afterbegin", colgroupHTML);
 
-tableHead.innerHTML = headerRow1 + headerRow2;
-
-
-  // ✅ Group logs by employee
-  const grouped = {};
-  filteredLogs.forEach(log => {
-    if (!grouped[log.name]) grouped[log.name] = {};
-    grouped[log.name][log.date] = log;
+  // ✅ Group logs by area → employee → date
+  const groupedByArea = {};
+  logs.forEach(log => {
+    if (!groupedByArea[log.area]) groupedByArea[log.area] = {};
+    if (!groupedByArea[log.area][log.name]) groupedByArea[log.area][log.name] = {};
+    groupedByArea[log.area][log.name][log.date] = log;
   });
 
-  // ✅ BODY rows
-  Object.keys(grouped).forEach(name => {
-    let rowHtml = `<tr><td class="nameCell">${name}</td>`;
+  // ✅ Render each area block
+  allAreas.forEach(areaName => {
+    const areaEmployees = groupedByArea[areaName] || {};
 
-    allDates.forEach(d => {
-      const log = grouped[name][d];
-      if (log) {
-        rowHtml += `<td>${formatTime(log.timeIn)}</td><td>${formatTime(log.timeOut)}</td>`;
-      } else {
-        rowHtml += "<td>-</td><td>-</td>";
-      }
-    });
+    // --- AREA HEADER ROW ---
+    const areaTitle = `
+      <tr class="areaRow">
+        <td colspan="${1 + allDates.length * 2}" 
+            style="font-weight:bold; background:#bfdbfe; text-align:center; font-size:15px;">
+          AREA: ${areaName}
+        </td>
+      </tr>`;
+    tableBody.innerHTML += areaTitle;
 
-    rowHtml += "</tr>";
-    tableBody.innerHTML += rowHtml;
+    // --- DATE HEADERS ---
+    let headerRow1 = "<tr><th></th>";
+    allDates.forEach(d => headerRow1 += `<th colspan='2'>${d}</th>`);
+    headerRow1 += "</tr>";
+
+    let headerRow2 = "<tr><th>EMPLOYEE NAME</th>";
+    allDates.forEach(() => (headerRow2 += "<th>IN</th><th>OUT</th>"));
+    headerRow2 += "</tr>";
+
+    tableBody.innerHTML += headerRow1 + headerRow2;
+
+    // --- EMPLOYEE ROWS ---
+    const empNames = Object.keys(areaEmployees);
+    if (empNames.length === 0) {
+      const emptyRow = `<tr><td colspan="${1 + allDates.length * 2}" style="text-align:center;">No employees found</td></tr>`;
+      tableBody.innerHTML += emptyRow;
+    } else {
+      empNames.forEach(empName => {
+        let rowHtml = `<tr><td class="nameCell">${empName}</td>`;
+        allDates.forEach(d => {
+          const log = areaEmployees[empName]?.[d];
+          rowHtml += `<td>${log ? formatTime(log.timeIn) : "-"}</td>`;
+          rowHtml += `<td>${log ? formatTime(log.timeOut) : "-"}</td>`;
+        });
+        rowHtml += "</tr>";
+        tableBody.innerHTML += rowHtml;
+      });
+    }
+
+    // --- Spacer between areas ---
+    tableBody.innerHTML += `<tr><td colspan="${1 + allDates.length * 2}" style="height:8px;"></td></tr>`;
   });
 
-  // ✅ AUTO ADJUST: Make columns fit content
-  const table = document.getElementById("tab4Table");
+  // ✅ Sticky first column setup
   const nameCells = table.querySelectorAll("th:first-child, td.nameCell");
-
-  // Sticky first column
   nameCells.forEach(cell => {
     cell.style.position = "sticky";
     cell.style.left = "0";
-    cell.style.background = "#f0f0f0";
-    cell.style.zIndex = 3;
-    cell.style.paddingLeft = "5px";
+    cell.style.background = "#f9f9f9";
+    cell.style.zIndex = "3";
     cell.style.textAlign = "left";
-    cell.style.whiteSpace = "nowrap"; // prevent line break
-  });
-
-  // Let other columns auto-fit content
-  table.querySelectorAll("thead th:not(:first-child), tbody td:not(.nameCell)").forEach(cell => {
-    cell.style.whiteSpace = "nowrap";  // optional: prevents breaking
-    cell.style.textAlign = "center";
+    cell.style.fontWeight = "600";
+    cell.style.whiteSpace = "nowrap";
   });
 }
 
-
+// ✅ Helper to format time
 function formatTime(timeStr) {
   if (!timeStr) return "-";
   const d = new Date(timeStr);
   if (isNaN(d.getTime())) return "-";
-
   let hours = d.getHours();
   const minutes = d.getMinutes().toString().padStart(2, "0");
-
-  // Convert to 12-hour format
-  hours = hours % 12;
-  if (hours === 0) hours = 12; // midnight/noon correction
-
-  return `${hours}:${minutes}`; // ✅ 12-hour without AM/PM
+  const suffix = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12;
+  return `${hours}:${minutes}`;
 }
-
-
 
 async function loadTimeInArea() {
   const start = document.getElementById("timeinStart").value;
@@ -1704,6 +1795,42 @@ function populateAreaDropdown(data) {
 
 // ✅ Debug: check if function is defined
 console.log("populateAreaDropdown defined?", typeof populateAreaDropdown);
+
+async function loadDynamicTimeInReport() {
+  const start = document.getElementById("tab5Start").value;
+  const end = document.getElementById("tab5End").value;
+  const tbody = document.getElementById("tab5Body");
+  const dateRangeLabel = document.getElementById("tab5DateRange");
+
+  tbody.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
+
+  // 🗓️ Update label
+  if (start && end) {
+    dateRangeLabel.textContent = `${start} to ${end}`;
+  } else {
+    dateRangeLabel.textContent = "All Dates";
+  }
+
+  try {
+    // ⛽ Fetch logs (replace with your actual endpoint or Supabase query)
+    const res = await fetch("https://your-backend-endpoint/api/logs");
+    const logs = await res.json();
+
+    // Filter by date range kung may filter
+    const filteredLogs = logs.filter(log => {
+      if (!start || !end) return true;
+      const date = new Date(log.date);
+      return date >= new Date(start) && date <= new Date(end);
+    });
+
+    renderTab5DynamicReport(filteredLogs);
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan='4' style="color:red;">Error loading data</td></tr>`;
+    console.error(err);
+  }
+}
+
+
 
 
 </script>
