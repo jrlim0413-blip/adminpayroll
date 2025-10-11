@@ -466,6 +466,86 @@
 </div>
 
 
+      <!-- ADDITION MODAL -->
+      <div id="additionModal" class="modal addition-modal">
+        <div class="modal-content addition">
+          <button class="close-btn" onclick="closeAdditionModal()">&times;</button>
+          <h2>Employee Additional</h2>
+
+          <!-- 🔍 Employee + Date -->
+          <div class="form-row">
+            <div class="form-group half">
+              <label>Employee Name</label>
+              <div class="input-wrapper">
+                <input type="text" id="additionName" placeholder="Select Employee" readonly>
+                <ul id="searchResults" class="dropdown-list"></ul>
+              </div>
+            </div>
+            <div class="form-group half">
+              <label>Effective Date</label>
+              <input type="date" id="effectiveDate">
+            </div>
+          </div>
+
+          <!-- 🧾 Adjustment Type -->
+          <div class="form-group">
+            <label>Adjustment Type</label>
+            <select id="adjustmentType">
+              <option value="">Select Type</option>
+              <option value="allowance">Allowance</option>
+              <option value="restday">Restday</option>
+              <option value="overtime">Overtime</option>
+            </select>
+          </div>
+
+          <!-- 💰 Static Input Fields -->
+          <div id="staticFields">
+            <div class="form-row">
+              <div class="form-group half">
+                <label>Hourly Rate (₱)</label>
+                <input type="number" id="rate" placeholder="Enter hourly rate" disabled>
+              </div>
+              <div class="form-group half">
+                <label>Hours Worked</label>
+                <input type="number" id="hours" placeholder="Enter hours" disabled>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Amount (₱)</label>
+              <input type="number" id="amount" placeholder="Enter amount" disabled>
+            </div>
+
+            <div class="form-group">
+              <label>Remarks</label>
+              <input type="text" id="remarks" placeholder="Enter reason or note">
+            </div>
+          </div>
+
+          <!-- 💾 Actions -->
+          <div class="modal-actions">
+            <button class="save-btn" onclick="saveAddition()">💾 Save</button>
+            <button class="cancel-btn" onclick="closeAdditionModal()">Cancel</button>
+          </div>
+
+          <!-- 📊 Table of Added Adjustments -->
+          <h3 style="margin-top:25px;">📋 Added Adjustments</h3>
+          <table id="addTable">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="5" style="text-align:center;">No records yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
 
 
@@ -789,46 +869,197 @@ async function loadRates(){
 }));
 
 
-    renderRates(window.employeeRates);
+    renderRatesTable(window.employeeRates);
   }catch(err){console.error(err);tbody.innerHTML="<tr><td colspan='6'>Error loading rates</td></tr>";}
 }
 
 
 
-function renderRates(rates){
+function renderRatesTable(list) {
   const tbody = document.getElementById("ratesTable");
-  tbody.innerHTML = "";
+  tbody.innerHTML = list?.length
+    ? ""
+    : "<tr><td colspan='7'>No employees found</td></tr>";
 
-  if(rates.length === 0){
-    tbody.innerHTML = "<tr><td colspan='6'>No matching employees</td></tr>";
-    return;
-  }
-
-  rates.forEach(emp => {
+  list?.forEach(emp => {
     const row = document.createElement("tr");
-
     row.innerHTML = `
       <td>${emp.id}</td>
       <td>${emp.name}</td>
       <td>${emp.area}</td>
       <td>${emp.designation}</td>
-      <td>₱${emp.monthlySalary}</td>
+      <td>₱${Number(emp.monthlySalary).toLocaleString("en-PH",{minimumFractionDigits:2})}</td>
       <td>
-        <button class="addition-btn">➕ Addition</button>
-        <button class="update-btn">➖ Deduction</button>
+        <button class="deduct-btn">➖</button>
+        <button class="add-btn">➕</button>
       </td>
     `;
-
     tbody.appendChild(row);
 
-    // Add event listeners safely
-    const updateBtn = row.querySelector(".update-btn");
-    updateBtn.addEventListener("click", () => openUpdateEmployeeModal(emp));
-
-    const additionBtn = row.querySelector(".addition-btn");
-    additionBtn.addEventListener("click", () => openAdditionModal(emp));
+    row.querySelector(".deduct-btn").onclick = () => openUpdateEmployeeModal(emp);
+    row.querySelector(".add-btn").onclick = () => openAdditionModal(emp);
   });
 }
+
+function openAdditionModal(emp) {
+  const modal = document.getElementById("additionModal");
+  modal.classList.add("show");
+
+  if (emp) {
+    // Auto-fill name
+    const modalNameInput = modal.querySelector("#additionName");
+    modalNameInput.value = emp.name;
+    modalNameInput.readOnly = true;
+
+    // Set selected employee for calculations
+    selectedEmployee = emp;
+  }
+}
+
+function closeAdditionModal() {
+  const modal = document.getElementById("additionModal");
+  modal.classList.remove("show");
+
+  // Clear all fields except the auto-filled employee name
+  const idsToClear = ["effectiveDate", "adjustmentType", "rate", "hours", "amount", "remarks"];
+  idsToClear.forEach(id => {
+    const el = modal.querySelector("#" + id);
+    if (el) {
+      el.value = "";
+      el.disabled = false; 
+      el.readOnly = false; 
+    }
+  });
+
+  // Keep selectedEmployee intact
+}
+
+
+
+function computeOvertime() {
+  const rate = Number(document.getElementById("rate").value || 0);
+  const hours = Number(document.getElementById("hours").value || 0);
+  document.getElementById("amount").value = (rate * hours).toFixed(2);
+}
+
+// 💾 Save
+function saveAddition() {
+  const emp = document.getElementById("additionName").value;
+  const type = document.getElementById("adjustmentType").value;
+  const date = document.getElementById("effectiveDate").value;
+  const amount = Number(document.getElementById("amount").value || 0);
+  const remarks = document.getElementById("remarks").value;
+
+  if (!emp || !type || !date || amount <= 0) {
+    alert("⚠️ Please complete all fields correctly.");
+    return;
+  }
+
+  additions.push({ emp, type, amount, date, remarks });
+  renderAdditionsTable();
+  clearInputs();
+}
+
+// 🧹 Clear fields after save
+function clearInputs() {
+  document.getElementById("additionName").value = "";
+  document.getElementById("adjustmentType").value = "";
+  document.getElementById("rate").value = "";
+  document.getElementById("hours").value = "";
+  document.getElementById("amount").value = "";
+  document.getElementById("remarks").value = "";
+}
+
+// 📋 Render Added Adjustments Table
+function renderAdditionsTable() {
+  const tbody = document.querySelector("#addTable tbody");
+  tbody.innerHTML = "";
+
+  if (additions.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No records yet</td></tr>`;
+    return;
+  }
+
+  additions.forEach(item => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${item.emp}</td>
+      <td>${item.type}</td>
+      <td>₱${item.amount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+      <td>${item.date}</td>
+      <td>${item.remarks || "-"}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+
+function updateHourlyRate() {
+  if (!selectedEmployee) return;
+
+  if (adjustmentSelect.value !== "overtime") {
+    rateInput.value = "";
+    return;
+  }
+
+  let baseRate = 0;
+
+  if (selectedEmployee.rate && selectedEmployee.rate > 0) {
+    baseRate = selectedEmployee.rate;
+  } else if (selectedEmployee.monthlySalary && selectedEmployee.monthlySalary > 0) {
+    baseRate = selectedEmployee.monthlySalary / (30 * 8); // 30 days, 8 hours/day
+    baseRate = parseFloat(baseRate.toFixed(2));
+  } else {
+    rateInput.value = ""; // walang data, i-clear lang
+    return;
+  }
+
+  rateInput.value = baseRate;
+  rateInput.disabled = false;
+
+  // Auto-compute amount kung may hours na
+  computeOvertime();
+}
+const adjustmentSelect = document.getElementById("adjustmentType");
+const rateInput = document.getElementById("rate");
+const hoursInput = document.getElementById("hours");
+const amountInput = document.getElementById("amount");
+
+adjustmentSelect.addEventListener("change", function() {
+    const type = this.value;
+
+    // Reset all fields
+    [rateInput, hoursInput, amountInput].forEach(el => {
+        el.disabled = true;
+        el.readOnly = false;
+        el.value = "";
+    });
+
+    if (type === "allowance" || type === "restday") {
+        amountInput.disabled = false;
+    } 
+    else if (type === "overtime") {
+        rateInput.disabled = false;
+        hoursInput.disabled = false;
+        amountInput.readOnly = true;
+
+        // Remove previous listeners first para hindi magdoble
+        rateInput.removeEventListener("input", computeOvertime);
+        hoursInput.removeEventListener("input", computeOvertime);
+
+        // Add listeners once
+        rateInput.addEventListener("input", computeOvertime);
+        hoursInput.addEventListener("input", computeOvertime);
+
+        // Auto-fill rate kung may selected employee
+        updateHourlyRate();
+    }
+});
+
+
+
+
+
 
 
 
@@ -844,12 +1075,12 @@ function openUpdateEmployeeModalById(btn) {
 document.getElementById("rateSearch").addEventListener("input",()=>{
   const search=document.getElementById("rateSearch").value.toLowerCase();
   const filtered=window.employeeRates.filter(emp=>emp.name.toLowerCase().includes(search));
-  renderRates(filtered);
+  renderRatesTable(filtered);
 });
 
 
 
-// ---------------- Tab3: Payroll Printing ----------------
+
 // ---------------- Tab3: Payroll Printing ----------------
 async function loadTab3Data() {
   const container = document.getElementById("tab3BodyContainer");
@@ -1322,42 +1553,12 @@ function preloadEmployees() {
     .then(res => res.json())
     .then(data => {
       employeesData = data; // lahat ng deductions kasama
-      renderEmployeeTable(data); // optional kung gusto mo ipakita sa table
+      renderRatesTable(data); // optional kung gusto mo ipakita sa table
     })
     .catch(err => console.error("Failed to preload employees:", err));
 }
 
-// ----------------------
-// 2️⃣ Render employee table (optional)
-// ----------------------
-function renderEmployeeTable(data) {
-  const tbody = document.getElementById("ratesTable");
-  tbody.innerHTML = "";
 
-  if (!data || data.length === 0) {
-    tbody.innerHTML = "<tr><td colspan='6'>No employees found</td></tr>";
-    return;
-  }
-
-  data.forEach(emp => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${emp.id}</td>
-      <td>${emp.name}</td>
-      <td>${emp.area}</td>
-      <td>${emp.designation}</td>
-      <td>₱${emp.monthlySalary}</td>
-      <td>
-        <button class="update-btn">➖ Deduction</button>
-      </td>
-    `;
-    tbody.appendChild(row);
-
-    // Click event → instant modal fill
-    const btn = row.querySelector(".update-btn");
-    btn.addEventListener("click", () => openUpdateEmployeeModal(emp));
-  });
-}
 
 // ----------------------
 // 3️⃣ Open update modal instantly
@@ -1613,6 +1814,9 @@ document.querySelectorAll("[data-target]").forEach(link=>{
     });
   }
 
+  //----------addition modal-----------//
+
+
 
 
 function renderTimeInOutReport(logs) {
@@ -1829,7 +2033,6 @@ async function loadDynamicTimeInReport() {
     console.error(err);
   }
 }
-
 
 
 
