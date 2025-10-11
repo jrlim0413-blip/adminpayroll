@@ -321,6 +321,14 @@ tbody tr:hover { background: #f0f0f5; }
   transition: opacity 0.4s ease;
   z-index: 1000;
 }
+
+/* ✅ ito ang magpapakita ng modal */
+.modal.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+
 .modal.show {
   opacity: 1;
   pointer-events: auto;
@@ -1331,4 +1339,220 @@ body {
   text-align: center;
   font-size: 13px;
   padding: 5px;
+}
+
+
+
+
+/* 🎯 ADDITION MODAL SPECIFIC STYLING */
+/* ==============================
+   🧱 Modal Base
+============================== */
+#additionModal .modal-content.addition {
+  width: 650px;
+  max-width: 95%;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+  padding: 25px 30px;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+#additionModal h2 {
+  font-size: 1.3rem;
+  margin-bottom: 18px;
+  color: #333;
+  font-weight: 600;
+}
+
+#additionModal label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+  display: block;
+  color: #444;
+}
+
+/* ==============================
+   🧾 Inputs & Selects
+============================== */
+#additionModal input {
+  width: 93%;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+#additionModal select {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+#additionModal input:focus,
+#additionModal select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.15);
+}
+
+/* ==============================
+   🧩 Layout & Buttons
+============================== */
+#additionModal .form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+#additionModal .form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#additionModal .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+#additionModal .save-btn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+#additionModal .save-btn:hover {
+  background: #0056b3;
+}
+
+#additionModal .cancel-btn {
+  background: #e0e0e0;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#additionModal .cancel-btn:hover {
+  background: #d6d6d6;
+}
+
+/* ==============================
+   📋 Table Styling
+============================== */
+#additionModal table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+
+#additionModal th,
+#additionModal td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+#additionModal th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+#additionModal tr:hover {
+  background: #f5f9ff;
+}
+
+/* ==============================
+   ❌ Close Button
+============================== */
+#additionModal .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 1.3rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+#additionModal .close-btn:hover {
+  color: #000;
+}
+
+/* ==============================
+   ✨ Animation
+============================== */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(-10px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+/* ==============================
+   🔍 Search Dropdown (Floating)
+============================== */
+#additionModal .input-wrapper {
+  position: relative;
+}
+
+#additionModal #searchResults {
+  position: absolute;
+  top: calc(100% + 2px); /* lumabas direkta sa ilalim ng input */
+  left: 50%;
+  transform: translateX(-50%); /* center align sa input */
+  width: 92%; /* bahagyang mas maliit sa input width */
+  max-height: 160px;
+  overflow-y: auto;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+  display: none;
+  transition: all 0.2s ease-in-out;
+}
+
+
+/* 🔹 Individual list items */
+#additionModal #searchResults li {
+  padding: 6px 10px;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: #222;
+  border-radius: 4px;
+  margin: 2px 0;
+  background: rgba(255, 255, 255, 0.65);
+  transition: background 0.2s ease;
+}
+#additionModal #searchResults li:last-child {
+  border-bottom: none;
+}
+
+/* Hover effect */
+#additionModal #searchResults li:hover {
+  background: rgba(0, 123, 255, 0.15);
+  color: #007bff;
+}
+
+/* Ensure dropdown does not push elements */
+#additionModal .form-group.half {
+  position: relative;
+  overflow: visible;
 }
