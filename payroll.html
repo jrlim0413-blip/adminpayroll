@@ -176,7 +176,7 @@
         Adjustments <span class="chev">▾</span>
         <div class="ios-dropdown" id="adjustmentsMenu">
           <a href="#" data-target="tab2">Addition & Deduction</a>
-          <a href="#" data-target="tabY">Exempted</a>
+          
         </div>
       </div>
 
@@ -235,10 +235,10 @@
     <table id="myTable">
       <thead>
         <tr>
-          <th>EMPLOYEE ID</th><th>NAME</th><th>AREA</th><th>DESIGNATION</th><th>MONTHLY SALARY</th><th>ACTION</th>
+          <th>EMPLOYEE ID</th><th>NAME</th><th>AREA</th><th>DESIGNATION</th><th>MONTHLY SALARY</th><th>TIME EXEMPTED</th> <th>ACTION</th>
         </tr>
       </thead>
-      <tbody id="ratesTable"><tr><td colspan='6'>Loading...</td></tr></tbody>
+      <tbody id="ratesTable"><tr><td colspan='7'>Loading...</td></tr></tbody>
     </table>
   </div>
 </div>
@@ -374,16 +374,15 @@
                 </label>
           </div>
         </div>
-
       </div>
 
-      <div class="modal-tab-content" id="tab3modal">
-
+    <div class="modal-tab-content" id="tab3modal">
+          <!-- Voluntary Deduction Row -->
           <div class="voluntary-row">
             <div class="input-group">
               <label for="volDeductionType">Deduction Type</label>
               <select id="volDeductionType" disabled>
-                <option value="">-- Select Deduction --</option disabled>
+                <option value="">-- Select Deduction --</option>
                 <option value="salaryLoan">Salary Loan</option>
                 <option value="calamityLoan">Calamity Loan</option>
                 <option value="cashAdvance">Cash Advance (CA)</option>
@@ -397,29 +396,46 @@
             </div>
           </div>
 
-          <!-- Hidden by default: lalabas lang kung Cash Advance -->
-          <div id="cashAdvanceOptions" class="cash-advance-box" style="display:none;">
+          <!-- Cash Advance Options -->
+          <div id="cashAdvanceOptions" class="cash-advance-box" style="display:none; margin-top:15px;">
             <label>
               <input type="checkbox" id="caInstallment"> Pay by Installment
             </label>
 
-            <div class="ca-fields" style="display:none;">
+            <div class="ca-fields" style="display:none; margin-top:10px; gap:10px;">
               <div class="input-group">
                 <label for="caTotal">Total Cash Advance</label>
                 <input type="number" id="caTotal" placeholder="0.00">
               </div>
 
               <div class="input-group">
-                <label for="caPerCutoff">Deduction per Cutoff (15/30)</label>
+                <label for="caPerCutoff">Deduction per Cutoff</label>
                 <input type="number" id="caPerCutoff" placeholder="0.00">
-                <!-- Result preview -->
-                  <div id="caComputation" style="margin-top:8px; font-size:13px; color:#333;">
-                  </div>
               </div>
+
+                    <div class="ca-button-wrapper">
+                      <button type="button" id="caConfirmBtn">OK</button>
+                    </div>
             </div>
           </div>
 
-          <div class="deduction-toggle">
+          <!-- Dynamic Table (Hidden initially) -->
+          <div id="caTableContainer" style="display:none; margin-top:15px; overflow-x:auto;">
+            <table id="caTable" style="width:100%; border-collapse:collapse; min-width:300px;">
+              <thead style="background:#f0f0f0;">
+                <tr>
+                  <th style="padding:8px; text-align:center;">Cutoff Date</th>
+                  <th style="padding:8px; text-align:center;">Deduction</th>
+                  <th style="padding:8px; text-align:center;">Remaining Balance</th>
+                  <th style="padding:8px; text-align:center;">Status</th> <!-- bagong column -->
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <!-- Voluntary Toggle -->
+          <div class="deduction-toggle" style="margin-top:20px;">
             <label class="switch">
               <input type="checkbox" id="voluntaryToggle">
               <span class="slider"></span>
@@ -427,6 +443,7 @@
             <span class="toggle-label">Apply Voluntary Deductions</span>
           </div>
         </div>
+
 
        
                     <!-- Tab 4: Attendance-Based Deduction -->
@@ -439,26 +456,27 @@
                 - <strong>Deduction</strong> = (# of lates in minutes × rate/minute) + (undertime × rate/minute) + (absences × rate/day)
               </p>
 
-              <div class="input-group">
-                <label for="dailyRate">Rate per Day</label>
-                <input type="text" id="dailyRate" placeholder="Auto-calculated" disabled>
-              </div>
-              <div class="input-group">
-                <label for="hourlyRate">Rate per Hour</label>
-                <input type="text" id="hourlyRate" placeholder="Auto-calculated" disabled>
-              </div>
-              <div class="input-group">
-                <label for="minuteRate">Rate per Minute</label>
-                <input type="text" id="minuteRate" placeholder="Auto-calculated" disabled>
-              </div>
-              <div class="input-group">
-                <label for="totalDeduction">Deduction</label>
-                <input type="text" id="totalDeduction" placeholder="Auto-calculated" disabled>
-              </div>
-            </div>
+                              <!-- Tab 4: Attendance-Based Deduction -->
+                  <h4 style="margin-top: 10px;">Attendance-Based Deduction (This Month)</h4>
+                  <table id="attendanceDeductionTable" border="1" style="width:100%; border-collapse: collapse; text-align:center;">
+                    <thead style="background:#f1f1f1;">
+                      <tr>
+                        <th>Date</th>
+                        <th>Late (min)</th>
+                        <th>Undertime (min)</th>
+                        <th>Deduction (₱)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td colspan="4">No data yet</td></tr>
+                    </tbody>
+                  </table>
 
 
 
+              
+
+        </div>
        <div style="padding: 16px 24px; text-align: right;">
       <button class="btn" id="saveUpdateBtn">Save</button>
     </div>
@@ -575,7 +593,7 @@
    <label>Date Covered: 
       <input type="date" id="timeinStart"> - 
       <input type="date" id="timeinEnd">
- 
+    </label>
     <button onclick="loadTimeInArea()">🔍 Apply Filter</button>
     <button onclick="window.print()">🖨 Print</button>
     <button onclick="downloadTimeInExcel()">⬇ Download Excel</button>
@@ -599,9 +617,12 @@
 </div>
 
 <!-- 🟦 TAB 5: 13th Month Pay Computation -->
+
 <div id="tab5" class="tab-content">
+    <button onclick="window.print()">🖨 Print</button>
+    <button onclick="downloadTimeInExcel()">⬇ Download Excel</button>
   <div class="thirteenth-container">
-    <h2>13th Month Pay January - December 2025 Computation</h2>
+    <h2 style="text-align:left;margin-left:290PX;">13th Month Pay January - December 2025 Computation</h2>
 
     <div class="table-wrapper">
       <table class="thirteenth-table">
@@ -806,75 +827,145 @@ document.querySelectorAll('#updateModal .modal-tab').forEach(tab => {
 });
 
 
-async function loadLogs(){
-  const area=document.getElementById("areaFilter").value;
-  const monthInput=document.getElementById("monthFilter");
-  if(!monthInput.value){const today=new Date();monthInput.value=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}`;}
-  const month=monthInput.value;
-  const search=document.getElementById("searchName").value.trim();
-  const tbody=document.getElementById("logsTable");
-  tbody.innerHTML="<tr><td colspan='5'>Loading...</td></tr>";
-  try{
-    const res=await fetch(WEB_APP_URL,{method:"POST",body:new URLSearchParams({action:"getLogs",area:area,month:month,search:search})});
-    const data=await res.json();
-    if(!data||data.length===0){tbody.innerHTML="<tr><td colspan='5'>No logs found</td></tr>";return;}
-    data.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    const uniqueAreas=[...new Set(data.map(r=>r.area).filter(a=>a))];
-    const areaFilter=document.getElementById("areaFilter");areaFilter.innerHTML='<option value="">All Areas</option>';uniqueAreas.forEach(a=>{const opt=document.createElement("option");opt.value=a;opt.textContent=a;areaFilter.appendChild(opt);});
-    tbody.innerHTML="";
-    data.forEach(log=>{
-      const row=`<tr>
-        <td>${log.name?log.name.toUpperCase():"UNKNOWN"}</td>
-        <td>${log.area?log.area.toUpperCase():"-"}</td>
-        <td>${formatTimeCell(log.timeIn)}</td>
-        <td>${formatTimeCell(log.timeOut)}</td>
-        <td>${log.date}</td>
-      </tr>`;tbody.insertAdjacentHTML("beforeend",row);
+async function loadLogs() {
+  const area = document.getElementById("areaFilter").value;
+  const monthInput = document.getElementById("monthFilter");
+
+  if (!monthInput.value) {
+    const today = new Date();
+    monthInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+  }
+
+  const month = monthInput.value;
+  const search = document.getElementById("searchName").value.trim();
+  const tbody = document.getElementById("logsTable");
+  tbody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: new URLSearchParams({
+        action: "getLogs",
+        area,
+        month,
+        search
+      }),
     });
-  }catch(err){console.error(err);tbody.innerHTML="<tr><td colspan='5'>Error loading logs</td></tr>";}
+
+    const raw = await res.json();
+    console.log("Fetched data:", raw);
+
+    // ✅ Make sure we use the correct array (depends on backend)
+    const data = Array.isArray(raw) ? raw : raw.data || [];
+
+    if (!data.length) {
+      tbody.innerHTML = "<tr><td colspan='5'>No logs found</td></tr>";
+      return;
+    }
+
+    data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // ✅ Populate area filter
+    const uniqueAreas = [...new Set(data.map(r => r.area).filter(a => a))];
+    const areaFilter = document.getElementById("areaFilter");
+    areaFilter.innerHTML = '<option value="">All Areas</option>';
+    uniqueAreas.forEach(a => {
+      const opt = document.createElement("option");
+      opt.value = a;
+      opt.textContent = a;
+      areaFilter.appendChild(opt);
+    });
+
+    // ✅ Render rows
+    tbody.innerHTML = "";
+    data.forEach(log => {
+      const row = `
+        <tr>
+          <td>${log.name ? log.name.toUpperCase() : "UNKNOWN"}</td>
+          <td>${log.area ? log.area.toUpperCase() : "-"}</td>
+          <td>${formatTimeCell(log.timeIn)}</td>
+          <td>${formatTimeCell(log.timeOut)}</td>
+          <td>${log.date}</td>
+        </tr>`;
+      tbody.insertAdjacentHTML("beforeend", row);
+    });
+
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = "<tr><td colspan='5'>Error loading logs</td></tr>";
+  }
 }
-function formatTimeCell(value){if(!value)return"-";const date=new Date(value);if(isNaN(date))return value;let h=date.getHours();const m=String(date.getMinutes()).padStart(2,'0');const ampm=h>=12?"PM":"AM";h=h%12;h=h===0?12:h;return`${h}:${m} ${ampm}`;}
-document.addEventListener("DOMContentLoaded",loadLogs);
+
+function formatTimeCell(value) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (isNaN(date)) return value;
+  let h = date.getHours();
+  const m = String(date.getMinutes()).padStart(2, '0');
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  h = h === 0 ? 12 : h;
+  return `${h}:${m} ${ampm}`;
+}
+
+document.addEventListener("DOMContentLoaded", loadLogs);
 
 // --- Employee Deductions ---
-window.employeeRates=[];
-async function loadRates(){
-  const tbody=document.getElementById("ratesTable");
-  tbody.innerHTML="<tr><td colspan='6'>Loading...</td></tr>";
-  try{
-    const res=await fetch(WEB_APP_URL,{method:"POST",body:new URLSearchParams({action:"getRates"})});
-    const data=await res.json();
-    
-    if(!data||data.length===0){tbody.innerHTML="<tr><td colspan='6'>No rates found</td></tr>";return;}
-    
+window.employeeRates = [];
+
+async function loadRates() {
+  const tbody = document.getElementById("ratesTable");
+  tbody.innerHTML = "<tr><td colspan='7'>Loading...</td></tr>";
+
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: new URLSearchParams({ action: "getRates" }),
+    });
+
+    const data = await res.json();
+
+     console.log("📦 Rates data:", data);
+
+    if (!data || data.length === 0) {
+      tbody.innerHTML = "<tr><td colspan='7'>No rates found</td></tr>";
+      return;
+    }
+
     window.employeeRates = data.map(emp => ({
-  id: emp.id || "",
-  name: emp.employeeName || "UNKNOWN",
-  area: emp.area || "-",
-  designation: emp.designation || "-",
-  monthlySalary: emp.basicmonthlySalary ? Number(emp.basicmonthlySalary).toFixed(2) : "0.00",
+      id: emp.id || "",
+      name: emp.employeeName || "UNKNOWN",
+      area: emp.area || "-",
+      designation: emp.designation || "-",
+      monthlySalary: emp.monthlySalary
+    ? Number(emp.monthlySalary).toFixed(2)
+    : "0.00",
 
-  // Mandatory deductions (manual input)
-  sssDeduction: emp.sssDeduction || "",         // SSS deduction
-  phicDeduction: emp.phicDeduction || "",       // PhilHealth deduction
-  hdmfDeduction: emp.hdmfDeduction || "",       // Pag-IBIG deduction
-  applyMandatoryAll: emp.applyMandatoryAll || false, // Checkbox para apply lahat ng mandatory
+      // ✅ include timeExempted from backend
+      timeExempted: emp.timeExempted || "",
 
-  // Voluntary deductions
-  voluntaryDeduction: emp.voluntaryDeduction || "",
-  voluntaryStart: emp.voluntaryStart || "",
-  voluntaryEnd: emp.voluntaryEnd || "",
+      // ✅ optional fields for deductions (if used elsewhere)
+      sssDeduction: emp.sssDeduction || "",
+      phicDeduction: emp.phicDeduction || "",
+      hdmfDeduction: emp.hdmfDeduction || "",
+      applyMandatoryAll: emp.applyMandatoryAll || false,
 
-  attendanceDeduction: emp.attendanceDeduction || ""
-}));
-
+      voluntaryDeduction: emp.voluntaryDeduction || "",
+      voluntaryStart: emp.voluntaryStart || "",
+      voluntaryEnd: emp.voluntaryEnd || "",
+      attendanceDeduction: emp.attendanceDeduction || "",
+    }));
 
     renderRatesTable(window.employeeRates);
-  }catch(err){console.error(err);tbody.innerHTML="<tr><td colspan='6'>Error loading rates</td></tr>";}
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = "<tr><td colspan='7'>Error loading rates</td></tr>";
+  }
 }
 
 
 
+// ✅ Render all employees in Rates Table with Time Exempted Toggle
 function renderRatesTable(list) {
   const tbody = document.getElementById("ratesTable");
   tbody.innerHTML = list?.length
@@ -882,45 +973,84 @@ function renderRatesTable(list) {
     : "<tr><td colspan='7'>No employees found</td></tr>";
 
   list?.forEach(emp => {
+    const timeExempted = String(emp.timeExempted || "").trim().toUpperCase();
+    const isExempted = timeExempted === "TRUE";
+
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${emp.id}</td>
-      <td>${emp.name}</td>
+      <td>${emp.name || emp.employeeName}</td>
       <td>${emp.area}</td>
       <td>${emp.designation}</td>
-      <td>₱${Number(emp.monthlySalary).toLocaleString("en-PH",{minimumFractionDigits:2})}</td>
+      <td>₱${Number(emp.monthlySalary || emp.basicMonthlySalary || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+      <td>
+        <label class="switch">
+          <input type="checkbox" class="exempt-toggle" data-id="${emp.id}" ${isExempted ? "checked" : ""}>
+          <span class="slider"></span>
+        </label>
+      </td>
       <td>
         <button class="deduct-btn">➖</button>
         <button class="add-btn">➕</button>
       </td>
     `;
+
     tbody.appendChild(row);
 
     row.querySelector(".deduct-btn").onclick = () => openUpdateEmployeeModal(emp);
     row.querySelector(".add-btn").onclick = () => openAdditionModal(emp);
   });
+
+  document.querySelectorAll(".exempt-toggle").forEach(toggle => {
+    toggle.addEventListener("change", async (e) => {
+      const empId = e.target.dataset.id;
+      const isExempted = e.target.checked;
+
+      try {
+        const res = await fetch(WEB_APP_URL, {
+          method: "POST",
+          body: new URLSearchParams({
+            action: "updateExempted",
+            empId,
+            exempted: isExempted ? "TRUE" : "FALSE",
+          }),
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          console.log(`✅ Updated ${empId}: Exempted = ${isExempted}`);
+          // Uncomment to reload UI
+          // loadRates();
+        } else {
+          alert(`⚠️ Failed to update exempted status for ${empId}`);
+        }
+      } catch (err) {
+        console.error("❌ Error updating exempted status:", err);
+      }
+    });
+  });
 }
 
+// ✅ Open Additions Modal
 function openAdditionModal(emp) {
+  selectedEmployee = emp; // store full employee data globally
   const modal = document.getElementById("additionModal");
   modal.classList.add("show");
 
-  if (emp) {
-    // Auto-fill name
-    const modalNameInput = modal.querySelector("#additionName");
-    modalNameInput.value = emp.name;
-    modalNameInput.readOnly = true;
+  document.getElementById("additionName").value = emp.name;
+  document.getElementById("additionName").readOnly = true;
 
-    // Set selected employee for calculations
-    selectedEmployee = emp;
-  }
+  // Auto-fill hourly rate for overtime
+  updateHourlyRate();
+
+  // Load employee additions
+  fetchEmployeeAdditions(emp.id);
 }
 
 function closeAdditionModal() {
   const modal = document.getElementById("additionModal");
   modal.classList.remove("show");
 
-  // Clear all fields except the auto-filled employee name
   const idsToClear = ["effectiveDate", "adjustmentType", "rate", "hours", "amount", "remarks"];
   idsToClear.forEach(id => {
     const el = modal.querySelector("#" + id);
@@ -930,72 +1060,187 @@ function closeAdditionModal() {
       el.readOnly = false; 
     }
   });
-
-  // Keep selectedEmployee intact
 }
 
-
-
+// ✅ Compute overtime amount = rate × hours
 function computeOvertime() {
   const rate = Number(document.getElementById("rate").value || 0);
   const hours = Number(document.getElementById("hours").value || 0);
   document.getElementById("amount").value = (rate * hours).toFixed(2);
 }
 
-// 💾 Save
-function saveAddition() {
-  const emp = document.getElementById("additionName").value;
-  const type = document.getElementById("adjustmentType").value;
-  const date = document.getElementById("effectiveDate").value;
-  const amount = Number(document.getElementById("amount").value || 0);
-  const remarks = document.getElementById("remarks").value;
+// ---------------------------
+// Global Variables
+// ---------------------------
+let selectedEmployee = null;
+const additions = {}; // store additions keyed by empId
 
-  if (!emp || !type || !date || amount <= 0) {
-    alert("⚠️ Please complete all fields correctly.");
+
+// ---------------------------
+// Open Addition Modal
+// ---------------------------
+function openAdditionModal(emp) {
+  selectedEmployee = emp; // store full employee data globally
+  const modal = document.getElementById("additionModal");
+  modal.classList.add("show");
+
+  document.getElementById("additionName").value = emp.name;
+  document.getElementById("additionName").readOnly = true;
+
+  // Auto-fill hourly rate if Overtime
+  updateHourlyRate();
+
+  // Load employee additions by empId
+  fetchEmployeeAdditions(emp.id);
+}
+
+// ---------------------------
+// Close Addition Modal
+// ---------------------------
+function closeAdditionModal() {
+  const modal = document.getElementById("additionModal");
+  modal.classList.remove("show");
+
+  // Clear input fields
+  ["effectiveDate","adjustmentType","rate","hours","amount","remarks"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = "";
+      el.disabled = false;
+      el.readOnly = false;
+    }
+  });
+}
+
+// ---------------------------
+// Fetch Employee Additions
+// ---------------------------
+async function fetchEmployeeAdditions(empId) {
+  const tbody = document.querySelector("#addTable tbody");
+  tbody.innerHTML = `<tr>
+    <td colspan="5" style="text-align:center; font-style:italic; color:#888;">⏳ Loading data...</td>
+  </tr>`;
+
+  try {
+    const response = await fetch(`${WEB_APP_URL}?action=getPayrollInput&empId=${encodeURIComponent(empId)}`);
+    const result = await response.json();
+    console.log(result);
+
+    if (result.success && Array.isArray(result.records)) {
+      // Store locally
+      additions[empId] = result.records;
+      renderAdditionsTable(empId);
+    } else {
+      additions[empId] = [];
+      renderAdditionsTable(empId);
+    }
+  } catch (err) {
+    console.error("Error fetching additions:", err);
+    tbody.innerHTML = `<tr>
+      <td colspan="5" style="text-align:center; color:red;">⚠️ Failed to load data</td>
+    </tr>`;
+  }
+}
+
+// ---------------------------
+// Save Addition
+// ---------------------------
+async function saveAddition() {
+  if (!selectedEmployee || !selectedEmployee.id) {
+    alert("⚠️ Please select a valid employee.");
     return;
   }
 
-  additions.push({ emp, type, amount, date, remarks });
-  renderAdditionsTable();
-  clearInputs();
+  const empId = selectedEmployee.id;
+  const empName = document.getElementById("additionName").value.trim();
+  const type = document.getElementById("adjustmentType").value;
+  const amount = parseFloat(document.getElementById("amount").value) || 0;
+  const date = document.getElementById("effectiveDate").value;
+  const remarks = document.getElementById("remarks").value.trim();
+
+  if (!type || !date) {
+    alert("⚠️ Please fill all required fields.");
+    return;
+  }
+
+  const data = { empId, name: empName, type, amount, date, remarks };
+
+  // Save locally
+  if (!additions[empId]) additions[empId] = [];
+  additions[empId].push(data);
+
+  renderAdditionsTable(empId, { [empId]: additions[empId] });
+
+  // Clear input fields
+  ["adjustmentType","rate","hours","amount","remarks","effectiveDate"].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = "";
+  });
+
+  // Save to Google Sheet
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "savePayrollInput",
+        ...data
+      }).toString(),
+    });
+    const result = await res.json();
+    if (result.success) console.log("✅ Saved successfully!");
+    else console.warn("❌ Save failed:", result.message);
+  } catch (err) {
+    console.error("⚠️ Error saving to Google Sheet:", err);
+  }
 }
 
-// 🧹 Clear fields after save
-function clearInputs() {
-  document.getElementById("additionName").value = "";
-  document.getElementById("adjustmentType").value = "";
-  document.getElementById("rate").value = "";
-  document.getElementById("hours").value = "";
-  document.getElementById("amount").value = "";
-  document.getElementById("remarks").value = "";
-}
-
-// 📋 Render Added Adjustments Table
-function renderAdditionsTable() {
+// ---------------------------
+// Render Additions Table
+// ---------------------------
+function renderAdditionsTable(empId) {
   const tbody = document.querySelector("#addTable tbody");
   tbody.innerHTML = "";
 
-  if (additions.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No records yet</td></tr>`;
+  const empRecords = additions[empId] || [];
+
+  if (!empRecords.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#777;">No records yet</td></tr>`;
     return;
   }
 
-  additions.forEach(item => {
+  empRecords.forEach(item => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${item.emp}</td>
+      <td>${item.name || "-"}</td>
       <td>${item.type}</td>
-      <td>₱${item.amount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
-      <td>${item.date}</td>
+      <td>₱${Number(item.amount).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+      <td>${formatLocalDate(item.date)}</td>
       <td>${item.remarks || "-"}</td>
     `;
     tbody.appendChild(row);
   });
 }
-
-
+// ---------------------------
+// Format Date
+// ---------------------------
+function formatLocalDate(dateStr) {
+  if (!dateStr) return "-";
+  try {
+    const date = new Date(dateStr);
+    return date.toISOString().split("T")[0];
+  } catch {
+    return dateStr;
+  }
+}
+// ---------------------------
+// Update Hourly Rate for Overtime
+// ---------------------------
 function updateHourlyRate() {
   if (!selectedEmployee) return;
+
+  const adjustmentSelect = document.getElementById("adjustmentType");
+  const rateInput = document.getElementById("rate");
 
   if (adjustmentSelect.value !== "overtime") {
     rateInput.value = "";
@@ -1003,59 +1248,66 @@ function updateHourlyRate() {
   }
 
   let baseRate = 0;
-
   if (selectedEmployee.rate && selectedEmployee.rate > 0) {
     baseRate = selectedEmployee.rate;
   } else if (selectedEmployee.monthlySalary && selectedEmployee.monthlySalary > 0) {
-    baseRate = selectedEmployee.monthlySalary / (30 * 8); // 30 days, 8 hours/day
+    baseRate = selectedEmployee.monthlySalary / (30 * 8);
     baseRate = parseFloat(baseRate.toFixed(2));
   } else {
-    rateInput.value = ""; // walang data, i-clear lang
+    rateInput.value = "";
     return;
   }
 
   rateInput.value = baseRate;
   rateInput.disabled = false;
 
-  // Auto-compute amount kung may hours na
   computeOvertime();
 }
-const adjustmentSelect = document.getElementById("adjustmentType");
+
+// ---------------------------
+// Compute Overtime Amount
+// ---------------------------
 const rateInput = document.getElementById("rate");
 const hoursInput = document.getElementById("hours");
 const amountInput = document.getElementById("amount");
 
+function computeOvertime() {
+  const rate = parseFloat(rateInput.value) || 0;
+  const hours = parseFloat(hoursInput.value) || 0;
+  amountInput.value = (rate * hours).toFixed(2);
+}
+
+// ---------------------------
+// Adjustment Type Behavior
+// ---------------------------
+const adjustmentSelect = document.getElementById("adjustmentType");
+
 adjustmentSelect.addEventListener("change", function() {
-    const type = this.value;
+  const type = this.value;
 
-    // Reset all fields
-    [rateInput, hoursInput, amountInput].forEach(el => {
-        el.disabled = true;
-        el.readOnly = false;
-        el.value = "";
-    });
+  // Reset inputs
+  [rateInput, hoursInput, amountInput].forEach(el => {
+    el.disabled = true;
+    el.readOnly = false;
+    el.value = "";
+  });
 
-    if (type === "allowance" || type === "restday") {
-        amountInput.disabled = false;
-    } 
-    else if (type === "overtime") {
-        rateInput.disabled = false;
-        hoursInput.disabled = false;
-        amountInput.readOnly = true;
+  if (type === "allowance" || type === "restday") {
+    amountInput.disabled = false;
+  } 
+  else if (type === "overtime") {
+    rateInput.disabled = false;
+    hoursInput.disabled = false;
+    amountInput.readOnly = true;
 
-        // Remove previous listeners first para hindi magdoble
-        rateInput.removeEventListener("input", computeOvertime);
-        hoursInput.removeEventListener("input", computeOvertime);
+    rateInput.removeEventListener("input", computeOvertime);
+    hoursInput.removeEventListener("input", computeOvertime);
+    rateInput.addEventListener("input", computeOvertime);
+    hoursInput.addEventListener("input", computeOvertime);
 
-        // Add listeners once
-        rateInput.addEventListener("input", computeOvertime);
-        hoursInput.addEventListener("input", computeOvertime);
-
-        // Auto-fill rate kung may selected employee
-        updateHourlyRate();
-    }
+    updateHourlyRate();
+  }
 });
-
 
 
 
@@ -1086,32 +1338,51 @@ async function loadTab3Data() {
   const container = document.getElementById("tab3BodyContainer");
   container.innerHTML = "<p style='text-align:center;'>Loading...</p>";
 
-  const start = document.getElementById("dateStart").value;
-  const end = document.getElementById("dateEnd").value;
+  const startInput = document.getElementById("dateStart").value;
+  const endInput = document.getElementById("dateEnd").value;
 
-  const dateText = (start && end)
-    ? `DATE COVERED: ${start} - ${end}`
-    : (start ? `DATE COVERED: FROM ${start}` : "DATE COVERED: —");
+  const dateText = startInput && endInput
+    ? `DATE COVERED: ${startInput} - ${endInput}`
+    : (startInput ? `DATE COVERED: FROM ${startInput}` : "DATE COVERED: —");
 
   try {
+    // 1️⃣ Fetch payroll data from backend
     const res = await fetch(WEB_APP_URL, {
       method: "POST",
       body: new URLSearchParams({
         action: "payroll",
-        startDate: start,
-        endDate: end
+        startDate: startInput,
+        endDate: endInput
       })
     });
+    const result = await res.json();
 
-    const grouped = await res.json();
-    container.innerHTML = ""; // clear container
+    if (!result.success) {
+      container.innerHTML = "<p style='text-align:center; color:red;'>No payroll data available</p>";
+      return;
+    }
 
-    // ✅ Loop per area
+    const payrollData = result.data || [];
+    console.log("Payroll Data:", payrollData);
+
+    // 2️⃣ Group employees by area
+    const grouped = {};
+    payrollData.forEach(emp => {
+      const area = emp.area || "UNASSIGNED";
+      if (!grouped[area]) grouped[area] = [];
+      grouped[area].push(emp);
+    });
+
+    container.innerHTML = "";
+
+    // 3️⃣ Render payroll table per area
     Object.keys(grouped).forEach(area => {
       const employees = grouped[area];
-      let totalMonthly = 0, totalNet = 0;
+      if (!employees.length) return;
 
-      // 🔹 HEADER SECTION
+      let totalMonthly = 0;
+      let totalNet = 0;
+
       let html = `
         <div class="company-header">
           <h3>SIMPAL GROUP OF COMPANIES</h3>
@@ -1145,33 +1416,33 @@ async function loadTab3Data() {
           <tbody>
       `;
 
-      // 🔹 EMPLOYEE ROWS
       employees.forEach(emp => {
         html += `
           <tr>
             <td>${emp.name}</td>
-            <td>${emp.designation || ""}</td>
+            <td>${emp.designation}</td>
             <td>${Number(emp.monthly).toLocaleString()}</td>
-            <td>${emp.ratePerDay.toFixed(2)}</td>
-            <td>${emp.ratePerHour.toFixed(2)}</td>
-            <td>${emp.days}</td>
+            <td>${Number(emp.ratePerDay).toFixed(2)}</td>
+            <td>${Number(emp.ratePerHour).toFixed(2)}</td>
+            <td>${Number(emp.daysWorked)}</td>
             <td>${Number(emp.totalBasic).toLocaleString()}</td>
-            <td>${emp.allowance}</td>
-            <td>${emp.restday}</td>
-            <td>${emp.overtime}</td>
-            <td>${emp.phic}</td>
-            <td>${emp.hdmf}</td>
-            <td>${emp.sss}</td>
-            <td>${emp.salaryAdv}</td>
-            <td>${emp.lateUndertime}</td>
+            <td>${Number(emp.allowance).toLocaleString()}</td>
+            <td>${Number(emp.restday).toLocaleString()}</td>
+            <td>${Number(emp.overtime).toLocaleString()}</td>
+            <td>${Number(emp.phic).toLocaleString()}</td>
+            <td>${Number(emp.hdmf).toLocaleString()}</td>
+            <td>${Number(emp.sss).toLocaleString()}</td>
+            <td>${Number(emp.voluntary || 0).toLocaleString()}</td>
+            <td>${Number(emp.lateUndertimeDeduction).toLocaleString()}</td>
             <td>${Number(emp.netPay).toLocaleString()}</td>
+            <td></td>
           </tr>
         `;
+
         totalMonthly += Number(emp.monthly);
         totalNet += Number(emp.netPay);
       });
 
-      // 🔹 TOTAL + SIGNATORIES
       html += `
           </tbody>
           <tfoot>
@@ -1184,19 +1455,6 @@ async function loadTab3Data() {
             </tr>
           </tfoot>
         </table>
-
-        <div class="signatories">
-          <div class="signatory">
-            <p>Prepared by:</p>
-            <p class="name">QUENNIE R. CAPUYAN</p>
-            <p>HR Admin Payroll</p>
-          </div>
-          <div class="signatory">
-            <p>Reviewed & Released by:</p>
-            <p class="name">JEVINCE JAYE S. JUBAY</p>
-            <p>HRMD Manager</p>
-          </div>
-        </div>
       `;
 
       container.insertAdjacentHTML("beforeend", html);
@@ -1204,11 +1462,13 @@ async function loadTab3Data() {
 
   } catch (err) {
     console.error(err);
-    container.innerHTML = "<p style='text-align:center; color:red;'>Error loading data</p>";
+    container.innerHTML = "<p style='text-align:center; color:red;'>Error loading payroll data</p>";
   }
 }
 
 document.getElementById("generatePayrollBtn").addEventListener("click", loadTab3Data);
+
+
 
 // ---------------- Download Excel ----------------
 function downloadExcel(){
@@ -1604,120 +1864,255 @@ document.getElementById("closeModal").addEventListener("click", () => {
 });
 
   
+// ========================
+// SAVE / UPDATE BUTTON
+// ========================
 document.getElementById("saveUpdateBtn").addEventListener("click", async () => {
+  const activeTab = document.querySelector(".modal-tab-content.active");
+  if (!activeTab) {
+    alert("⚠️ No active tab detected!");
+    return;
+  }
+
   const id = document.getElementById("empIDUp").value.trim();
-  const name = document.getElementById("empNameUp").value.trim();
-  const area = document.getElementById("empAreaUp").value.trim();
-  const designation = document.getElementById("empDesignationUp").value.trim();
-  const salary = document.getElementById("empSalaryUp").value.trim();
-
-  const phic = document.getElementById("phicDeduction")?.value.trim() || "";
-  const hdmf = document.getElementById("hdmfDeduction")?.value.trim() || "";
-  const sss = document.getElementById("sssDeduction")?.value.trim() || "";
-  const voluntary = document.getElementById("empVoluntaryUp")?.value.trim() || "";
-
-  if (!id || !name) {
-    alert("⚠️ Missing Employee ID or Name!");
+  if (!id) {
+    alert("⚠️ Missing Employee ID!");
     return;
   }
 
   try {
-    const res = await fetch(WEB_APP_URL, {
-      method: "POST",
-      body: new URLSearchParams({
-        action: "updateEmployeeAll",
-        id, name, area, designation, salary,
-        phic, hdmf, sss, voluntary
-      })
-    });
+    let action = "";
+    let body = {};
 
- const result = await res.json();
+    // --- TAB 1: Employee Info ---
+    if (activeTab.id === "employee") {
+      const name = document.getElementById("empNameUp").value.trim();
+      const area = document.getElementById("empAreaUp").value.trim();
+      const designation = document.getElementById("empDesignationUp").value.trim();
+      const salary = document.getElementById("empSalaryUp").value.trim();
 
-    if (result.success) {
-      // disable deduction inputs after successful update
-      ["toggleSSS", "togglePHIC", "toggleHDMF"].forEach((toggleId) => {
-        const toggle = document.getElementById(toggleId);
-        if (!toggle) return; // skip kung wala
-        toggle.checked = false;
-        toggle.disabled = true;
+      if (!name) return alert("⚠️ Please fill in Employee Name!");
+
+      action = "updateEmployee";
+      body = { id, name, area, designation, salary };
+    }
+
+    // --- TAB 2: Mandatory Deductions ---
+    else if (activeTab.id === "tab2modal") {
+      const sss = document.getElementById("sssDeduction")?.value.trim() || "";
+      const phic = document.getElementById("phicDeduction")?.value.trim() || "";
+      const hdmf = document.getElementById("hdmfDeduction")?.value.trim() || "";
+
+      action = "saveMandatoryDeductions";
+      body = { id, sss, phic, hdmf };
+    }
+
+    // --- TAB 3: Voluntary Deductions ---
+    else if (activeTab.id === "tab3modal") {
+      const tableRows = document.querySelectorAll("#caTable tbody tr");
+      const volType = document.getElementById("volDeductionType")?.value || "N/A";
+      const deductions = [];
+
+      tableRows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length >= 3) {
+          deductions.push({
+            cutoffDate: cells[0].textContent.trim(),
+            deduction: cells[1].textContent.trim(),
+            remaining: cells[2].textContent.trim(),
+            type: volType,
+            createdDate: new Date().toLocaleDateString("en-US")
+          });
+        }
       });
 
-        alert(result.message || "✅ Employee updated successfully!");
-      document.getElementById("updateModal").classList.remove("show");
-      loadRates();
-    } else {
-      alert(result.message || "❌ Failed to update employee!");
+      if (deductions.length === 0) {
+        alert("⚠️ No Cash Advance data found!");
+        return;
+      }
+
+      action = "saveVoluntaryDeductions";
+      body = { id, deductions: JSON.stringify(deductions) };
     }
+
+    // 🟩 ADD THIS LINE BEFORE FETCH:
+    console.log("📤 Sending to backend:", { action, ...body });
+
+    // --- Send to backend ---
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: new URLSearchParams({ action, ...body }),
+    });
+
+    // 🧩 Debugging section
+    const text = await res.text();
+    console.log("🔍 RAW RESPONSE:", text);
+
+    let result;
+    try {
+      result = JSON.parse(text);
+      console.log("✅ Parsed JSON:", result);
+    } catch (err) {
+      console.error("❌ JSON Parse Error:", err);
+      alert("❌ Backend did not return valid JSON! Check Apps Script logs.");
+      return;
+    }
+
+    // ✅ Handle result
+    if (result.success) {
+      alert("✅ " + (result.message || "Data saved successfully!"));
+      document.getElementById("updateModal").classList.remove("show");
+      loadRates(); // reload employee table
+    } else {
+      alert("⚠️ " + (result.message || "Failed to save data. Please check backend logs."));
+    }
+
   } catch (err) {
-    console.error("Error updating employee:", err);
-    alert("⚠️ Error saving update!");
+    console.error("Error saving data:", err);
+    alert("❌ Error while saving data!");
   }
 });
 
+// --- Variables ---
+// --- Scope everything inside Tab 3 modal ---
+const tab3 = document.getElementById("tab3modal");
 
-const volDeductionType = document.getElementById("volDeductionType");
-const volDeductionAmount = document.getElementById("volDeductionAmount");
-const volToggle = document.getElementById("voluntaryToggle");
-const caOptions = document.getElementById("cashAdvanceOptions");
-const caInstallment = document.getElementById("caInstallment");
-const caFields = document.querySelector(".ca-fields");
+// Elements
+const volToggle = tab3?.querySelector("#voluntaryToggle");
+const volDeductionType = tab3?.querySelector("#volDeductionType");
+const volDeductionAmount = tab3?.querySelector("#volDeductionAmount");
+const caOptions = tab3?.querySelector("#cashAdvanceOptions");
+const caInstallment = tab3?.querySelector("#caInstallment");
+const caFields = tab3?.querySelector(".ca-fields");
 
-volToggle.addEventListener("change", function(){
-  const enabled = this.checked;
-  volDeductionType.disabled = !enabled;
-  volDeductionAmount.disabled = !enabled;
-  if(!enabled){
-    volDeductionType.value = "";
-    volDeductionAmount.value = "";
-    caOptions.style.display = "none";
-    caInstallment.checked = false;
-    caFields.style.display = "none";
-  }
-});
+const caTotal = tab3?.querySelector("#caTotal");
+const caPerCutoff = tab3?.querySelector("#caPerCutoff");
+const caConfirmBtn = tab3?.querySelector("#caConfirmBtn");
+const caTableContainer = tab3?.querySelector("#caTableContainer");
+const caTableBody = tab3?.querySelector("#caTable tbody");
 
+// Safety: make sure all elements exist
+if(!volToggle || !volDeductionType || !volDeductionAmount) {
+  console.warn("Tab 3 voluntary deduction elements not found. Skipping Tab 3 JS.");
+} else {
 
-caInstallment.addEventListener("change", function(){
-  caFields.style.display = this.checked ? "grid" : "none";
-});
-volDeductionType.addEventListener("change", function(){
-  if(this.value === "cashAdvance"){
-    volDeductionAmount.disabled = true; // disable main amount input
-    volDeductionAmount.value = "";      // clear it
-    caOptions.style.display = "block";  // show extra options
-  } else {
-    volDeductionAmount.disabled = this.value === ""; // normal logic
-    caOptions.style.display = "none";   // hide CA options
-    caInstallment.checked = false;
-    caFields.style.display = "none";
-  }
-});
+  // --- Voluntary Toggle ---
+  volToggle.addEventListener("change", function(){
+    const enabled = this.checked;
+    volDeductionType.disabled = !enabled;
+    volDeductionAmount.disabled = !enabled;
 
-
-
-document.getElementById("voluntaryToggle").addEventListener("change", function(){
-  const disabled = !this.checked;
-  document.querySelectorAll("#tab3modal input").forEach(inp=>{
-    if(inp.type !== "checkbox") inp.disabled = disabled;
+    if(!enabled){
+      volDeductionType.value = "";
+      volDeductionAmount.value = "";
+      caOptions.style.display = "none";
+      caInstallment.checked = false;
+      caFields.style.display = "none";
+      caTableContainer.style.display = "none";
+      caTotal.value = "";
+      caPerCutoff.value = "";
+      caTableBody.innerHTML = "";
+    }
   });
-});
 
-// helper function para mag toggle
+  // --- Cash Advance Selection ---
+  volDeductionType.addEventListener("change", function(){
+    if(this.value === "cashAdvance"){
+      volDeductionAmount.disabled = true;
+      volDeductionAmount.value = "";
+      caOptions.style.display = "block";
+      caFields.style.display = "none";
+      caTableContainer.style.display = "none";
+    } else {
+      volDeductionAmount.disabled = this.value === "";
+      caOptions.style.display = "none";
+      caInstallment.checked = false;
+      caFields.style.display = "none";
+      caTableContainer.style.display = "none";
+      caTableBody.innerHTML = "";
+    }
+  });
+
+  // --- Installment Checkbox ---
+  caInstallment.addEventListener("change", function(){
+    caFields.style.display = this.checked ? "grid" : "none";
+    caTableContainer.style.display = "none"; // hide table until OK
+  });
+
+  // --- Confirm Button (show table only after OK) ---
+  caConfirmBtn.addEventListener("click", function(){
+    const total = parseFloat(caTotal.value) || 0;
+    const perCutoff = parseFloat(caPerCutoff.value) || 0;
+
+    if(total <= 0 || perCutoff <= 0){
+      alert("Please enter valid amounts.");
+      return;
+    }
+
+    if(perCutoff > total){
+      alert("Per cutoff deduction cannot exceed total amount.");
+      return;
+    }
+
+    generateCATable(total, perCutoff);
+    caTableContainer.style.display = "block"; // show table after confirm
+  });
+
+  // --- Generate Table ---
+  function generateCATable(total, perCutoff){
+  caTableBody.innerHTML = '';
+  let balance = total;
+  const today = new Date();
+  const cutoffs = [];
+
+  // Generate next 6 cutoffs (15th & 30th pattern)
+  for(let i=0; i<8; i++){
+    const monthOffset = Math.floor(i/2) + ((today.getDate()>15 && i%2===0)?1:0);
+    const month = today.getMonth() + monthOffset;
+    const year = today.getFullYear() + Math.floor(month/12);
+    const m = month % 12;
+    const day = i%2 === 0 ? 15 : 30;
+    cutoffs.push(new Date(year, m, day));
+  }
+
+  // Sort cutoffs ascending
+  cutoffs.sort((a,b) => a - b);
+
+  cutoffs.forEach(date => {
+    if(balance <= 0) return;
+    const deduction = Math.min(perCutoff, balance);
+    balance -= deduction;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td style="padding:6px; text-align:center;">${date.toLocaleDateString()}</td>
+      <td style="padding:6px; text-align:center;">${deduction.toFixed(2)}</td>
+      <td style="padding:6px; text-align:center;">${balance.toFixed(2)}</td>
+    `;
+    caTableBody.appendChild(tr);
+  });
+}
+
+// --- Universal toggle setup for any tab ---
 function setupToggle(toggleId, inputId) {
   const toggle = document.getElementById(toggleId);
   const input = document.getElementById(inputId);
 
-  // Default: disabled
+  if (!toggle || !input) return;
+
+  // initial state
   input.disabled = true;
+  input.style.backgroundColor = "#f1f1f1";
+  input.style.fontStyle = "italic";
+  input.style.color = "#555";
 
   toggle.addEventListener("change", () => {
     if (toggle.checked) {
-      // Enable editing
       input.disabled = false;
       input.style.backgroundColor = "#fff";
       input.style.fontStyle = "normal";
       input.style.color = "#000";
     } else {
-      // Disable again, keep value
       input.disabled = true;
       input.style.backgroundColor = "#f1f1f1";
       input.style.fontStyle = "italic";
@@ -1726,25 +2121,38 @@ function setupToggle(toggleId, inputId) {
   });
 }
 
-
-// setup bawat deduction
+// ✅ Apply setup to all deduction toggles (Tab 2 + Tab 3)
 setupToggle("toggleSSS", "sssDeduction");
 setupToggle("togglePHIC", "phicDeduction");
 setupToggle("toggleHDMF", "hdmfDeduction");
+setupToggle("voluntaryToggle", "volDeductionAmount");
 
-// kapag save, lahat balik sa disabled at untoggle
+// ✅ When saving, reset all toggles to default (disabled)
 document.getElementById("saveUpdateBtn").addEventListener("click", () => {
-  ["toggleSSS", "togglePHIC", "toggleHDMF"].forEach((toggleId) => {
+  const toggleInputPairs = [
+    ["toggleSSS", "sssDeduction"],
+    ["togglePHIC", "phicDeduction"],
+    ["toggleHDMF", "hdmfDeduction"],
+    ["voluntaryToggle", "volDeductionAmount"]
+  ];
+
+  toggleInputPairs.forEach(([toggleId, inputId]) => {
     const toggle = document.getElementById(toggleId);
-    const input = document.getElementById(toggle.dataset.inputId || toggleId.replace("toggle","").toLowerCase() + "Deduction");
-    
-    toggle.checked = false;
-    input.disabled = true;
-    input.style.backgroundColor = "#e9ecef";
+    const input = document.getElementById(inputId);
+    if (toggle && input) {
+      toggle.checked = false;
+      input.disabled = true;
+      input.style.backgroundColor = "#f1f1f1";
+      input.style.fontStyle = "italic";
+      input.style.color = "#555";
+    }
   });
 
   alert("Deductions saved successfully!");
 });
+
+
+
 document.querySelectorAll('.ios-tab--dropdown').forEach(tab => {
   tab.addEventListener('click', function (e) {
     e.stopPropagation(); // para hindi agad magsara
@@ -1966,9 +2374,6 @@ async function loadTimeInArea() {
       return;
     }
 
-    // Populate area dropdown dynamically
-    populateAreaDropdown(data);
-
     // Render table initially with all data
     renderTimeInOutReport(data);
 
@@ -1978,27 +2383,6 @@ async function loadTimeInArea() {
       "<tr><td colspan='4'>Error loading data</td></tr>";
   }
 }
-
-function populateAreaDropdown(data) {
-  const areaSelect = document.getElementById("areaFilter");
-
-  // Get unique areas
-  const areas = [...new Set(data.map(item => item.area))].sort();
-
-  // Clear existing options except "All Areas"
-  areaSelect.innerHTML = '<option value="">All Areas</option>';
-
-  // Add options
-  areas.forEach(area => {
-    const option = document.createElement("option");
-    option.value = area;
-    option.textContent = area;
-    areaSelect.appendChild(option);
-  });
-}
-
-// ✅ Debug: check if function is defined
-console.log("populateAreaDropdown defined?", typeof populateAreaDropdown);
 
 async function loadDynamicTimeInReport() {
   const start = document.getElementById("tab5Start").value;
@@ -2034,7 +2418,11 @@ async function loadDynamicTimeInReport() {
   }
 }
 
+// ✅ Expose globally so onclick works
+window.loadTimeInArea = loadTimeInArea;
+window.loadDynamicTimeInReport = loadDynamicTimeInReport;
 
+}
 
 </script>
 </body>
