@@ -535,6 +535,10 @@ input:disabled {
 }
 .submit-btn:hover { background: #218838; }
 
+
+  
+
+
 .switch {
   position: relative;
   display: inline-block;
@@ -1349,7 +1353,7 @@ body {
    🧱 Modal Base
 ============================== */
 #additionModal .modal-content.addition {
-  width: 650px;
+  width: 800px;
   max-width: 95%;
   background: #fff;
   border-radius: 12px;
@@ -1504,55 +1508,302 @@ body {
   to {opacity: 1; transform: translateY(0);}
 }
 
-/* ==============================
-   🔍 Search Dropdown (Floating)
-============================== */
-#additionModal .input-wrapper {
-  position: relative;
+/*/* --- Tab 3: Cash Advance Table Styling --- */
+#tab3modal #caTableContainer {
+  margin-top: 12px;
+  overflow-x: auto;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  background: #fff;
 }
 
-#additionModal #searchResults {
-  position: absolute;
-  top: calc(100% + 2px); /* lumabas direkta sa ilalim ng input */
-  left: 50%;
-  transform: translateX(-50%); /* center align sa input */
-  width: 92%; /* bahagyang mas maliit sa input width */
-  max-height: 160px;
-  overflow-y: auto;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  backdrop-filter: blur(2px);
-  z-index: 9999;
-  display: none;
-  transition: all 0.2s ease-in-out;
+#tab3modal #caTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 320px;
 }
 
+#tab3modal #caTable th,
+#tab3modal #caTable td {
+  padding: 10px 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #333;
+}
 
-/* 🔹 Individual list items */
-#additionModal #searchResults li {
-  padding: 6px 10px;
-  list-style: none;
-  cursor: pointer;
-  font-size: 13px;
-  color: #222;
+#tab3modal #caTable th {
+  background: #f7f7f7;
+  font-weight: 600;
+  text-align: center;
+}
+
+#tab3modal #caTable tr:hover {
+  background: #f0f8ff;
+}
+
+#tab3modal #caTable td:first-child {
+  text-align: center; /* Date column aligned left */
+}
+
+/* --- Input & Button Styling --- */
+#tab3modal .ca-fields input {
+  padding: 8px 10px;
+  font-size: 14px;
   border-radius: 4px;
-  margin: 2px 0;
-  background: rgba(255, 255, 255, 0.65);
-  transition: background 0.2s ease;
-}
-#additionModal #searchResults li:last-child {
-  border-bottom: none;
+  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Hover effect */
-#additionModal #searchResults li:hover {
-  background: rgba(0, 123, 255, 0.15);
-  color: #007bff;
+#tab3modal #caConfirmBtn {
+  padding: 6px 14px;         /* smaller size */
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 4px;
+  border: none;
+  background: #4CAF50;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#tab3modal #caConfirmBtn:hover {
+  background: #45a049;
+}
+/* --- Responsive tweaks --- */
+@media (max-width: 480px) {
+  #tab3modal #caTable th, 
+  #tab3modal #caTable td {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+
+  #tab3modal .ca-fields {
+    grid-template-columns: 1fr;
+  }
+
+  #tab3modal #caConfirmBtn {
+    width: 100%;
+  }
 }
 
-/* Ensure dropdown does not push elements */
-#additionModal .form-group.half {
-  position: relative;
-  overflow: visible;
+/* Clear floats if needed for container */
+#tab3modal .ca-fields::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+#tab3modal .ca-button-wrapper {
+  display: flex;
+  justify-content: flex-end;  /* aligns button to the right */
+  margin-top: 8px;
+}
+
+/* ========= UNIQUE TAB3 CONTROLS ========== */
+#tab3 .print-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 1px;
+  margin-bottom: 20px;
+  animation: fadeInTab3 0.6s ease-in-out;
+}
+
+/* Label styling */
+#tab3 .print-controls label {
+  font-weight: 600;
+  font-size: 15px;
+  color: #1e355b;
+  letter-spacing: 0.3px;
+}
+
+/* Date inputs */
+#tab3 .print-controls input[type="date"] {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #c5d1f3;
+  background: #f9fbff;
+  color: #2c3e55;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+#tab3 .print-controls input[type="date"]:focus {
+  outline: none;
+  border-color: #5b8def;
+  box-shadow: 0 0 5px rgba(91, 141, 239, 0.3);
+}
+
+/* Buttons */
+#tab3 .print-controls button {
+  background: linear-gradient(135deg, #4b6cb7, #182848);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+#tab3 .print-controls button:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #5b8def, #1b2d65);
+  box-shadow: 0 5px 15px rgba(0,64,128,0.25);
+}
+
+#tab3 .print-controls button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0,64,128,0.2);
+}
+
+/* Fade in animation */
+@keyframes fadeInTab3 {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === TAB 4 Styling === */
+/* === Fade-in animation === */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+/* === TAB 4 Professional Styling === */
+/* === Fade-in Animation === */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === Style specific to TAB 4 === */
+#tab4 .print-controls {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  animation: fadeIn 0.7s ease forwards;
+}
+
+/* Label text */
+#tab4 label {
+  font-weight: 600;
+  color: #0a2e5c;
+  font-size: 14px;
+}
+
+/* Date inputs */
+#tab4 input[type="date"] {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #b5c7e3;
+  background-color: #fff;
+  color: #0f2d55;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+#tab4 input[type="date"]:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 6px rgba(0, 102, 204, 0.3);
+}
+
+/* Buttons inside tab4 controls */
+#tab4 .print-controls button {
+  background: linear-gradient(135deg, #004e92, #000428);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  animation: fadeIn 0.6s ease forwards;
+}
+
+#tab4 .print-controls button:nth-of-type(1) { animation-delay: 0.1s; }
+#tab4 .print-controls button:nth-of-type(2) { animation-delay: 0.2s; }
+#tab4 .print-controls button:nth-of-type(3) { animation-delay: 0.3s; }
+
+/* Hover and active effects */
+#tab4 .print-controls button:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #1e6fba, #00172e);
+  box-shadow: 0 6px 15px rgba(0, 64, 128, 0.3);
+}
+
+#tab4 .print-controls button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 64, 128, 0.2);
+}
+/* === Fade-in Animation === */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === Style for TAB 5 === */
+#tab5 {
+  animation: fadeIn 0.7s ease forwards;
+}
+
+/* === Buttons inside TAB 5 === */
+#tab5 > button {
+  background: linear-gradient(135deg, #004e92, #000428);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  margin-right: 10px;
+  margin-bottom: 15px;
+  opacity: 0;
+  animation: fadeIn 0.6s ease forwards;
+}
+
+#tab5 > button:nth-of-type(1) { animation-delay: 0.1s; }
+#tab5 > button:nth-of-type(2) { animation-delay: 0.2s; }
+
+/* Hover and active effects */
+#tab5 > button:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #1e6fba, #00172e);
+  box-shadow: 0 6px 15px rgba(0, 64, 128, 0.3);
+}
+
+#tab5 > button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 64, 128, 0.2);
+}
+
+/* Optional: add subtle card look for the container */
+#tab5 .thirteenth-container {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 64, 128, 0.15);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 64, 128, 0.1);
+  animation: fadeIn 1s ease forwards;
 }
