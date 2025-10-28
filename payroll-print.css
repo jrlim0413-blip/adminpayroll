@@ -947,8 +947,12 @@ input[disabled] {
 
 /* Dropdown container */
 .settings-dropdown {
-  position: relative;   /* para dito naka-base yung dropdown */
+  position: absolute;      /* make it relative to navbar container */
+  top: 38%;                /* vertical center relative to parent */
+  transform: translateY(-50%); /* truly center it */
+  right: 5px;             /* spacing from the right edge */
   display: inline-block;
+  z-index: 9999;
 }
 
 /* Gear button */
@@ -970,8 +974,8 @@ input[disabled] {
 
 /* Dropdown menu */
 .settings-menu {
-   display: none;
-  position: absolute;
+  display: none;
+  position: absolute;      /* stays relative to .settings-dropdown */
   top: calc(100% + 8px);
   right: 0;
   background: var(--card-bg);
@@ -980,24 +984,28 @@ input[disabled] {
   min-width: 200px;
   padding: 16px;
   flex-direction: column;
-  gap: 10px; /* ✅ space between buttons */
+  gap: 10px;
+  z-index: 9999;           /* make sure menu itself is above tabs */
 }
 
 .settings-menu button:hover {
   opacity: 0.9;
 }
 
-/* Divider style (parang macOS menu) */
+/* Divider style */
 .settings-menu button + button {
   border-top: 1px solid rgba(0,0,0,0.08);
 }
 
-/* Active state (optional kung gusto mo) */
+/* Active state */
 .settings-menu button:active {
   background: rgba(0,0,0,0.1);
 }
 
-.settings-dropdown.show .settings-menu { display: flex; }
+.settings-dropdown.show .settings-menu { 
+  display: flex; 
+}
+
 .settings-menu button {
   width: 100%;
   padding: 10px 14px;
@@ -1011,6 +1019,7 @@ input[disabled] {
   text-align: center;
   transition: background 0.2s;
 }
+
 /* Default light header */
 .payroll-header, .app-header {
   background: #fff;
