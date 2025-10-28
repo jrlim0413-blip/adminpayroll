@@ -1807,3 +1807,89 @@ body {
   box-shadow: 0 4px 15px rgba(0, 64, 128, 0.1);
   animation: fadeIn 1s ease forwards;
 }
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply animation to each element inside filters */
+#logs.active .filters select,
+#logs.active .filters input,
+#logs.active .filters button {
+  opacity: 0;
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Staggered delay for each filter control */
+#logs.active .filters select {
+  animation-delay: 0.1s;
+}
+#logs.active .filters input {
+  animation-delay: 0.25s;
+}
+#logs.active .filters button {
+  animation-delay: 0.4s;
+}
+/* Fade-in animation */
+@keyframes fadeInTable {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Apply fade-in to table container when tab is active */
+#logs.active .table-container {
+  opacity: 0;
+  animation: fadeInTable 0.6s ease forwards;
+  animation-delay: 0.5s; /* after filters animation */
+}
+/* Fade-in keyframes */
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animate the filters (icon, input, button) */
+#tab2 .filters,
+#logs .filters {
+  opacity: 0;
+  animation: fadeInContent 0.8s ease forwards;
+  animation-delay: 0.1s;
+}
+
+/* Animate the inputs and buttons inside filters one-by-one */
+#tab2 .filters > *,
+#logs .filters > * {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: fadeInContent 0.6s ease forwards;
+}
+
+/* Slight stagger for each element */
+#tab2 .filters > *:nth-child(1),
+#logs .filters > *:nth-child(1) { animation-delay: 0.1s; }
+#tab2 .filters > *:nth-child(2),
+#logs .filters > *:nth-child(2) { animation-delay: 0.2s; }
+#tab2 .filters > *:nth-child(3),
+#logs .filters > *:nth-child(3) { animation-delay: 0.3s; }
+#tab2 .filters > *:nth-child(4),
+#logs .filters > *:nth-child(4) { animation-delay: 0.4s; }
+
+/* Fade-in for the table container */
+#tab2 .table-container,
+#logs .table-container {
+  opacity: 0;
+  animation: fadeInContent 0.8s ease forwards;
+  animation-delay: 0.5s;
+}
