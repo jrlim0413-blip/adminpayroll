@@ -767,7 +767,7 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
 
 
 window.history.pushState(null,"",window.location.href);
-window.addEventListener("popstate",()=>{if(!sessionStorage.getItem("loggedIn"))window.location.replace("login.html");else window.history.pushState(null,"",window.location.href);});
+window.addEventListener("popstate",()=>{if(!sessionStorage.getItem("loggedIn"))window.location.replace("index.html");else window.history.pushState(null,"",window.location.href);});
 
 const toggleBtn = document.getElementById('themeToggle');
 let darkMode = localStorage.getItem("theme") === "dark";
@@ -2523,3 +2523,4 @@ window.loadDynamicTimeInReport = loadDynamicTimeInReport;
 </script>
 </body>
 </html>
+
