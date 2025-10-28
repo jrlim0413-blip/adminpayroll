@@ -756,11 +756,11 @@
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec"; 
 const SECRET_KEY = "jayryan"; // Secret key for AES
 
-if (!sessionStorage.getItem("loggedIn")) window.location.replace("login.html");
+if (!sessionStorage.getItem("loggedIn")) window.location.replace("index.html");
 
 document.getElementById("logoutBtn").addEventListener("click", () => {
   sessionStorage.clear();
-  window.location.replace("login.html");
+  window.location.replace("index.html");
 });
 
 
@@ -2523,4 +2523,5 @@ window.loadDynamicTimeInReport = loadDynamicTimeInReport;
 </script>
 </body>
 </html>
+
 
