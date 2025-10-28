@@ -1820,38 +1820,134 @@ function preloadEmployees() {
 
 
 
-// ----------------------
-// 3️⃣ Open update modal instantly
-// ----------------------
-function openUpdateEmployeeModal(emp) {
+
+async function openUpdateEmployeeModal(emp) {
   console.log("EMP object received:", emp);
 
-  // Fill basic info
+  // --- Fill basic info ---
   document.getElementById("empNameUp").value = emp.name || "";
   document.getElementById("empIDUp").value = emp.id || "";
   document.getElementById("empAreaUp").value = emp.area || "";
   document.getElementById("empDesignationUp").value = emp.designation || "";
   document.getElementById("empSalaryUp").value = emp.monthlySalary || "";
 
-  // Fill deductions instantly
+  // --- Fill mandatory deductions ---
   document.getElementById("phicDeduction").value = emp.phicDeduction || 0;
   document.getElementById("hdmfDeduction").value = emp.hdmfDeduction || 0;
   document.getElementById("sssDeduction").value = emp.sssDeduction || 0;
 
-  // Lock fields if needed
+  // --- Lock fields not editable ---
   document.getElementById("empDesignationUp").disabled = true;
   document.getElementById("empSalaryUp").disabled = true;
 
-  // Show modal
+  // --- Show modal ---
   const modal = document.getElementById("updateModal");
   modal.classList.add("show");
   modal.style.display = "flex";
+
+  // ✅ Load attendance-based deductions
+  await loadAttendanceDeductions(emp);
 }
 
+
+// ---------------------------
+// 🔹 Load Attendance-Based Deductions (only shows days with late/undertime)
+// ---------------------------
+async function loadAttendanceDeductions(emp) {
+  const tableBody = document.querySelector("#attendanceDeductionTable tbody");
+  tableBody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
+
+  try {
+    // 📅 Set date range for the current month
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
+
+    // 📡 Fetch payroll data from backend
+    const response = await fetch(WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "payroll",
+        empId: emp.id,
+        startDate,
+        endDate
+      })
+    });
+
+    const result = await response.json();
+    console.log("Attendance deduction result:", result);
+
+    if (!result.success || !result.data) {
+      tableBody.innerHTML = `<tr><td colspan="4">Walang attendance record.</td></tr>`;
+      return;
+    }
+
+    // 🔎 Hanapin ang record ng empleyado
+    const employeeData = result.data.find(item => item.empId === emp.id);
+    if (!employeeData) {
+      tableBody.innerHTML = `<tr><td colspan="4">Walang data para sa empleyadong ito.</td></tr>`;
+      return;
+    }
+
+    const monthlySalary = parseFloat(emp.monthlySalary || 0);
+    const ratePerMinute = monthlySalary / 30 / 8 / 60;
+
+    // 📋 Filter attendance only with late/undertime
+    const attRows = (employeeData.attendance || []).filter(r => {
+      return (parseFloat(r.lateMin || 0) > 0 || parseFloat(r.undertimeMin || 0) > 0);
+    });
+
+    if (attRows.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="4">🎉 Walang late o undertime sa buwang ito!</td></tr>`;
+      return;
+    }
+
+    // 🧮 Build table rows
+    let totalLate = 0;
+    let totalUnder = 0;
+    let totalDeduction = 0;
+
+    const rowsHTML = attRows.map(r => {
+      const date = r.date || "";
+      const lateMin = parseFloat(r.lateMin || 0);
+      const underMin = parseFloat(r.undertimeMin || 0);
+      const deduction = (lateMin + underMin) * ratePerMinute;
+
+      totalLate += lateMin;
+      totalUnder += underMin;
+      totalDeduction += deduction;
+
+      return `
+        <tr>
+          <td>${date}</td>
+          <td>${lateMin.toFixed(0)}</td>
+          <td>${underMin.toFixed(0)}</td>
+          <td>₱${deduction.toFixed(2)}</td>
+        </tr>`;
+    }).join("");
+
+    // ➕ Add total summary row
+    const totalRow = `
+      <tr style="background:#f9f9f9; font-weight:bold;">
+        <td>Total</td>
+        <td>${totalLate.toFixed(0)}</td>
+        <td>${totalUnder.toFixed(0)}</td>
+        <td>₱${totalDeduction.toFixed(2)}</td>
+      </tr>`;
+
+    tableBody.innerHTML = rowsHTML + totalRow;
+
+  } catch (err) {
+    console.error(err);
+    tableBody.innerHTML = `<tr><td colspan="4" style="color:red;">❌ Error sa pag-load ng attendance data.</td></tr>`;
+  }
+}
 // ----------------------
-// 4️⃣ Initialize on page load
+// 4️⃣ Preload Employees
 // ----------------------
 document.addEventListener("DOMContentLoaded", preloadEmployees);
+
 
 
 // ✅ Move this outside the function
