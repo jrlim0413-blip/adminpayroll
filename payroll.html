@@ -15,149 +15,43 @@
 </style>
 </head>
 <body>
-<div class="payroll-modal-overlay" id="payrollModalOverlay">
-    <div class="payroll-modal" id="payrollModalBox">
-      <div class="payroll-modal-header">Payroll Settings</div>
-      <div class="payroll-modal-body">
-        <table>
-          <thead>
-            <tr>
-              <th rowspan="2">Area</th>
-              <th colspan="2">Rates</th>
-              <th colspan="3">Cut-Off</th>
-            </tr>
-            <tr>
-              <th>Fixed Rate</th>
-              <th>Daily Rate</th>
-              <th>Monthly</th>
-              <th>Semi Monthly</th>
-              <th>Weekly</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>ADMIN</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-            <tr>
-              <td>AWANG</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-            <tr>
-              <td>SOUTH UPI</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-            <tr>
-              <td>NORTH UPI</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-            <tr>
-              <td>PARANG</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-            <tr>
-              <td>COTABATO</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-            <tr>
-              <td>ILIGAN</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-            <tr>
-              <td>WAO</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-            <tr>
-              <td>LALA</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-            <tr>
-              <td>BALOI</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-            <tr>
-              <td>MARAWI</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-            <tr>
-              <td>MALABANG</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-            <tr>
-              <td>BALAGAN</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-            <tr>
-              <td>SET B ILIGAN</td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
+          <!-- PAYROLL MODAL -->
+          <div class="payroll-modal-overlay" id="payrollModalOverlay">
+            <div class="payroll-modal" id="payrollModalBox">
+              <!-- Header -->
+              <div class="payroll-modal-header">Payroll Settings</div>
 
-          </tbody>
-        </table>
-      </div>
-      <div class="payroll-modal-footer">
-        <button class="payroll-btn payroll-btn-close" onclick="closePayrollModal()">Cancel</button>
-        <button class="payroll-btn payroll-btn-primary" onclick="savePayrollSettings()">Save</button>
-      </div>
-    </div>
-  </div>
- 
+              <!-- Body: Dynamic Table -->
+              <div class="payroll-modal-body">
+                <table>
+                  <thead>
+                    <tr>
+                      <th rowspan="2">Area</th>
+                      <th colspan="2">Rates</th>
+                      <th colspan="3">Cut-Off</th>
+                    </tr>
+                    <tr>
+                      <th>Fixed Rate</th>
+                      <th>Daily Rate</th>
+                      <th>Monthly</th>
+                      <th>Semi Monthly</th>
+                      <th>Weekly</th>
+                    </tr>
+                  </thead>
+                  <tbody id="payrollTableBody">
+                    <!-- Dynamic rows inserted here via JS -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Footer: Buttons -->
+              <div class="payroll-modal-footer">
+                <button class="payroll-btn payroll-btn-close" onclick="closePayrollModal()">Cancel</button>
+                <button class="payroll-btn payroll-btn-primary" onclick="savePayrollSettingsFrontend()">Save</button>
+              </div>
+            </div>
+          </div>
+
 
   
 <header class="ios-header">
@@ -692,82 +586,200 @@
 
 
 <script>
-  function openPayrollModal() {
-      document.getElementById("payrollModalOverlay").style.display = "flex";
-      setTimeout(() => {
-        document.getElementById("payrollModalBox").classList.add("show");
-      }, 10);
-    }
 
-    function closePayrollModal() {
-      const modal = document.getElementById("payrollModalBox");
-      modal.classList.remove("show");
-      setTimeout(() => {
-        document.getElementById("payrollModalOverlay").style.display = "none";
-      }, 300);
-    }
 
-   function savePayrollSettings() {
-  const table = document.querySelector("#payrollModalBox tbody");
-  const rows = table.querySelectorAll("tr");
-  const data = [];
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec"; 
+  const SECRET_KEY = "jayryan"; // Secret key for AES
 
-  rows.forEach(row => {
-    const cells = row.querySelectorAll("td");
-    const area = cells[0].textContent.trim();
-    const fixed = cells[1].querySelector("input").checked ? 1 : 0;
-    const daily = cells[2].querySelector("input").checked ? 1 : 0;
-    const monthly = cells[3].querySelector("input").checked ? 1 : 0;
-    const semi = cells[4].querySelector("input").checked ? 1 : 0;
-    const weekly = cells[5].querySelector("input").checked ? 1 : 0;
 
-    data.push({ area, fixed, daily, monthly, semi, weekly });
-  });
+  // Open modal
+function openPayrollModal() {
+  const overlay = document.getElementById("payrollModalOverlay");
+  const modal = document.getElementById("payrollModalBox");
+  overlay.style.display = "flex";
+  setTimeout(() => modal.classList.add("show"), 10);
+  loadPayrollSettings(); // load dynamic rows
+}
 
-  fetch(WEB_APP_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `action=savePayrollSettings&data=${encodeURIComponent(JSON.stringify(data))}`
-  })
-    .then(res => res.text())
-    .then(res => {
-      alert("Payroll settings saved!");
-      closePayrollModal();
-    })
-    .catch(err => console.error("Error saving payroll settings:", err));
+// Close modal
+function closePayrollModal() {
+  const overlay = document.getElementById("payrollModalOverlay");
+  const modal = document.getElementById("payrollModalBox");
+  modal.classList.remove("show");
+  setTimeout(() => overlay.style.display = "none", 200);
+}
+
+// Load payroll settings dynamically
+async function loadPayrollSettings() {
+  const tbody = document.getElementById("payrollTableBody");
+  tbody.innerHTML = "<tr><td colspan='6'>Loading...</td></tr>";
+
+  try {
+    // 1️⃣ Get dynamic areas from RATES
+    const resRates = await fetch(`${WEB_APP_URL}?action=getRates`);
+    const jsonRates = await resRates.json();
+    const areas = [...new Set(jsonRates.map(item => item["AREA"]).filter(a => a))];
+
+    // 2️⃣ Get saved payroll settings from RateSave
+    const resSaved = await fetch(`${WEB_APP_URL}?action=getSavedPayrollSettings`);
+    const jsonSaved = await resSaved.json();
+    const savedData = Array.isArray(jsonSaved.data) ? jsonSaved.data : [];
+
+    tbody.innerHTML = "";
+
+    // 3️⃣ Populate rows with saved checkbox states
+    areas.forEach(area => {
+      const saved = savedData.find(r => r.AREA === area) || {};
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${area}</td>
+        <td><input type="checkbox" class="fixed" ${saved.FIXED ? "checked" : ""}></td>
+        <td><input type="checkbox" class="daily" ${saved.DAILY ? "checked" : ""}></td>
+        <td><input type="checkbox" class="monthly" ${saved.MONTHLY ? "checked" : ""}></td>
+        <td><input type="checkbox" class="semi" ${saved.SEMI ? "checked" : ""}></td>
+        <td><input type="checkbox" class="weekly" ${saved.WEEKLY ? "checked" : ""}></td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    addCheckboxLogic(); // mutual exclusivity
+
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:red;">Failed to load: ${err.message}</td></tr>`;
+    console.error(err);
+  }
 }
 
 
-    const settingsBtn = document.querySelector('.settings-btn');
-    const settingsDropdown = document.querySelector('.settings-dropdown');
 
-    settingsBtn.addEventListener('click', () => {
-      settingsDropdown.classList.toggle('show');
-    });
+function addCheckboxLogic() {
+  const tbody = document.getElementById("payrollTableBody");
+  const rows = tbody.querySelectorAll("tr");
 
-    // Close dropdown kapag nag-click sa labas
-    window.addEventListener('click', (e) => {
-      if (!e.target.closest('.settings-dropdown')) {
-        settingsDropdown.classList.remove('show');
+  rows.forEach(row => {
+    const rates = [row.querySelector(".fixed"), row.querySelector(".daily")];
+    const cutoff = [row.querySelector(".monthly"), row.querySelector(".semi"), row.querySelector(".weekly")];
+
+    // Function para i-handle mutual exclusivity
+    function handleGroup(group) {
+      group.forEach(cb => {
+        if (!cb) return; // safety
+        cb.addEventListener("change", () => {
+          if (cb.checked) {
+            group.forEach(other => {
+              if (other !== cb) other.disabled = true;
+            });
+          } else {
+            group.forEach(other => {
+              if (other) other.disabled = false;
+            });
+          }
+        });
+      });
+
+      // Initial state check
+      const checked = group.find(cb => cb && cb.checked);
+      if (checked) {
+        group.forEach(cb => {
+          if (cb !== checked) cb.disabled = true;
+        });
       }
+    }
+
+    handleGroup(rates);
+    handleGroup(cutoff);
+  });
+}
+
+// Save payroll settings
+async function savePayrollSettingsFrontend() {
+  const tbody = document.getElementById("payrollTableBody");
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+
+  // Collect data from each row
+  const data = rows.map(tr => {
+    const tds = tr.querySelectorAll("td");
+    return {
+      area: tds[0].innerText.trim(),
+      fixed: tds[1].querySelector("input").checked,
+      daily: tds[2].querySelector("input").checked,
+      monthly: tds[3].querySelector("input").checked,
+      semi: tds[4].querySelector("input").checked,
+      weekly: tds[5].querySelector("input").checked,
+      timestamp: new Date().toLocaleString()
+    };
+  });
+
+  try {
+    const res = await fetch(WEB_APP_URL, {
+  method: "POST",
+  body: JSON.stringify({ action: "savePayrollSettings", data }),
+})
+
+
+    const json = await res.json();
+
+    if (json.success) {
+      alert("✅ Payroll settings saved successfully!");
+    } else {
+      alert("❌ Failed to save: " + json.message);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("❌ Error saving data: " + err.message);
+  }
+}
+
+  // ==============================
+  // TOAST NOTIFICATION (optional)
+  // ==============================
+  function showToast(msg, isError = false) {
+    let toast = document.createElement("div");
+    toast.textContent = msg;
+    toast.style.position = "fixed";
+    toast.style.bottom = "20px";
+    toast.style.left = "50%";
+    toast.style.transform = "translateX(-50%)";
+    toast.style.padding = "10px 20px";
+    toast.style.color = "#fff";
+    toast.style.background = isError ? "#f44336" : "#4caf50";
+    toast.style.borderRadius = "5px";
+    toast.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
+    toast.style.zIndex = 9999;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  // ==============================
+  // DROPDOWN EXAMPLE (settings)
+  // ==============================
+  const settingsBtn = document.querySelector('.settings-btn');
+  const settingsDropdown = document.querySelector('.settings-dropdown');
+
+  if (settingsBtn && settingsDropdown) {
+    settingsBtn.addEventListener('click', () => settingsDropdown.classList.toggle('show'));
+    window.addEventListener('click', e => {
+      if (!e.target.closest('.settings-dropdown')) settingsDropdown.classList.remove('show');
     });
+  }
 
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec"; 
-const SECRET_KEY = "jayryan"; // Secret key for AES
 
-if (!sessionStorage.getItem("loggedIn")) window.location.replace("index.html");
+
+
+if (!sessionStorage.getItem("loggedIn")) window.location.replace("login.html");
 
 document.getElementById("logoutBtn").addEventListener("click", () => {
   sessionStorage.clear();
-  window.location.replace("index.html");
+  window.location.replace("login.html");
 });
 
 
 
 
 window.history.pushState(null,"",window.location.href);
-window.addEventListener("popstate",()=>{if(!sessionStorage.getItem("loggedIn"))window.location.replace("index.html");else window.history.pushState(null,"",window.location.href);});
+window.addEventListener("popstate",()=>{if(!sessionStorage.getItem("loggedIn"))window.location.replace("login.html");else window.history.pushState(null,"",window.location.href);});
 
 const toggleBtn = document.getElementById('themeToggle');
 let darkMode = localStorage.getItem("theme") === "dark";
@@ -2523,5 +2535,3 @@ window.loadDynamicTimeInReport = loadDynamicTimeInReport;
 </script>
 </body>
 </html>
-
-
