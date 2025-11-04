@@ -46,7 +46,9 @@
 
               <!-- Footer: Buttons -->
               <div class="payroll-modal-footer">
+                
                 <button class="payroll-btn payroll-btn-close" onclick="closePayrollModal()">Cancel</button>
+                <button onclick="clearAllCheckboxes()" class="clear-btn">Clear All</button>
                 <button class="payroll-btn payroll-btn-primary" onclick="savePayrollSettingsFrontend()">Save</button>
               </div>
             </div>
@@ -70,6 +72,7 @@
         Adjustments <span class="chev">▾</span>
         <div class="ios-dropdown" id="adjustmentsMenu">
           <a href="#" data-target="tab2">Addition & Deduction</a>
+          <a href="#" data-target="tab6">Calendar ( Day-Offs )</a>
           
         </div>
       </div>
@@ -137,6 +140,73 @@
   </div>
 </div>
 
+       <div class="tab-content" id="tab6">
+          <div class="calendar-wrapper">
+            <!-- 🧾 LEFT SIDE: DAY OFF TABLE -->
+            <div class="dayoff-table">
+              <h2>Day Off Summary per Area</h2>
+
+              <!-- 🟦 Area Filter -->
+              <div id="areaFilterContainer" style="margin-bottom: 15px;">
+                <label for="areaFilter"><strong>Filter by Area:</strong></label>
+                <select id="areaFilter_tab6">
+                  <option value="ALL">All Areas</option>
+                </select>
+              </div>
+
+              
+
+              <table id="areaDayoffTable">
+                <thead>
+                  <tr>
+                    <th>Area</th>
+                    <th>Employee Name</th>
+                    <th>Day Off</th>
+                    <th>26–10</th>
+                    <th>11–25</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <!-- 🗓 RIGHT SIDE: CALENDAR & CONTROLS -->
+            <div class="calendar-container">
+              <div class="calendar-header">
+                <button id="prevMonth">◀</button>
+                <div id="monthYear"></div>
+                <button id="nextMonth">▶</button>
+              </div>
+
+              <div class="day-selector">
+                <label><strong>Select Day Off:</strong></label>
+                <select id="dayOffSelect">
+                  <option value="">--Select--</option>
+                  <option value="0">Sunday</option>
+                  <option value="1">Monday</option>
+                  <option value="2">Tuesday</option>
+                  <option value="3">Wednesday</option>
+                  <option value="4">Thursday</option>
+                  <option value="5">Friday</option>
+                  <option value="6">Saturday</option>
+                </select>
+
+                <label style="margin-left:10px;"><strong>Cutoff:</strong></label>
+                <select id="cutoffSelect">
+                  <option value="none">None</option>
+                  <option value="26-10">26–10</option>
+                  <option value="11-25">11–25</option>
+                </select>
+              </div>
+
+              <div id="calendar"></div>
+              <div class="dayoff-summary">
+                Total Day Offs (in cutoff): <span id="dayOffCount">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
 <div id="qrModal" class="modal">
   <div class="modal-content">
     <span id="closeQrModal" class="close-btn">&times;</span>
@@ -198,6 +268,26 @@
             </div>
 
             <div class="input-group" id="desSal">
+             <div class="dayoff-container">
+                <label class="dayoff-label">Day-off Schedule</label>
+                <div class="segmented-control">
+                  <input type="radio" id="sun" name="dayoff" checked>
+                  <label for="sun">Sun</label>
+                  <input type="radio" id="mon" name="dayoff">
+                  <label for="mon">Mon</label>
+                  <input type="radio" id="tue" name="dayoff">
+                  <label for="tue">Tue</label>
+                  <input type="radio" id="wed" name="dayoff">
+                  <label for="wed">Wed</label>
+                  <input type="radio" id="thu" name="dayoff">
+                  <label for="thu">Thu</label>
+                  <input type="radio" id="fri" name="dayoff">
+                  <label for="fri">Fri</label>
+                  <input type="radio" id="sat" name="dayoff">
+                  <label for="sat">Sat</label>
+                </div>
+              </div>
+
               <input type="text" id="empDesignationUp" placeholder="Designation" disabled>
               <input type="number" id="empSalaryUp" placeholder="Salary" disabled>
               <!-- Toggle button -->
@@ -764,7 +854,22 @@ async function savePayrollSettingsFrontend() {
     });
   }
 
+function clearAllCheckboxes() {
+  if (!confirm("Are you sure you want to clear all checkboxes?")) return;
 
+  // 1️⃣ Uncheck all checkboxes
+  const checkboxes = document.querySelectorAll('#payrollTableBody input[type="checkbox"]');
+  checkboxes.forEach(cb => cb.checked = false);
+
+  // 2️⃣ Enable all input fields again
+  const inputs = document.querySelectorAll('#payrollTableBody input, #payrollTableBody select');
+  inputs.forEach(inp => {
+    inp.disabled = false;  // make editable
+    inp.style.backgroundColor = ""; // reset style if you had a disabled color
+  });
+
+  alert("All checkboxes cleared and fields are now editable.");
+}
 
 
 
@@ -1593,11 +1698,13 @@ toggleEditUpdate.addEventListener("change", () => {
   if (toggleEditUpdate.checked) {
     empDesignationUp.disabled = false;
     empSalaryUp.disabled = false;
+    empDayOffDate.style.backgroundColor = "#fff";
     empDesignationUp.style.backgroundColor = "#fff";
     empSalaryUp.style.backgroundColor = "#fff";
   } else {
     empDesignationUp.disabled = true;
     empSalaryUp.disabled = true;
+    empDayOffDate.style.backgroundColor = "#e9ecef";
     empDesignationUp.style.backgroundColor = "#e9ecef";
     empSalaryUp.style.backgroundColor = "#e9ecef";
   }
@@ -1848,6 +1955,19 @@ async function openUpdateEmployeeModal(emp) {
   document.getElementById("hdmfDeduction").value = emp.hdmfDeduction || 0;
   document.getElementById("sssDeduction").value = emp.sssDeduction || 0;
 
+  // --- Fill Day-Off radio buttons ---
+    const radios = document.querySelectorAll('input[name="dayoff"]');
+    // Uncheck lahat muna
+    radios.forEach(r => r.checked = false);
+
+if(emp.dayoff) {
+  const dayoffId = emp.dayoff.toLowerCase(); // convert MON -> mon
+  const dayoffRadio = document.getElementById(dayoffId);
+  if(dayoffRadio) dayoffRadio.checked = true;
+}
+
+
+
   // --- Lock fields not editable ---
   document.getElementById("empDesignationUp").disabled = true;
   document.getElementById("empSalaryUp").disabled = true;
@@ -1998,11 +2118,12 @@ document.getElementById("saveUpdateBtn").addEventListener("click", async () => {
       const area = document.getElementById("empAreaUp").value.trim();
       const designation = document.getElementById("empDesignationUp").value.trim();
       const salary = document.getElementById("empSalaryUp").value.trim();
+      const dayoff = document.querySelector('input[name="dayoff"]:checked')?.id || "";
 
       if (!name) return alert("⚠️ Please fill in Employee Name!");
 
       action = "updateEmployee";
-      body = { id, name, area, designation, salary };
+      body = { id, name, area, designation, salary, dayoff }; 
     }
 
     // --- TAB 2: Mandatory Deductions ---
@@ -2531,6 +2652,228 @@ window.loadTimeInArea = loadTimeInArea;
 window.loadDynamicTimeInReport = loadDynamicTimeInReport;
 
 }
+
+/* Calendar Day off*/
+
+const calendarEl = document.getElementById("calendar");
+    const monthYearEl = document.getElementById("monthYear");
+    const dayOffSelect = document.getElementById("dayOffSelect");
+    const cutoffSelect = document.getElementById("cutoffSelect");
+    const dayOffCountEl = document.getElementById("dayOffCount");
+
+    let currentDate = new Date();
+    let selectedDayOff = null;
+    let selectedCutoff = "none";
+
+    function isInCutoff(date, cutoffType) {
+      const day = date.getDate();
+
+      if (cutoffType === "11-25") {
+        return day >= 11 && day <= 25;
+      }
+
+      if (cutoffType === "26-10") {
+        // Covers 26–31 of current month + 1–10 of next month
+        return day >= 26 || day <= 10;
+      }
+
+      return false;
+    }
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDay = firstDay.getDay();
+      const totalDays = lastDay.getDate();
+
+      calendarEl.innerHTML = "";
+
+      const monthNames = [
+        "January","February","March","April","May","June",
+        "July","August","September","October","November","December"
+      ];
+      const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+      monthYearEl.textContent = `${monthNames[month]} ${year}`;
+
+      // Headers
+      dayNames.forEach(d => {
+        const div = document.createElement("div");
+        div.textContent = d;
+        div.classList.add("day-header");
+        calendarEl.appendChild(div);
+      });
+
+      for (let i = 0; i < startDay; i++) {
+        const empty = document.createElement("div");
+        calendarEl.appendChild(empty);
+      }
+
+      let dayOffCount = 0;
+
+      for (let day = 1; day <= totalDays; day++) {
+        const date = new Date(year, month, day);
+        const div = document.createElement("div");
+        div.classList.add("day");
+        div.textContent = day;
+
+        if (date.toDateString() === new Date().toDateString()) {
+          div.classList.add("today");
+        }
+
+        const isCutoff = isInCutoff(date, selectedCutoff);
+        if (isCutoff) div.classList.add("cutoff");
+
+        if (selectedDayOff !== null && date.getDay() === selectedDayOff) {
+          div.classList.add("off");
+          if (isCutoff) dayOffCount++;
+        }
+
+        calendarEl.appendChild(div);
+      }
+
+      dayOffCountEl.textContent = dayOffCount;
+    }
+
+    document.getElementById("prevMonth").onclick = () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar();
+    };
+
+    document.getElementById("nextMonth").onclick = () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar();
+    };
+
+    dayOffSelect.onchange = (e) => {
+      selectedDayOff = e.target.value ? parseInt(e.target.value) : null;
+      renderCalendar();
+    };
+
+    cutoffSelect.onchange = (e) => {
+      selectedCutoff = e.target.value;
+      renderCalendar();
+    };
+
+    renderCalendar();
+
+document.addEventListener("DOMContentLoaded", async function () {
+  const tbody = document.querySelector("#areaDayoffTable tbody");
+  const thead = document.querySelector("#areaDayoffTable thead tr");
+  const areaFilter = document.getElementById("areaFilter");
+  tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>`;
+
+  let allData = [];
+
+  try {
+    const response = await fetch(WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ action: "getAllDayOffs" })
+    });
+
+    const data = await response.json();
+    tbody.innerHTML = "";
+    if (!data || !data.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No records found</td></tr>`;
+      return;
+    }
+
+    allData = data;
+
+    // 🏷 Populate area dropdown
+   const areaFilter = document.getElementById("areaFilter_tab6");
+   const areas = [
+    ...new Set(
+      data.map(row => (row.area || row.AREA || row.Area || "").trim() || "Unknown")
+    ),
+    ].sort();
+
+    areas.forEach(area => {
+      const opt = document.createElement("option");
+      opt.value = area;
+      opt.textContent = area;
+      areaFilter.appendChild(opt);
+    });
+
+    // 📅 Current cutoff labels
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+    const cutoffs = [
+      { start: new Date(year, month - 1, 26), end: new Date(year, month, 10) },
+      { start: new Date(year, month, 11), end: new Date(year, month, 25) },
+    ];
+
+    const cutoffLabels = cutoffs.map(c => {
+      const sM = monthNames[c.start.getMonth()];
+      const eM = monthNames[c.end.getMonth()];
+      return `${sM} ${c.start.getDate()}–${eM} ${c.end.getDate()}`;
+    });
+
+    // 🧾 Update headers
+    thead.innerHTML = `
+      <th>Area</th>
+      <th>Employee Name</th>
+      <th>Day Off</th>
+      <th>${cutoffLabels[0]}</th>
+      <th>${cutoffLabels[1]}</th>
+    `;
+
+    const dayMap = { SUN: 0, MON: 1, TUE: 2, WED: 3, THU: 4, FRI: 5, SAT: 6 };
+
+    function countDayOffsInRange(dayOffAbbr, startDate, endDate) {
+      const dayIndex = dayMap[dayOffAbbr?.toUpperCase()];
+      if (dayIndex === undefined) return 0;
+      let count = 0;
+      const d = new Date(startDate);
+      while (d <= endDate) {
+        if (d.getDay() === dayIndex) count++;
+        d.setDate(d.getDate() + 1);
+      }
+      return count;
+    }
+
+    function renderTable(filterArea = "ALL") {
+      tbody.innerHTML = "";
+      const filtered = filterArea === "ALL"
+        ? allData
+        : allData.filter(r => (r.area || "").trim() === filterArea);
+
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No records for this area</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(row => {
+        const firstCutoff = countDayOffsInRange(row.dayOffSchedule, cutoffs[0].start, cutoffs[0].end);
+        const secondCutoff = countDayOffsInRange(row.dayOffSchedule, cutoffs[1].start, cutoffs[1].end);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.area || "-"}</td>
+          <td>${row.name || "-"}</td>
+          <td>${row.dayOffSchedule || "-"}</td>
+          <td>${firstCutoff}</td>
+          <td>${secondCutoff}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    areaFilter.addEventListener("change", e => renderTable(e.target.value));
+    renderTable();
+
+  } catch (err) {
+    console.error("❌ Error loading day offs:", err);
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error loading data</td></tr>`;
+  }
+});
+
 
 </script>
 </body>
