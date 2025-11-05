@@ -1813,14 +1813,6 @@ function decryptQR(encrypted) {
   }
 }
 
-// --- Prevent bad paste characters ---
-qrInput.addEventListener("paste", (e) => {
-  e.preventDefault();
-  let paste = (e.clipboardData || window.clipboardData).getData('text');
-  paste = paste.trim().replace(/[\r\n\t]+/g, '').replace(/[\u200B-\u200D\uFEFF]/g, '');
-  qrInput.value = paste;
-});
-
 // --- QR input handling ---
 qrInput.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
@@ -1831,10 +1823,19 @@ qrInput.addEventListener("keydown", (e) => {
 
   let data;
   try {
-    data = decryptQR(qrData);
-    if(!data) throw new Error("Invalid QR");
+    // Directly parse the plain JSON (no decryption)
+    data = JSON.parse(qrData);
+
+    // Validate required fields
+    if (!data.id || !data.name || !data.area) throw new Error("Missing required fields");
+
+    // Make ID and NAME uppercase
+    data.id = data.id.toUpperCase();
+    data.name = data.name.toUpperCase();
+    data.area = data.area.toUpperCase();
+
   } catch(err) {
-    alert("Invalid or corrupted QR code!");
+    alert("❌ Invalid or corrupted QR code!");
     qrInput.value = "";
     return;
   }
@@ -1846,6 +1847,9 @@ qrInput.addEventListener("keydown", (e) => {
     return;
   }
   lastScanId = data.id;
+
+
+
 
   // Auto-fill inputs
   document.getElementById("empID").value = data.id || "";
