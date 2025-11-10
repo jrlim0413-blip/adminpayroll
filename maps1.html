@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Agents Attendance  Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+
+    /* 🔙 Back button styling */
+    .back-header {
+      display: flex;
+      align-items: center;
+      background: #343a40;
+      color: white;
+      padding: 10px 15px;
+      gap: 10px;
+    }
+    .back-header button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+    .back-header button:hover {
+      background: #0056b3;
+    }
+    .back-header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    /* Layout for map + table */
+    .content {
+      display: flex;
+      flex: 1;
+    }
+
+    #tableSection {
+      width: 35%;
+      background: #f8f9fa;
+      padding: 15px;
+      overflow-y: auto;
+    }
+    #map {
+      width: 65%;
+      height: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background: #343a40;
+      color: white;
+    }
+    tr:hover {
+      background: #dee2e6;
+      cursor: pointer;
+    }
+
+    .status-active { background: #d4edda; color: #155724; }
+    .status-far { background: #e2e3ff; color: #383d9a; }
+    .status-invalid { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+
+  <!-- 🔙 Back Header -->
+  <div class="back-header">
+    <button onclick="goBack()">← Back to Dashboard</button>
+    <h2>Mindanao Agent Map</h2>
+  </div>
+
+  <!-- Main content -->
+  <div class="content">
+    <div id="tableSection">
+      <h3>Attendance Logs</h3>
+      <table id="attendanceTable">
+        <thead>
+          <tr><th>Name</th><th>ID</th><th>Time</th><th>Location</th><th>Status</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div id="map"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // 🔙 Function to return to previous page
+    function goBack() {
+      window.history.back();
+    }
+
+    // Mindanao map bounds
+    const southWest = L.latLng(4.0, 121.0);
+    const northEast = L.latLng(9.5, 128.0);
+    const mindanaoBounds = L.latLngBounds(southWest, northEast);
+
+    const map = L.map('map', {
+      maxBounds: mindanaoBounds,
+      maxBoundsViscosity: 1.0
+    }).fitBounds(mindanaoBounds);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    }).addTo(map);
+
+    // Sample data
+    const attendanceData = [
+      { name: 'Agent Marawi', id: 'M001', time: '08:15 AM', location: 'Marawi', lat: 8.0000, lng: 124.2936, status: 'active' },
+      { name: 'Agent Cotabato', id: 'C001', time: '08:20 AM', location: 'Cotabato City', lat: 7.2000, lng: 124.2467, status: 'active' },
+      { name: 'Agent Iligan', id: 'I001', time: '08:25 AM', location: 'Iligan', lat: 8.2280, lng: 124.2450, status: 'active' },
+      { name: 'Agent CDO', id: 'CDO001', time: '08:35 AM', location: 'Cagayan de Oro', lat: 8.4542, lng: 124.6319, status: 'active' },
+      { name: 'Agent Tacurong', id: 'T001', time: '08:40 AM', location: 'Tacurong City', lat: 6.6231, lng: 124.8274, status: 'active' },
+      { name: 'Agent Buluan', id: 'B001', time: '08:45 AM', location: 'Buluan', lat: 6.9223, lng: 124.8967, status: 'active' }
+    ];
+
+    const tableBody = document.querySelector('#attendanceTable tbody');
+
+    attendanceData.forEach(agent => {
+      let color = agent.status==='active' ? 'green' : agent.status==='far' ? 'blue' : 'red';
+
+      const marker = L.circleMarker([agent.lat, agent.lng], {
+        radius: 8,
+        color: color,
+        fillColor: color,
+        fillOpacity: 0.8
+      }).addTo(map);
+
+      marker.bindPopup(`
+        <b>${agent.name}</b><br>ID: ${agent.id}<br>Time: ${agent.time}<br>Location: ${agent.location}<br>Status: ${agent.status.toUpperCase()}
+      `);
+
+      const row = document.createElement('tr');
+      row.classList.add(`status-${agent.status}`);
+      row.innerHTML = `<td>${agent.name}</td><td>${agent.id}</td><td>${agent.time}</td><td>${agent.location}</td><td>${agent.status.toUpperCase()}</td>`;
+      row.addEventListener('click', () => {
+        map.setView([agent.lat, agent.lng], 10);
+        marker.openPopup();
+      });
+
+      tableBody.appendChild(row);
+    });
+  </script>
+</body>
+</html>
