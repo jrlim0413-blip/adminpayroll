@@ -60,7 +60,11 @@
   <div class="ios-logo">
     <img src="https://i.imgur.com/6SF5KQG.png" alt="Logo">
     <span class="app-name">Payroll System</span>
+
+         <a href="maps1.html" class="ios-tab ios-tab--simple">Agent Attendance Map</a>
   </div>
+
+
 
   <div class="ios-right">
     <div class="ios-tabs">
@@ -578,6 +582,7 @@
       <input type="date" id="timeinStart"> - 
       <input type="date" id="timeinEnd">
     </label>
+    <div id="areaFilterContainer"></div>
     <button onclick="loadTimeInArea()">🔍 Apply Filter</button>
     <button onclick="window.print()">🖨 Print</button>
     <button onclick="downloadTimeInExcel()">⬇ Download Excel</button>
@@ -679,7 +684,6 @@
 
 
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec"; 
-  const SECRET_KEY = "jayryan"; // Secret key for AES
 
 
   // Open modal
