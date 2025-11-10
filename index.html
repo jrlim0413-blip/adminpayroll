@@ -6,83 +6,111 @@
 <title>PAYROLL LOGIN PAGE</title>
 <link rel="icon" type="image/png" href="https://i.imgur.com/6SF5KQG.png">
 <style>
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f6f9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f4f6f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+  }
 
-    .login-container {
-      background: #fff;
-      padding: 40px 35px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      width: 360px;
-      text-align: center;
-    }
+  /* ✨ Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
 
-    .login-container h2 {
-      margin-bottom: 24px;
-      font-size: 24px;
-      font-weight: 600;
-      color: #111827;
-    }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    .login-container input {
-      width: 100%;
-      padding: 12px 14px;
-      margin-bottom: 16px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-size: 15px;
-      box-sizing: border-box;
-      outline: none;
-      transition: border 0.2s;
-    }
+  /* 🧾 Login container */
+  .login-container {
+    background: #fff;
+    padding: 40px 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    width: 360px;
+    text-align: center;
+    animation: fadeUp 0.9s ease-out;
+  }
 
-    .login-container input:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-    }
+  /* 🖼️ Logo inside the container */
+  .login-logo {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    background: #fff;
+    margin: 0 auto 18px auto;
+    animation: fadeIn 1s ease-out;
+    display: block;
+  }
 
-    .login-container input::placeholder {
-      color: #9ca3af;
-      font-size: 14px;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
-    }
+  .login-container h2 {
+    margin-bottom: 24px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+  }
 
-    .login-container button {
-      width: 100%;
-      padding: 12px;
-      background: #2563eb;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+  .login-container input {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border 0.2s;
+  }
 
-    .login-container button:hover {
-      background: #1e40af;
-    }
+  .login-container input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  }
 
-    .error {
-      color: #dc2626;
-      font-size: 14px;
-      margin-top: 10px;
-    }
-  </style>
+  .login-container input::placeholder {
+    color: #9ca3af;
+    font-size: 14px;
+  }
+
+  .login-container button {
+    width: 100%;
+    padding: 12px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .login-container button:hover {
+    background: #1e40af;
+  }
+
+  .error {
+    color: #dc2626;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+</style>
 </head>
 <body>
   <div class="login-container">
+    <!-- 🖼️ Logo now inside the card -->
+    <img src="https://i.imgur.com/6SF5KQG.png" alt="Company Logo" class="login-logo">
+    
     <h2>Payroll Login</h2>
     <form id="loginForm">
       <input type="text" id="username" placeholder="Username" required>
@@ -95,7 +123,7 @@
   <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec";
 
-    // ✅ Kung naka-login na, diretso payroll.html (hindi na pwedeng bumalik sa login)
+    // ✅ If already logged in, redirect
     if (sessionStorage.getItem("loggedIn") === "true") {
       window.location.replace("payroll.html");
     }
@@ -124,11 +152,8 @@
         if (result.error) {
           errorMessage.textContent = result.error;
         } else {
-          // ✅ Set session
           sessionStorage.setItem("loggedIn", "true");
           sessionStorage.setItem("user", JSON.stringify(result));
-
-          // ✅ Replace para hindi pwede i-back sa login
           window.location.replace("payroll.html");
         }
       } catch (err) {
@@ -139,10 +164,9 @@
     // ✅ Prevent cached back navigation
     window.addEventListener("pageshow", function (event) {
       if (event.persisted && sessionStorage.getItem("loggedIn") !== "true") {
-        window.location.replace("index.html");
+        window.location.replace("login.html");
       }
     });
   </script>
 </body>
 </html>
-
