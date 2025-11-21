@@ -70,9 +70,9 @@ a#downloadBtn:hover {background:#0b7271;}
     <div class="qr-preview" id="qrPreview"></div>
     <label>Select Area</label>
     <select id="areaSelect">
-      <option value="MAR">Marawi</option>
-      <option value="COT">Cotabato</option>
-      <option value="GEN">General Santos</option>
+      <option value="MARAWI ">Marawi</option>
+      <option value="COTABATO CITY">Cotabato</option>
+      <option value="GENERAL SANTOS">General Santos</option>
     </select>
     <div class="controls">
       <a id="downloadBtn" href="#">Download QR</a>
@@ -146,54 +146,98 @@ let currentGeneratedCode = "";
 
 // Generate QR
 function generateQR() {
-  const area = areaSelect.value;
-  // Ensure incremental starts from 1
-  seriesCounter[area] = seriesCounter[area] || 0;
-  seriesCounter[area]++;
-  const code = `${area}-${String(seriesCounter[area]).padStart(3,'0')}`;
+  const areaFull = areaSelect.value.trim(); // buong pangalan mula sa dropdown
+  const abbr = areaFull.substring(0,3).toUpperCase(); // unang 3 letters
+
+  seriesCounter[abbr] = seriesCounter[abbr] || 0;
+  seriesCounter[abbr]++;
+  const code = `${abbr}-${String(seriesCounter[abbr]).padStart(3,'0')}`;
   currentGeneratedCode = code;
 
-  qrPreview.innerHTML='';
-  const div=document.createElement('div'); qrPreview.appendChild(div);
-  new QRCode(div,{ text: code, width:150, height:150, correctLevel:QRCode.CorrectLevel.H });
+  qrPreview.innerHTML = '';
+  const div = document.createElement('div');
+  qrPreview.appendChild(div);
+  new QRCode(div, { text: code, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.H });
 
-  setTimeout(()=>{
+  setTimeout(() => {
     const c = div.querySelector('canvas');
-    if(c){ qrDownload.href=c.toDataURL(); qrDownload.download=code+'.png'; }
-  },200);
+    if(c){
+      qrDownload.href = c.toDataURL();
+      qrDownload.download = code + '.png';
+    }
+  }, 200);
 }
 
-// Save kiosk code to Google Sheet when downloaded
 qrDownload.addEventListener('click', async () => {
-  if (!currentGeneratedCode) return;
+  const areaFull = areaSelect.value.trim();
+  if (!areaFull) return alert("Select an area first");
 
   try {
+    // Request sa backend: generate next code + save
     const res = await fetch(WEBAPP_URL, {
       method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'saveKioskCode', area: areaSelect.value })
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "saveAndGenerateKioskCode",
+        area: areaFull
+      })
     });
 
     const data = await res.json();
+    if (!data.success) throw new Error(data.message);
 
-    if (data.success) {
-      console.log("Saved:", data.code);
-      alert(`Kiosk code ${data.code} saved successfully!`);
-    } else {
-      console.error("Failed:", data.message);
-      alert("Failed to save kiosk code: " + data.message);
-    }
+    currentGeneratedCode = data.code; // <- code mula sa database
+
+    // Generate QR
+    qrPreview.innerHTML = '';
+    const div = document.createElement('div');
+    qrPreview.appendChild(div);
+    new QRCode(div, { text: currentGeneratedCode, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.H });
+
+    setTimeout(() => {
+      const c = div.querySelector('canvas');
+      if (c) {
+        qrDownload.href = c.toDataURL();
+        qrDownload.download = currentGeneratedCode + '.png';
+      }
+    }, 200);
+
+    alert(`Kiosk code ${currentGeneratedCode} saved and QR generated!`);
 
   } catch (err) {
-    console.error("Error:", err);
-    alert("Error saving kiosk code");
+    console.error(err);
+    alert("Error: " + err.message);
   }
 });
 
-// Drawer toggle
-qrTab.addEventListener('click',()=>{ qrDrawer.classList.toggle('open'); if(qrDrawer.classList.contains('open')) generateQR(); });
+async function loadNextCode(area) {
+  const res = await fetch("WEBAPP_URL", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      action: "getNextKioskCode",
+      area: area
+    })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    document.getElementById("kioskCodeField").value = data.nextCode;
+  } else {
+    alert("Error loading next code: " + data.message);
+  }
+}
+
+
+// Update QR when drawer opens or area changes
+qrTab.addEventListener('click', () => {
+  qrDrawer.classList.toggle('open');
+  if (qrDrawer.classList.contains('open')) generateQR();
+});
 areaSelect.addEventListener('change', generateQR);
 window.addEventListener('load', generateQR);
+
 
 // Modals
 function openModal(id){ document.getElementById(id).style.display='flex'; }
