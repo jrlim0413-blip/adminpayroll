@@ -24,7 +24,7 @@ tr:hover { background:#dee2e6; cursor:pointer; }
 .status-invalid { background:#f8d7da; color:#721c24; }
 .qr-tab{position:fixed; top:50%; transform:translateY(-50%); width:40px; height:40px; background:#0ea5a4; display:flex; justify-content:center; align-items:center; border-radius:8px; cursor:pointer; box-shadow:0 6px 18px rgba(14,165,164,0.18); z-index:10002; transition: right 0.4s ease; right:0;}
 .qr-tab img{width:30px; height:30px; object-fit:contain;}
-.qr-drawer{position:fixed; right:0; top:50%; transform:translateY(-50%); width:20%; height:50%; background:#ffffff; border-radius:12px 0 0 12px; box-shadow:0 8px 30px rgba(17,24,39,0.12); overflow:auto; transition: transform 0.4s ease-in-out; z-index:10001; display:flex; flex-direction:column; transform: translateX(100%) translateY(-50%);}
+.qr-drawer{position:fixed; right:0; top:50%; transform:translateY(-50%); width:20%; height:55%; background:#ffffff; border-radius:12px 0 0 12px; box-shadow:0 8px 30px rgba(17,24,39,0.12); overflow:auto; transition: transform 0.4s ease-in-out; z-index:10001; display:flex; flex-direction:column; transform: translateX(100%) translateY(-50%);}
 .qr-drawer.open{transform: translateX(0) translateY(-50%);}
 .qr-content{padding:18px; flex:1; display:flex; flex-direction:column; align-items:center;}
 .controls{display:flex;gap:8px;margin-top:12px; width:100%; justify-content:center;}
@@ -49,7 +49,7 @@ a#downloadBtn:hover {background:#0b7271;}
   <button onclick="goBack()">← Back to Dashboard</button>
   <h2>Agents Attendance Map</h2>
   <div style="display:flex; gap:10px;">
-    <button onclick="openModal('kioskModal')">Assign Kiosk</button>
+    <button onclick="openKioskModal()">Assign Kiosk</button>
     <button onclick="openModal('agentModal')">Assign Agent</button>
   </div>
 </div>
@@ -67,12 +67,16 @@ a#downloadBtn:hover {background:#0b7271;}
 
 <div class="qr-drawer" id="qrDrawer">
   <div class="qr-content">
+    <div id="qrCodeText" style="text-align:center; font-weight:bold; margin-bottom:10px;"></div>
     <div class="qr-preview" id="qrPreview"></div>
     <label>Select Area</label>
     <select id="areaSelect">
-      <option value="MARAWI">Marawi</option>
-      <option value="COTABATO CITY">Cotabato</option>
-      <option value="GENERAL SANTOS">General Santos</option>
+      <option value="MDN-MAGUINDANAO DEL NORTE">MAGUINDANAO DEL NORTE</option>
+      <option value="MDS-MAGUINDAN DEL SUR">MAGUINDAN DEL SUR</option>
+      <option value="COTABATO CITY">COTABATO CITY</option>
+      <option value="ILIGAN">ILIGAN</option>
+      <option value="LANAO">LANAO</option>
+      <option value="LANAO DEL SUR">LANAO DEL SUR</option>
     </select>
     <div class="controls">
       <a id="downloadBtn" href="#">Download QR</a>
@@ -102,9 +106,11 @@ a#downloadBtn:hover {background:#0b7271;}
     <label>Longitude</label>
     <input type="number" step="0.0001" id="kioskLng">
 
+    <!-- THIS SHOULD ONLY ADD KIOSK -->
     <button class="action" onclick="addKiosk()">Add Kiosk</button>
   </div>
 </div>
+
 
 
 <!-- Agent Modal -->
@@ -224,6 +230,9 @@ qrDownload.addEventListener('click', async () => {
 
 // --- Render QR and update download instantly ---
 function renderQRCode(code) {
+    const textDiv = document.getElementById('qrCodeText');
+    textDiv.textContent = code; // ← display kiosk code
+
   qrPreview.innerHTML = '';
   const div = document.createElement('div');
   qrPreview.appendChild(div);
@@ -256,7 +265,11 @@ async function loadUniqueAreas() {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ action: "getUniqueAreas" })
     });
-    const data = await res.json();
+
+    const text = await res.text();
+    console.log("Raw response:", text);
+
+    const data = JSON.parse(text);  // parse manually
     if (!data.success) throw new Error(data.message);
 
     kioskAreaSelect.innerHTML = '<option value="">Select Area</option>';
@@ -266,17 +279,41 @@ async function loadUniqueAreas() {
       opt.text = area;
       kioskAreaSelect.appendChild(opt);
     });
+
   } catch (err) {
     console.error(err);
     alert("Error loading areas: " + err.message);
   }
 }
 
+
 // Call this when opening the modal
 function openKioskModal() {
   loadUniqueAreas();
   openModal('kioskModal');
 }
+
+async function loadAvailableKiosks() {
+  const area = document.getElementById("kioskAreaSelect").value;
+  if (!area) return;
+
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/x-www-form-urlencoded"},
+      body: new URLSearchParams({action:"getNextKioskCode", area})
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message);
+
+    document.getElementById("kioskCodeInput").value = data.nextCode;
+  } catch(err) {
+    console.error(err);
+    alert("Error loading kiosk code: " + err.message);
+  }
+}
+
+
 
 
 // Modals
