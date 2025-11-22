@@ -141,32 +141,21 @@ const qrDrawer = document.getElementById('qrDrawer');
 const qrDownload = document.getElementById('downloadBtn');
 const areaSelect = document.getElementById('areaSelect');
 const qrPreview = document.getElementById('qrPreview');
-const seriesCounter = { MAR:0, COT:0, GEN:0 };
 let currentGeneratedCode = "";
 
-// Generate QR
-function generateQR() {
-  const areaFull = areaSelect.value.trim(); // buong pangalan mula sa dropdown
-  const abbr = areaFull.substring(0,3).toUpperCase(); // unang 3 letters
+qrTab.addEventListener('click', () => {
+  qrDrawer.classList.toggle('open');
+  if (qrDrawer.classList.contains('open')) {
+    loadNextCode(areaSelect.value);
+  }
+});
 
-  seriesCounter[abbr] = seriesCounter[abbr] || 0;
-  seriesCounter[abbr]++;
-  const code = `${abbr}-${String(seriesCounter[abbr]).padStart(3,'0')}`;
-  currentGeneratedCode = code;
+areaSelect.addEventListener('change', () => {
+  if (qrDrawer.classList.contains('open')) {
+    loadNextCode(areaSelect.value);
+  }
+});
 
-  qrPreview.innerHTML = '';
-  const div = document.createElement('div');
-  qrPreview.appendChild(div);
-  new QRCode(div, { text: code, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.H });
-
-  setTimeout(() => {
-    const c = div.querySelector('canvas');
-    if(c){
-      qrDownload.href = c.toDataURL();
-      qrDownload.download = code + '.png';
-    }
-  }, 200);
-}
 
 qrDownload.addEventListener('click', async () => {
   const areaFull = areaSelect.value.trim();
@@ -211,32 +200,48 @@ qrDownload.addEventListener('click', async () => {
 });
 
 async function loadNextCode(area) {
-  const res = await fetch("WEBAPP_URL", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      action: "getNextKioskCode",
-      area: area
-    })
-  });
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "getNextKioskCode",
+        area: area
+      })
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (data.success) {
-    document.getElementById("kioskCodeField").value = data.nextCode;
-  } else {
-    alert("Error loading next code: " + data.message);
+    if (!data.success) {
+      throw new Error("Server error: " + data.message);
+    }
+
+    // Generate QR using the NEXT CODE from database
+    const nextCode = data.nextCode;
+    currentGeneratedCode = nextCode;
+
+    qrPreview.innerHTML = '';
+    const div = document.createElement('div');
+    qrPreview.appendChild(div);
+    new QRCode(div, { text: nextCode, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.H });
+
+    setTimeout(() => {
+      const c = div.querySelector('canvas');
+      if (c) {
+        qrDownload.href = c.toDataURL();
+        qrDownload.download = nextCode + ".png";
+      }
+    }, 200);
+
+  } catch (err) {
+    console.error("Error loadNextCode:", err);
+    alert("Error loading next kiosk code: " + err.message);
   }
 }
 
 
-// Update QR when drawer opens or area changes
-qrTab.addEventListener('click', () => {
-  qrDrawer.classList.toggle('open');
-  if (qrDrawer.classList.contains('open')) generateQR();
-});
-areaSelect.addEventListener('change', generateQR);
-window.addEventListener('load', generateQR);
+
+
 
 
 // Modals
