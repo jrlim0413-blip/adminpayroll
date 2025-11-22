@@ -93,7 +93,7 @@ a#downloadBtn:hover {background:#0b7271;}
     
     <!-- New dynamic area select -->
     <label>Area</label>
-    <select id="kioskAreaSelect" onchange="loadAvailableKiosks()">
+    <select id="kioskAreaSelect" onchange="loadUnassignedKioskCode()">
       <option value="">Select Area</option>
     </select>
 
@@ -293,25 +293,36 @@ function openKioskModal() {
   openModal('kioskModal');
 }
 
-async function loadAvailableKiosks() {
-  const area = document.getElementById("kioskAreaSelect").value;
+async function loadUnassignedKioskCode() {
+  const area = kioskAreaSelect.value;
   if (!area) return;
 
   try {
     const res = await fetch(WEBAPP_URL, {
       method: "POST",
-      headers: {"Content-Type":"application/x-www-form-urlencoded"},
-      body: new URLSearchParams({action:"getNextKioskCode", area})
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "getNextUnassignedKioskCode",
+        area: area
+      })
     });
-    const data = await res.json();
-    if (!data.success) throw new Error(data.message);
 
-    document.getElementById("kioskCodeInput").value = data.nextCode;
-  } catch(err) {
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(data.message);
+      document.getElementById("kioskCodeInput").value = "";
+      return;
+    }
+
+    document.getElementById("kioskCodeInput").value = data.kioskCode;
+
+  } catch (err) {
     console.error(err);
-    alert("Error loading kiosk code: " + err.message);
+    alert("Error loading kiosk code");
   }
 }
+
 
 
 
