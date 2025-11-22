@@ -107,7 +107,7 @@ a#downloadBtn:hover {background:#0b7271;}
     <input type="number" step="0.0001" id="kioskLng">
 
     <!-- THIS SHOULD ONLY ADD KIOSK -->
-    <button class="action" onclick="addKiosk()">Add Kiosk</button>
+    <button class="action" onclick="saveKioskCoordinates()">Add Kiosk</button>
   </div>
 </div>
 
@@ -323,28 +323,47 @@ async function loadUnassignedKioskCode() {
   }
 }
 
+async function saveKioskCoordinates() {
+  const area = kioskAreaSelect.value;
+  const code = document.getElementById("kioskCodeInput").value.trim();
+  const lat = parseFloat(document.getElementById("kioskLat").value);
+  const lng = parseFloat(document.getElementById("kioskLng").value);
 
+  if (!area || !code || isNaN(lat) || isNaN(lng)) {
+    alert("Fill all fields");
+    return;
+  }
 
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "saveKioskCoordinates",
+        area: area,
+        kioskCode: code,
+        lat: lat,
+        lng: lng
+      })
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message);
+
+    alert(`Coordinates for ${code} saved!`);
+    // Clear input fields
+    document.getElementById("kioskLat").value = "";
+    document.getElementById("kioskLng").value = "";
+  } catch (err) {
+    console.error(err);
+    alert("Error saving coordinates: " + err.message);
+  }
+}
 
 
 // Modals
 function openModal(id){ document.getElementById(id).style.display='flex'; }
 function closeModal(id){ document.getElementById(id).style.display='none'; }
-
-// Kiosks
-let kiosks=[];
-function addKiosk(){
-  const code=document.getElementById('kioskCodeInput').value.trim();
-  const lat=parseFloat(document.getElementById('kioskLat').value);
-  const lng=parseFloat(document.getElementById('kioskLng').value);
-  if(!code||isNaN(lat)||isNaN(lng)){ alert('Fill all fields'); return; }
-  const marker=L.marker([lat,lng]).addTo(map).bindPopup(`Kiosk: ${code}`);
-  kiosks.push({code,lat,lng,marker});
-  const sel=document.getElementById('kioskSelect');
-  const opt=document.createElement('option'); opt.value=code; opt.text=code; sel.appendChild(opt);
-  document.getElementById('kioskCodeInput').value=''; document.getElementById('kioskLat').value=''; document.getElementById('kioskLng').value='';
-  closeModal('kioskModal'); alert(`Kiosk ${code} added!`);
-}
 
 // Assign agent
 function assignAgent(){
