@@ -6,71 +6,417 @@
 <title>Agents Attendance Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
-body { margin:0; display:flex; flex-direction:column; height:100vh; font-family:Arial,sans-serif; }
-.back-header { display:flex; align-items:center; justify-content:space-between; background:#343a40; color:white; padding:10px 15px; }
-.back-header button { background:#007bff; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:14px; transition:0.2s; }
-.back-header button:hover { background:#0056b3; }
-.back-header h2 { margin:0; font-size:18px; }
-.content { display:flex; flex:1; }
-#tableSection { width:35%; background:#f8f9fa; padding:15px; overflow-y:auto; }
-#map { width:65%; height:100%; }
-table { width:100%; border-collapse:collapse; }
-th, td { border:1px solid #ccc; padding:8px; text-align:left; }
-th { background:#343a40; color:white; }
-tr:hover { background:#dee2e6; cursor:pointer; }
-.status-active { background:#d4edda; color:#155724; }
-.status-far { background:#e2e3ff; color:#383d9a; }
-.status-invalid { background:#f8d7da; color:#721c24; }
-.qr-tab{position:fixed; top:50%; transform:translateY(-50%); width:40px; height:40px; background:#0ea5a4; display:flex; justify-content:center; align-items:center; border-radius:8px; cursor:pointer; box-shadow:0 6px 18px rgba(14,165,164,0.18); z-index:10002; transition: right 0.4s ease; right:0;}
-.qr-tab img{width:30px; height:30px; object-fit:contain;}
-.qr-drawer{position:fixed; right:0; top:50%; transform:translateY(-50%); width:20%; height:55%; background:#ffffff; border-radius:12px 0 0 12px; box-shadow:0 8px 30px rgba(17,24,39,0.12); overflow:auto; transition: transform 0.4s ease-in-out; z-index:10001; display:flex; flex-direction:column; transform: translateX(100%) translateY(-50%);}
-.qr-drawer.open{transform: translateX(0) translateY(-50%);}
-.qr-content{padding:18px; flex:1; display:flex; flex-direction:column; align-items:center;}
-.controls{display:flex;gap:8px;margin-top:12px; width:100%; justify-content:center;}
-.qr-preview{margin-top:14px;text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:200px;}
-.qr-preview img, .qr-preview canvas{width:30VH; height:30VH; border-radius:8px; border:1px solid #e6e9ef; margin-bottom:8px;}
-label{display:block;font-size:13px;margin-top:12px;color:#374151;}
-select, input{width:100%;padding:6px;margin-top:6px;border-radius:6px;border:1px solid #ccc; box-sizing:border-box;}
-a#downloadBtn {display:block; width:150px; text-align:center; padding:10px; background:#0ea5a4; color:#fff; border-radius:8px; text-decoration:none; font-weight:600; cursor:pointer;}
-a#downloadBtn:hover {background:#0b7271;}
-.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:10003; }
-.modal-content { background:#fff; padding:20px; border-radius:8px; width:300px; max-width:90%; position:relative; }
-.modal-content h3 { margin-top:0; }
-.modal-content button.close { position:absolute; top:10px; right:10px; background:#f00; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; }
-.modal-content button.close:hover { background:#c00; }
-.modal-content button.action { background:#0ea5a4; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; width:100%; margin-top:10px; }
-.modal-content button.action:hover { background:#0b7271; }
+:root{
+  --bg:#0f1724; /* deep navy */
+  --card:#0b1220; /* darker card */
+  --muted:#98a0b3;
+  --accent:#0ea5a4; /* teal */
+  --glass: rgba(255,255,255,0.04);
+  --glass-2: rgba(255,255,255,0.02);
+  --glass-border: rgba(255,255,255,0.06);
+  --success:#28a745;
+  --danger:#e03b3b;
+  --soft-shadow: 0 6px 24px rgba(2,6,23,0.6);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0; font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:linear-gradient(180deg,#071021 0%, #07172a 60%); color: #e6eef6;}
+.app-shell{display:flex;flex-direction:column;height:100vh;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;gap:12px;background:transparent;border-bottom:1px solid rgba(255,255,255,0.03);}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(14,165,164,0.14)}
+.logo span{font-weight:800;color:#022;letter-spacing:0.4px}
+.topbar h1{font-size:16px;margin:0;font-weight:700;color:#e8f1fb}
+.top-actions{display:flex;gap:10px;align-items:center}
+.btn{background:transparent;border:1px solid var(--glass-border);padding:8px 12px;border-radius:10px;color:var(--muted);font-weight:600;cursor:pointer;transition:all .18s;backdrop-filter: blur(6px);}
+.btn.primary{background:linear-gradient(180deg, rgba(14,165,164,0.16), rgba(6,182,212,0.06));border:1px solid rgba(14,165,164,0.22);color:#e9fffe}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--soft-shadow)}
+.content{display:flex;flex:1;gap:20px;padding:20px}
+.side{width:420px;max-width:38%;display:flex;flex-direction:column;gap:18px}
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid var(--glass-border);border-radius:14px;padding:16px;box-shadow: 0 8px 30px rgba(2,6,23,0.6);}
+.header-row{display:flex;align-items:center;justify-content:space-between}
+.h-title{font-size:14px;color:#eaf6fb;font-weight:700}
+.h-sub{font-size:12px;color:var(--muted)}
+.table-wrap{overflow:auto;background:transparent;border-radius:10px;margin-top:12px}
+table{width:100%;border-collapse:collapse;color:#dbeafe}
+th,td{padding:12px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px}
+th{background:transparent;color:#a9d6d6;font-weight:700}
+tr:hover{background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));cursor:pointer}
+.status-chip{display:inline-block;padding:6px 8px;border-radius:999px;font-weight:700;font-size:12px}
+.status-active{background:rgba(40,167,69,0.12);color:var(--success)}
+.status-far{background:rgba(59,65,196,0.08);color:#cbd2ff}
+.status-invalid{background:rgba(224,59,59,0.08);color:var(--danger)}
+.map-wrap{flex:1;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);box-shadow: 0 14px 40px rgba(2,6,23,0.6)}
+#map{width:100%;height:100%;min-height:520px}
+.info-row{display:flex;gap:8px;align-items:center}
+.kpi{display:flex;flex-direction:column;padding:10px;border-radius:10px;background:var(--glass-2);border:1px solid rgba(255,255,255,0.02);min-width:110px}
+.kpi .num{font-weight:800;font-size:18px;color:#e8fbfa}
+.kpi .lbl{font-size:12px;color:var(--muted)}
+/* QR drawer */
+.qr-tab{position:fixed; top:50%; transform:translateY(-50%); width:44px; height:44px; background:linear-gradient(135deg,var(--accent),#06b6d4); display:flex; justify-content:center; align-items:center; border-radius:10px; cursor:pointer; box-shadow:0 10px 30px rgba(2,6,23,0.6); z-index:10002; transition: right 0.4s ease; right:18px;}
+.qr-tab img{width:22px; height:22px; filter:brightness(1.1) saturate(1.1)}
+/* QR drawer improvements */
+/* --- QR Drawer (Professional Upgrade) --- */
+/* QR Drawer */
+.qr-drawer {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateX(100%) translateY(-50%);
+    width: 26%;
+    max-width: 360px;
+    height: 65%;
+    background: linear-gradient(180deg, #0c1b2c, #091627);
+    border-radius: 12px 0 0 12px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    transition: transform 0.4s ease-in-out;
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', sans-serif;
+    height: auto; /* fit content */
+    min-height: 65%; /* optional, ensure some size */
+    max-height: none; /* optional, keep it reasonable */
+   
+}
+
+.qr-drawer.open {
+    transform: translateX(0) translateY(-50%);
+}
+
+.qr-content {
+    padding:12px 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #e1f5f4;
+    gap: 8px;
+    overflow-y: hidden;
+   
+}
+
+/* QR Box */
+.qr-code-box {
+    background: linear-gradient(180deg, #0d1c2e, #09121e);
+    padding: 14px;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.qr-preview canvas {
+    width: 38vh;   /* bigger QR */
+    height: 38vh;
+    border-radius: 12px;
+    border: 2px solid #0ea5a4;
+    box-shadow: 0 10px 25px rgba(14,165,164,0.4);
+}
+
+#qrCodeText {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0ea5a4;
+    text-align: center;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Fixed bottom area selector */
+.qr-footer {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    background: linear-gradient(180deg, #0c1b2c, #091627);
+    padding: 12px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    gap: 10px;
+    border-top: 1px solid rgba(14,165,164,0.25);
+}
+
+.qr-footer select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #0ea5a4;
+    background: #071722;
+    color: #e0f7f5;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.qr-footer select:hover {
+    border-color: #06b6d4;
+    box-shadow: 0 0 10px rgba(14,165,164,0.4);
+}
+
+.qr-footer a#downloadBtn {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #06b6d4, #0ea5a4);
+    color: #022;
+    font-weight: 800;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.qr-footer a#downloadBtn:hover {
+    background: linear-gradient(135deg, #0ea5a4, #06b6d4);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(14,165,164,0.5);
+}
+
+
+/* Glassmorphic Modals - Corporate Look with Blue Glow */
+.modal {
+  display: flex; /* para ma-animate */
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0); /* transparent sa simula */
+  align-items: center;
+  justify-content: center;
+  z-index: 10003;
+  opacity: 0; /* start hidden */
+  pointer-events: none; /* hindi clickable kapag hidden */
+  transition: opacity 0.6s ease;
+}
+
+.modal.open {
+  opacity: 1;
+  pointer-events: all;
+  animation: fadeInModal 0.6s ease forwards;
+}
+
+@keyframes fadeInModal {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+    background: rgba(2, 6, 23, 0); /* overlay transparent */
+    box-shadow: 0 0 0 rgba(0,0,255,0); /* no glow */
+  }
+  50% {
+    background: rgba(0, 50, 255, 0.1); /* soft blue glow mid-way */
+    box-shadow: 0 0 50px rgba(0, 120, 255, 0.2); /* subtle glow */
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    background: rgba(2, 6, 23, 0.6); /* final dark glass overlay */
+    box-shadow: 0 0 80px rgba(0, 120, 255, 0.3); /* gentle blue glow */
+  }
+}
+
+.modal-content {
+  position: relative;
+  width: 420px;
+  max-width: 92%;
+  padding: 24px 20px;
+  border-radius: 16px;
+
+  background: rgba(15, 23, 42, 0.55); /* deep dark glass */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.45);
+
+  color: #e8f7ff;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  font-weight: 300;
+  transition: all 0.3s ease;
+}
+
+
+.modal-content label {
+  display: block;
+  margin-top: 14px;
+  margin-bottom: 4px;
+  font-weight: 300;
+  font-size: 0.9rem;
+  color: #c7d7e0;
+}
+
+
+/* INPUT + SELECT FIELDS */
+.modal-content input,
+.modal-content select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.04);
+  color: #e8f7ff;
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-weight: 300;
+  font-size: 0.95rem;
+
+  transition: 0.2s ease;
+}
+.modal-content input:focus,
+.modal-content select:focus {
+  border-color: #38bdf8;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.25);
+}
+
+select option {
+  background: #0f172a;
+  color: #e2f2ff;
+  font-weight: 300;
+}
+
+
+.modal-content .close {
+  position: absolute;
+  right: 18px;
+  top: 16px;
+  background: transparent;
+  border: none;
+  color: #9aaec2;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+
+.modal-content .close:hover {
+  color: #fff;
+}
+
+.modal .action {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Button style */
+.btn.primary {
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: none;
+
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+  color: #fff;
+
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn.primary:hover {
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+  .modal-content {
+    width: 90%;
+    padding: 18px;
+  }
+}
+
+.suggestions {
+  border: 1px solid #0ea5a4;
+  background: #071722;
+  color: #e0f7f5;
+  max-height: 150px;
+  overflow-y: auto;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 10005;
+  width: 90%; /* adjust as needed */
+}
+.suggestions div {
+  padding: 8px;
+  cursor: pointer;
+}
+.suggestions div:hover {
+  background: #0ea5a4;
+  color: #022;
+}
+
+
 </style>
 </head>
 <body>
 
-<div class="back-header">
-  <button onclick="goBack()">← Back to Dashboard</button>
-  <h2>Agents Attendance Map</h2>
-  <div style="display:flex; gap:10px;">
-    <button onclick="openKioskModal()">Assign Kiosk</button>
-    <button onclick="openModal('agentModal')">Assign Agent</button>
+<div class="app-shell">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo"><span>JR</span></div>
+      <div>
+        <h1>Agents Attendance Map</h1>
+        <div class="h-sub">Real-time kiosk & Agent Tracking • Simpal Group of Companies</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn" onclick="goBack()">← Back</button>
+      <button class="btn primary" onclick="openKioskModal()">Assign Kiosk</button>
+      <button class="btn primary" onclick="openAgentModal('agentModal')">Assign Agent</button>
+      <button class="btn primary" onclick="openAddAgentModal()">+ Add Agent</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="side">
+      <div class="card">
+        <div class="header-row">
+          <div>
+            <div class="h-title">Attendance Logs</div>
+            <div class="h-sub">Latest check-ins from kiosks</div>
+          </div>
+          <div class="info-row">
+            <div class="kpi"><div class="num">2</div><div class="lbl">Total Today</div></div>
+            <div class="kpi"><div class="num">2</div><div class="lbl">Active Kiosks</div></div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table id="attendanceTable">
+            <thead><tr><th>Name</th><th>ID</th><th>Time</th><th>Location</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+       </div>
+     </div>
+    <div class="map-wrap card">
+      <div id="map"></div>
+    </div>
   </div>
 </div>
 
-<div class="content">
-  <div id="tableSection">
-    <h3>Attendance Logs</h3>
-    <table id="attendanceTable">
-      <thead><tr><th>Name</th><th>ID</th><th>Time</th><th>Location</th><th>Status</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-  <div id="map"></div>
-</div>
-
+<!-- QR Drawer (IDs preserved) -->
 <div class="qr-drawer" id="qrDrawer">
   <div class="qr-content">
-    <div id="qrCodeText" style="text-align:center; font-weight:bold; margin-bottom:10px;"></div>
-    <div class="qr-preview" id="qrPreview"></div>
+    <div class="qr-code-box" id="qrPreview"></div>
+    <div id="qrCodeText"></div>
+  </div>
+
+  <!-- Fixed bottom area & download -->
+  <div class="qr-footer">
     <label>Select Area</label>
     <select id="areaSelect">
+      <option value="" selected disabled>• • • • • • • • • • •SELECT AREA • • • • • • • • • • •</option>
       <option value="MDN-MAGUINDANAO DEL NORTE">MAGUINDANAO DEL NORTE</option>
       <option value="MDS-MAGUINDAN DEL SUR">MAGUINDAN DEL SUR</option>
       <option value="COTABATO CITY">COTABATO CITY</option>
@@ -78,20 +424,19 @@ a#downloadBtn:hover {background:#0b7271;}
       <option value="LANAO">LANAO</option>
       <option value="LANAO DEL SUR">LANAO DEL SUR</option>
     </select>
-    <div class="controls">
-      <a id="downloadBtn" href="#">Download QR</a>
-    </div>
+    <a id="downloadBtn" href="#" download="">Download QR</a>
   </div>
 </div>
+
+
 <div class="qr-tab" id="qrTab"><img src="https://i.imgur.com/VgezC8W.png" alt="QR Tab"></div>
 
-<!-- Kiosk Modal -->
+<!-- Kiosk Modal (IDs preserved) -->
 <div class="modal" id="kioskModal">
   <div class="modal-content">
-    <button class="close" onclick="closeModal('kioskModal')">X</button>
+    <button class="close" onclick="closeModal('kioskModal')">✕</button>
     <h3>Assign Kiosk</h3>
-    
-    <!-- New dynamic area select -->
+
     <label>Area</label>
     <select id="kioskAreaSelect" onchange="loadUnassignedKioskCode()">
       <option value="">Select Area</option>
@@ -106,28 +451,64 @@ a#downloadBtn:hover {background:#0b7271;}
     <label>Longitude</label>
     <input type="number" step="0.0001" id="kioskLng">
 
-    <!-- THIS SHOULD ONLY ADD KIOSK -->
-    <button class="action" onclick="saveKioskCoordinates()">Add Kiosk</button>
+    <button class="action btn primary" onclick="saveKioskCoordinates()">Add Kiosk</button>
   </div>
 </div>
 
-
-
-<!-- Agent Modal -->
+<!-- Agent Modal (IDs preserved) -->
 <div class="modal" id="agentModal">
   <div class="modal-content">
-    <button class="close" onclick="closeModal('agentModal')">X</button>
+    <button class="close" onclick="closeModal('agentModal')">✕</button>
     <h3>Assign Agent</h3>
-    <label>Agent Name</label><input type="text" id="agentNameInput" placeholder="Agent Name">
+
+    <label>Select Area</label>
+    <select id="agentAreaSelect">
+      <option value="">Select Area</option>
+      <!-- Options will be auto-populated from Google Sheet -->
+    </select>
+    <label>Agent Name</label>
+    <input type="text" id="agentNameInput" placeholder="Agent Name">
+    <div id="agentSuggestions" class="suggestions"></div>   
+
     <label>Select Kiosk</label>
-    <select id="kioskSelect"></select>
-    <button class="action" onclick="assignAgent()">Assign Agent</button>
+    <input type="text" id="kioskInput" placeholder="Select Kiosk">
+    <div id="kioskSuggestions" class="suggestions"></div>
+
+    <button class="action btn primary" onclick="assignAgent()">Assign Agent</button>
   </div>
 </div>
+
+<!-- Add New Agent Modal -->
+<div class="modal" id="addAgentModal">
+  <div class="modal-content">
+    <button class="close" onclick="closeModal('addAgentModal')">✕</button>
+    <h3>Add New Agent</h3>
+
+      <label>Agent Name</label>
+    <input type="text" id="newAgentName" placeholder="Enter agent name">
+
+    <label>Contact Number</label>
+    <input type="text" id="newAgentContact" placeholder="Enter contact number">
+
+    <label>Select Area</label>
+    <select id="newAgentArea">
+      <option value="">Select Area</option>
+    </select>
+
+    <label>ID Number</label>
+    <input type="text" id="newAgentID" placeholder="Enter ID no">
+
+    <div class="action">
+      <button class="btn primary" onclick="saveNewAgent()">Save Agent</button>
+    </div>
+  </div>
+</div>
+
+
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// Back button
+
 function goBack() { window.history.back(); }
 
 // Map
@@ -135,12 +516,13 @@ const southWest = L.latLng(4.0, 121.0);
 const northEast = L.latLng(9.5, 128.0);
 const mindanaoBounds = L.latLngBounds(southWest, northEast);
 const map = L.map('map', { maxBounds: mindanaoBounds, maxBoundsViscosity:1.0 }).fitBounds(mindanaoBounds);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:19 }).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:50 }).addTo(map);
 
 // Sample attendance data
 const attendanceData = [
   { name:'Agent Marawi', id:'M001', time:'08:15 AM', location:'Marawi', lat:8.0, lng:124.2936, status:'active' },
   { name:'Agent Cotabato', id:'C001', time:'08:20 AM', location:'Cotabato City', lat:7.2, lng:124.2467, status:'active' }
+
 ];
 const tableBody = document.querySelector('#attendanceTable tbody');
 attendanceData.forEach(agent=>{
@@ -156,103 +538,117 @@ attendanceData.forEach(agent=>{
 
 // QR Generator + Database save
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec"; 
-// Global
+
+// Global elements
 const qrTab = document.getElementById('qrTab');
 const qrDrawer = document.getElementById('qrDrawer');
 const qrDownload = document.getElementById('downloadBtn');
 const areaSelect = document.getElementById('areaSelect');
 const qrPreview = document.getElementById('qrPreview');
+const qrCodeText = document.getElementById('qrCodeText');
+
 let currentGeneratedCode = "";
 
-// --- Open QR drawer and load code ---
+// --- Default QR placeholder bago pumili ng area ---
+function setQRPlaceholder() {
+    qrPreview.innerHTML = '<div style="width:300px;height:300px;border:2px dashed #0ea5a4;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#0ea5a4;font-weight:700;">Select Area</div>';
+    qrCodeText.textContent = "";
+}
+setQRPlaceholder();
+
+// --- Open QR drawer ---
 qrTab.addEventListener('click', () => {
-  qrDrawer.classList.toggle('open');
-  if (qrDrawer.classList.contains('open')) loadNextCode(areaSelect.value);
+    qrDrawer.classList.toggle('open');
 });
 
+// --- Pag pili ng area, automatic generate QR ---
 areaSelect.addEventListener('change', () => {
-  if (qrDrawer.classList.contains('open')) loadNextCode(areaSelect.value);
+    const selectedArea = areaSelect.value;
+    if (selectedArea) {
+        loadNextCode(selectedArea); // generate QR base sa napiling area
+    } else {
+        setQRPlaceholder(); // reset placeholder kung walang napili
+    }
 });
 
-// --- Load next kiosk code ---
+// --- Load next kiosk code mula sa WebApp ---
 async function loadNextCode(area) {
-  try {
-    const res = await fetch(WEBAPP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        action: "getNextKioskCode",
-        area: area
-      })
-    });
+    try {
+        const res = await fetch(WEBAPP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+                action: "getNextKioskCode",
+                area: area
+            })
+        });
 
-    const data = await res.json();
-    if (!data.success) throw new Error(data.message);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
 
-    currentGeneratedCode = data.nextCode;
-    renderQRCode(currentGeneratedCode);
+        currentGeneratedCode = data.nextCode;
+        renderQRCode(currentGeneratedCode);
 
-  } catch (err) {
-    console.error("Error loadNextCode:", err);
-    alert("Error loading next kiosk code: " + err.message);
-  }
+    } catch (err) {
+        console.error("Error loadNextCode:", err);
+        alert("Error loading next kiosk code: " + err.message);
+        setQRPlaceholder();
+    }
 }
 
 // --- Save & generate kiosk code ---
 qrDownload.addEventListener('click', async () => {
-  const areaFull = areaSelect.value.trim();
-  if (!areaFull) return alert("Select an area first");
+    const areaFull = areaSelect.value.trim();
+    if (!areaFull) return alert("Select an area first");
 
-  try {
-    const res = await fetch(WEBAPP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        action: "saveAndGenerateKioskCode",
-        area: areaFull
-      })
-    });
+    try {
+        const res = await fetch(WEBAPP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+                action: "saveAndGenerateKioskCode",
+                area: areaFull
+            })
+        });
 
-    const data = await res.json();
-    if (!data.success) throw new Error(data.message);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
 
-    // Use the saved code for QR & alert, not nextCode
-    currentGeneratedCode = data.saved;  
-    renderQRCode(currentGeneratedCode);
+        currentGeneratedCode = data.saved;  
+        renderQRCode(currentGeneratedCode);
 
-    alert(`Kiosk code ${currentGeneratedCode} saved and QR generated!`);
+        alert(`Kiosk code ${currentGeneratedCode} saved and QR generated!`);
 
-  } catch (err) {
-    console.error(err);
-    alert("Error: " + err.message);
-  }
+    } catch (err) {
+        console.error(err);
+        alert("Error: " + err.message);
+    }
 });
 
-// --- Render QR and update download instantly ---
+// --- Render QR code sa drawer ---
 function renderQRCode(code) {
-    const textDiv = document.getElementById('qrCodeText');
-    textDiv.textContent = code; // ← display kiosk code
+    qrPreview.innerHTML = '';
+    const div = document.createElement('div');
+    qrPreview.appendChild(div);
 
-  qrPreview.innerHTML = '';
-  const div = document.createElement('div');
-  qrPreview.appendChild(div);
+    const qr = new QRCode(div, {
+        text: code,
+        width: 300,
+        height: 300,
+        correctLevel: QRCode.CorrectLevel.H
+    });
 
-  new QRCode(div, {
-    text: code,
-    width: 150,
-    height: 150,
-    correctLevel: QRCode.CorrectLevel.H
-  });
+    qrCodeText.textContent = code;
 
-  // Poll until canvas exists, then set download link
-  const interval = setInterval(() => {
-    const c = div.querySelector('canvas');
-    if (c) {
-      qrDownload.href = c.toDataURL();
-      qrDownload.download = code + ".png";
-      clearInterval(interval);
-    }
-  }, 50);
+    // Update download button kapag ready na ang QR
+    const interval = setInterval(() => {
+        const canvas = div.querySelector('canvas');
+        if (canvas) {
+            qrDownload.href = canvas.toDataURL();
+            qrDownload.download = code + ".png";
+            clearInterval(interval);
+        }
+    }, 50);
 }
 
 
@@ -361,18 +757,352 @@ async function saveKioskCoordinates() {
 }
 
 
-// Modals
-function openModal(id){ document.getElementById(id).style.display='flex'; }
-function closeModal(id){ document.getElementById(id).style.display='none'; }
+async function loadAreasInto(selectElement) {
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ action: "getUniqueAreas" })
+    });
 
-// Assign agent
-function assignAgent(){
-  const name=document.getElementById('agentNameInput').value.trim();
-  const kioskCode=document.getElementById('kioskSelect').value;
-  if(!name||!kioskCode){ alert('Fill all fields'); return; }
-  const kiosk=kiosks.find(k=>k.code===kioskCode);
-  if(kiosk){ kiosk.marker.bindPopup(`Kiosk: ${kiosk.code}<br>Assigned Agent: ${name}`); alert(`${name} assigned to ${kioskCode}`); document.getElementById('agentNameInput').value=''; closeModal('agentModal'); }
+    const text = await res.text();
+    console.log("Raw response:", text);
+
+    const data = JSON.parse(text);
+    if (!data.success) throw new Error(data.message);
+
+    // Reset dropdown
+    selectElement.innerHTML = '<option value="">Select Area</option>';
+
+    // Append areas
+    data.areas.forEach(area => {
+      const opt = document.createElement('option');
+      opt.value = area;
+      opt.text = area;
+      selectElement.appendChild(opt); // <- dito
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert("Error loading areas: " + err.message);
+  }
 }
+
+// Target dropdown
+const agentAreaSelect = document.getElementById("agentAreaSelect");
+
+// Open modal
+function openAgentModal() {
+  loadAreasInto(agentAreaSelect);
+  openModal('agentModal');
+}
+
+
+// Modals
+function openModal(id) {
+  const modal = document.getElementById(id);
+  modal.classList.add('open');
+}
+
+function closeModal(id) {
+  const modal = document.getElementById(id);
+  modal.classList.remove('open');
+
+
+  // Reset all inputs and selects inside the modal
+  const inputs = modal.querySelectorAll('input');
+  inputs.forEach(input => input.value = '');
+
+  const selects = modal.querySelectorAll('select');
+  selects.forEach(select => select.selectedIndex = 0); // unang option ang magiging default
+
+  // Optional: kung may QR preview sa modal, puwede rin i-clear
+  const qrPreview = modal.querySelector('#qrPreview');
+  if (qrPreview) qrPreview.innerHTML = '';
+}
+
+//assign agent code/
+// =====================
+// GLOBAL VARIABLES
+// =====================
+let agentsInArea = [];
+let kiosksInArea = [];
+
+const agentNameInput = document.getElementById("agentNameInput");
+const agentSuggestions = document.getElementById("agentSuggestions");
+
+const kioskInput = document.getElementById("kioskInput");
+const kioskSuggestions = document.getElementById("kioskSuggestions");
+
+
+// =====================
+// LOAD DATA PER AREA
+// =====================
+async function loadDataByArea() {
+  const area = agentAreaSelect.value;
+
+  if (!area) {
+    agentsInArea = [];
+    kiosksInArea = [];
+    agentNameInput.value = "";
+    kioskInput.value = "";
+    agentSuggestions.innerHTML = "";
+    kioskSuggestions.innerHTML = "";
+    return;
+  }
+
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "getAgentsAndKiosksByArea",
+        area: area
+      })
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message);
+
+    agentsInArea = data.agents;   // [{name:"Agent1"}]
+    kiosksInArea = data.kiosks;   // [{code:"K001", lat:"", lng:""}]
+
+    agentNameInput.value = "";
+    kioskInput.value = "";
+    agentSuggestions.innerHTML = "";
+    kioskSuggestions.innerHTML = "";
+
+  } catch (err) {
+    alert("Error loading data: " + err.message);
+  }
+}
+
+agentAreaSelect.addEventListener('change', loadDataByArea);
+
+
+
+// =====================
+// AGENT AUTOSEARCH
+// =====================
+agentNameInput.addEventListener('input', () => {
+  const query = agentNameInput.value.toLowerCase();
+  agentSuggestions.innerHTML = "";
+  if (!query) return;
+
+  const matches = agentsInArea.filter(a =>
+    a.name.toLowerCase().includes(query)
+  );
+
+  matches.forEach(a => {
+    const div = document.createElement('div');
+    div.textContent = a.name;
+    div.addEventListener('click', () => {
+      agentNameInput.value = a.name;
+      agentSuggestions.innerHTML = "";
+    });
+    agentSuggestions.appendChild(div);
+  });
+});
+
+
+
+// =====================
+// KIOSK AUTOSEARCH
+// =====================
+kioskInput.addEventListener('input', () => {
+  const query = kioskInput.value.toLowerCase();
+  kioskSuggestions.innerHTML = "";
+  if (!query) return;
+
+  const matches = kiosksInArea.filter(k =>
+    k.code.toLowerCase().includes(query)
+  );
+
+  matches.forEach(k => {
+    const div = document.createElement('div');
+    div.textContent = k.code;
+    div.addEventListener('click', () => {
+      kioskInput.value = k.code;
+      kioskSuggestions.innerHTML = "";
+    });
+    kioskSuggestions.appendChild(div);
+  });
+});
+
+
+
+// =====================
+// ASSIGN AGENT FUNCTION
+// =====================
+function assignAgent() {
+  const agentName = agentNameInput.value.trim();
+  const area = agentAreaSelect.value.trim();
+  const kioskCode = kioskInput.value.trim();
+
+  if (!agentName || !area || !kioskCode) {
+    return alert("Please fill all fields.");
+  }
+
+  fetch(WEBAPP_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      action: "assignAgent",
+      agentName: agentName,
+      area: area,
+      kioskCode: kioskCode
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (!data.success) return alert(data.message);
+    alert("Assigned successfully!");
+    // Optional: reset inputs
+    agentNameInput.value = "";
+    kioskInput.value = "";
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error assigning agent: " + err.message);
+  });
+}
+
+
+
+
+// Save new agent
+async function saveNewAgent() {
+  const area = document.getElementById('newAgentArea').value.trim();
+  const name = document.getElementById('newAgentName').value.trim();
+  const idNo = document.getElementById('newAgentID').value.trim();
+  const contact = document.getElementById('newAgentContact').value.trim();
+
+  if (!area || !name || !idNo || !contact) {
+    return alert("Please fill all fields.");
+  }
+
+  // Add timestamp automatically
+  const timestamp = new Date().toLocaleString();
+
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "addAgent",
+        area: area,
+        agentName: name,
+        agentID: idNo,
+        contactNumber: contact,
+        timestamp: timestamp
+      })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) throw new Error(data.message);
+
+    alert("Agent added successfully!");
+    
+    // Reset modal fields
+    document.getElementById('newAgentArea').selectedIndex = 0;
+    document.getElementById('newAgentName').value = "";
+    document.getElementById('newAgentID').value = "";
+    document.getElementById('newAgentContact').value = "";
+
+    // Close modal
+    closeModal('addAgentModal');
+
+  } catch (err) {
+    console.error(err);
+    alert("Error adding agent: " + err.message);
+  }
+}
+
+async function loadAreasForAddAgent() {
+  const selectElement = document.getElementById('newAgentArea');
+
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ action: "getUniqueAreas" })
+    });
+
+    const text = await res.text();
+    const data = JSON.parse(text);
+
+    if (!data.success) throw new Error(data.message);
+
+    // Reset dropdown
+    selectElement.innerHTML = '<option value="">Select Area</option>';
+
+    // Append areas
+    data.areas.forEach(area => {
+      const opt = document.createElement('option');
+      opt.value = area;
+      opt.text = area;
+      selectElement.appendChild(opt);
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert("Error loading areas: " + err.message);
+  }
+}
+
+function openAddAgentModal() {
+  loadAreasForAddAgent();
+  openModal('addAgentModal');
+}
+
+//kiosk /
+
+async function loadKiosksOnMap() {
+    try {
+        const res = await fetch(WEBAPP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+                action: "getKiosksWithCoordinates" // sa WebApp mo, dapat may function na ito
+            })
+        });
+
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+
+        // Loop through kiosks
+        data.kiosks.forEach(kiosk => {
+            if (!kiosk.lat || !kiosk.lng) return; // skip kung walang coordinates
+
+            // Custom icon example (pwede galing sa Imgur)
+            const icon = L.icon({
+                iconUrl: 'https://i.imgur.com/sR8bZqt.png',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            });
+
+            const marker = L.marker([parseFloat(kiosk.lat), parseFloat(kiosk.lng)], { icon }).addTo(map);
+
+            marker.bindPopup(`
+                <b>${kiosk.code}</b><br>
+                Area: ${kiosk.area}<br>
+                Assigned Agent: ${kiosk.agent || 'None'}
+            `);
+        });
+
+    } catch (err) {
+        console.error("Error loading kiosks:", err);
+        alert("Cannot load kiosks on map: " + err.message);
+    }
+}
+
+// Call once page loads
+loadKiosksOnMap();
+
+
+
 </script>
 
 </body>
