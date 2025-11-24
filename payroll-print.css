@@ -1059,7 +1059,7 @@ header .title,
 .ios-tab:hover { background:#f2f2f7; }
 .ios-tab.active {  background:#007aff; color:#fff; }
 
-.ios-tab .chev { margin-left:8px; font-size:13px; }
+.ios-tab .chev { margin-left:100px; font-size:13px; }
 
 .ios-dropdown {
   display:none;
@@ -1087,6 +1087,12 @@ header .title,
   padding: 0 15px;
   background: #fafafa;
   height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* para laging nasa ibabaw */
+  background-color: #fff; /* siguraduhin hindi transparent para hindi makita ang content sa ilalim */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
 }
 
 .ios-logo {
@@ -1098,7 +1104,7 @@ header .title,
 .ios-right {
   display: flex;
   align-items: center;
-  margin-left: auto; /* ⬅️ ito ang magtutulak sa kanan */
+  margin-left: 600px; /* ⬅️ ito ang magtutulak sa kanan */
   gap: 50px;
 }
 
