@@ -5,168 +5,246 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PAYROLL LOGIN PAGE</title>
 <link rel="icon" type="image/png" href="https://i.imgur.com/6SF5KQG.png">
+
 <style>
-  body {
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background: #f4f6f9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden;
-  }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Tahoma; }
 
-  /* ✨ Animations */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-  }
+body {
+  height: 100vh;
+  background: #f4f6f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: #111;
+  perspective: 1000px;
+}
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(40px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+.login-card {
+  width: 420px;
+  background: #ffffff;
+  padding: 50px 40px;
+  border-radius: 18px;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.08);
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  transition: transform 0.2s, filter 0.3s, box-shadow 0.5s;
+  position: relative;
+  overflow: hidden;
+}
 
-  /* 🧾 Login container */
-  .login-container {
-    background: #fff;
-    padding: 40px 35px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    width: 360px;
-    text-align: center;
-    animation: fadeUp 0.9s ease-out;
-  }
+.login-logo {
+  width: 340px;
+  height: 250px;
+  border-radius: 18px;
+  object-fit: cover;
+  border: 3px solid #ffffff;
+  display: block;
+  margin: 0 auto 25px auto;
+  background: #ffffff;
+}
 
-  /* 🖼️ Logo inside the container */
-  .login-logo {
-    width: 120px;
-    height: 120px;
-    object-fit: contain;
-    border: 3px solid #fff;
-    border-radius: 50%;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    background: #fff;
-    margin: 0 auto 18px auto;
-    animation: fadeIn 1s ease-out;
-    display: block;
-  }
+input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #fff;
+  color: #111;
+  font-size: 15px;
+  outline: none;
+  transition: 0.25s;
+}
 
-  .login-container h2 {
-    margin-bottom: 24px;
-    font-size: 24px;
-    font-weight: 600;
-    color: #111827;
-  }
+input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.25); }
+input.error-input { border-color: #dc2626; box-shadow: 0 0 10px 2px rgba(220,38,38,0.5); }
 
-  .login-container input {
-    width: 100%;
-    padding: 12px 14px;
-    margin-bottom: 16px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 15px;
-    box-sizing: border-box;
-    outline: none;
-    transition: border 0.2s;
-  }
+button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(37,99,235,0.35);
+  transition: 0.25s;
+}
 
-  .login-container input:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-  }
+button:hover { opacity: 0.9; transform: translateY(-2px); }
 
-  .login-container input::placeholder {
-    color: #9ca3af;
-    font-size: 14px;
-  }
+.error { color: #dc2626; font-size: 14px; margin-top: 10px; transition: 0.2s; }
 
-  .login-container button {
-    width: 100%;
-    padding: 12px;
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+  100% { transform: translateX(0); }
+}
+.shake { animation: shake 0.4s; }
 
-  .login-container button:hover {
-    background: #1e40af;
-  }
+/* Overlay */
+#overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  z-index: 10;
+  cursor: default;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.7s ease-in-out, opacity 0.7s ease-in-out;
+}
 
-  .error {
-    color: #dc2626;
-    font-size: 14px;
-    margin-top: 10px;
-  }
+#overlay .overlay-image {
+  width: 120%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
+  border-radius: 18px;
+  transition: transform 0.7s ease-in-out;
+}
+
+#overlay .overlay-text {
+  position: absolute;
+  z-index: 2;
+  font-weight: 600;
+  font-size: 22px;
+  color: #111;
+  animation: float 1.2s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Swipe overlay */
+#overlay.swipe-out { transform: translateX(120%); opacity: 0; }
+#overlay.swipe-out .overlay-image { transform: scale(1.05); }
+
+/* Blurred login */
+.blurred { filter: blur(4px) scale(0.98); pointer-events: none; }
+
+/* Pulsing glow */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(37,99,235,0.4); }
+  50% { box-shadow: 0 0 20px 10px rgba(37,99,235,0.6); }
+  100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.4); }
+}
+.login-card.pulse { animation: pulse 1.5s infinite; }
 </style>
 </head>
+
 <body>
-  <div class="login-container">
-    <!-- 🖼️ Logo now inside the card -->
-    <img src="https://i.imgur.com/6SF5KQG.png" alt="Company Logo" class="login-logo">
-    
-    <h2>Payroll Login</h2>
-    <form id="loginForm">
-      <input type="text" id="username" placeholder="Username" required>
-      <input type="password" id="password" placeholder="Password" required>
-      <button type="submit">Login</button>
-      <div id="errorMessage" class="error"></div>
-    </form>
+<div class="login-card blurred pulse">
+  <img src="https://i.imgur.com/6SF5KQG.png" class="login-logo" alt="Company Logo">
+
+  <form id="loginForm">
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button type="submit">Login</button>
+    <div id="errorMessage" class="error"></div>
+  </form>
+
+  <!-- Overlay partner -->
+  <div id="overlay">
+    <img src="https://i.imgur.com/8gn5hA1.jpeg" class="overlay-image" alt="dog">
+    <div class="overlay-text">Press any key to unlock</div>
   </div>
+</div>
 
-  <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec";
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec";
 
-    // ✅ If already logged in, redirect
-    if (sessionStorage.getItem("loggedIn") === "true") {
+const loginForm = document.getElementById("loginForm");
+const errorMessage = document.getElementById("errorMessage");
+const loginCard = document.querySelector(".login-card");
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+const overlay = document.getElementById("overlay");
+
+let overlayTimeout;
+
+// Function to swipe overlay out
+function swipeOverlayOut() {
+  overlay.classList.add('swipe-out');
+  loginCard.classList.remove('blurred', 'pulse');
+
+  // reset overlay after 3 seconds of inactivity
+  clearTimeout(overlayTimeout);
+  overlayTimeout = setTimeout(() => {
+    overlay.classList.remove('swipe-out');
+    loginCard.classList.add('blurred', 'pulse');
+  }, 3000);
+}
+
+// Unlock overlay on any key press
+document.addEventListener('keydown', swipeOverlayOut);
+
+if (sessionStorage.getItem("loggedIn") === "true") {
+  window.location.replace("payroll.html");
+}
+
+loginForm.addEventListener("submit", async function(event) {
+  event.preventDefault();
+  errorMessage.textContent = "";
+  loginCard.classList.remove('shake');
+  usernameInput.classList.remove('error-input');
+  passwordInput.classList.remove('error-input');
+
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  try {
+    const response = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: new URLSearchParams({ action: "login", username, password })
+    });
+
+    const result = await response.json();
+
+    if (result.error) {
+      errorMessage.textContent = result.error;
+      loginCard.classList.add('shake');
+      usernameInput.classList.add('error-input');
+      passwordInput.classList.add('error-input');
+
+      setTimeout(() => {
+        usernameInput.value = '';
+        passwordInput.value = '';
+        usernameInput.classList.remove('error-input');
+        passwordInput.classList.remove('error-input');
+      }, 500);
+
+    } else {
+      sessionStorage.setItem("loggedIn", "true");
+      sessionStorage.setItem("user", JSON.stringify(result));
       window.location.replace("payroll.html");
     }
+  } catch (err) {
+    errorMessage.textContent = "❌ Network error. Please try again.";
+    loginCard.classList.add('shake');
+    usernameInput.classList.add('error-input');
+    passwordInput.classList.add('error-input');
 
-    document.getElementById("loginForm").addEventListener("submit", async function(event) {
-      event.preventDefault();
-
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const errorMessage = document.getElementById("errorMessage");
-
-      errorMessage.textContent = "";
-
-      try {
-        const response = await fetch(WEB_APP_URL, {
-          method: "POST",
-          body: new URLSearchParams({
-            action: "login",
-            username: username,
-            password: password
-          })
-        });
-
-        const result = await response.json();
-
-        if (result.error) {
-          errorMessage.textContent = result.error;
-        } else {
-          sessionStorage.setItem("loggedIn", "true");
-          sessionStorage.setItem("user", JSON.stringify(result));
-          window.location.replace("payroll.html");
-        }
-      } catch (err) {
-        errorMessage.textContent = "❌ Network error. Please try again.";
-      }
-    });
-
-    // ✅ Prevent cached back navigation
-    window.addEventListener("pageshow", function (event) {
-      if (event.persisted && sessionStorage.getItem("loggedIn") !== "true") {
-        window.location.replace("login.html");
-      }
-    });
-  </script>
+    setTimeout(() => {
+      usernameInput.value = '';
+      passwordInput.value = '';
+      usernameInput.classList.remove('error-input');
+      passwordInput.classList.remove('error-input');
+    }, 500);
+  }
+});
+</script>
 </body>
 </html>
