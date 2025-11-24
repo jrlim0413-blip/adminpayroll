@@ -67,9 +67,9 @@
 
 
   <div class="ios-right">
-    <div class="ios-tabs">
+    <div class="ios-tabs" id="attendancelogs">
       <!-- Only Attendance Logs is a main tab -->
-      <div class="ios-tab ios-tab--simple tab" data-tab="logs" data-target="logs">Attendance Logs</div>
+      <div class="ios-tab ios-tab--simple tab" data-tab="logs" data-target="logs" style = "margin-right: 70px;">Attendance Logs</div>
 
       <!-- Adjustments dropdown -->
       <div class="ios-tab ios-tab--dropdown" data-dropdown="adjustmentsMenu">
@@ -136,7 +136,7 @@
     <table id="myTable">
       <thead>
         <tr>
-          <th>EMPLOYEE ID</th><th>NAME</th><th>AREA</th><th>DESIGNATION</th><th>MONTHLY SALARY</th><th>TIME EXEMPTED</th> <th>ACTION</th>
+          <th>EMPLOYEE ID</th><th>NAME</th><th>AREA</th><th>DESIGNATION</th><th>MONTHLY SALARY<span id="toggleSalary" style="cursor: pointer;">👁️</span></th><th>TIME EXEMPTED</th> <th>ACTION</th>
         </tr>
       </thead>
       <tbody id="ratesTable"><tr><td colspan='7'>Loading...</td></tr></tbody>
@@ -1093,6 +1093,9 @@ function renderRatesTable(list) {
     ? ""
     : "<tr><td colspan='7'>No employees found</td></tr>";
 
+  // Kunin ang last state mula sa localStorage
+  const salaryHidden = localStorage.getItem("salaryHidden") === "true";
+
   list?.forEach(emp => {
     const timeExempted = String(emp.timeExempted || "").trim().toUpperCase();
     const isExempted = timeExempted === "TRUE";
@@ -1116,11 +1119,24 @@ function renderRatesTable(list) {
       </td>
     `;
 
+    // Apply salary masking kung naka-hide
+    if (salaryHidden) {
+      const salaryCell = row.cells[4];
+      salaryCell.dataset.original = salaryCell.textContent;
+      salaryCell.textContent = "*****";
+    }
+
     tbody.appendChild(row);
 
     row.querySelector(".deduct-btn").onclick = () => openUpdateEmployeeModal(emp);
     row.querySelector(".add-btn").onclick = () => openAdditionModal(emp);
   });
+
+  // Update eye icon
+  const toggleSalary = document.getElementById("toggleSalary");
+  toggleSalary.textContent = salaryHidden ? "🙈" : "👁️";
+
+
 
   document.querySelectorAll(".exempt-toggle").forEach(toggle => {
     toggle.addEventListener("change", async (e) => {
@@ -2881,6 +2897,39 @@ document.addEventListener("DOMContentLoaded", async function () {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error loading data</td></tr>`;
   }
 });
+
+
+const toggleSalary = document.getElementById("toggleSalary");
+let salaryHidden = localStorage.getItem("salaryHidden") === "true"; // retrieve previous state
+
+// Function para i-update table based sa salaryHidden
+function updateSalaryVisibility() {
+  Array.from(document.querySelectorAll("#ratesTable tr")).forEach(row => {
+    const salaryCell = row.cells[4];
+    if (salaryCell) {
+      if (salaryHidden) {
+        salaryCell.dataset.original = salaryCell.textContent;
+        salaryCell.textContent = "*****";
+      } else {
+        salaryCell.textContent = salaryCell.dataset.original || salaryCell.textContent;
+      }
+    }
+  });
+
+  // Update icon
+  toggleSalary.textContent = salaryHidden ? "🙈" : "👁️";
+}
+
+// Apply state on page load
+updateSalaryVisibility();
+
+// Toggle when icon clicked
+toggleSalary.addEventListener("click", () => {
+  salaryHidden = !salaryHidden;
+  localStorage.setItem("salaryHidden", salaryHidden); // save state
+  updateSalaryVisibility();
+});
+
 
 
 </script>
