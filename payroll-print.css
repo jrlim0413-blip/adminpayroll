@@ -2279,17 +2279,146 @@ body {
   box-shadow: 0 0 0 3px rgba(0,122,255,0.25);
 }
 
-.ios-tab {
-  cursor: pointer;
-  padding: 8px 14px;
-  border-radius: 6px;
-  transition: 0.2s;
-  text-decoration: none;
-  color: inherit;
-  margin-left: 25px;
+
+.pending-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 
-.ios-tab:hover {
-  background-color: #007aff;
-  color: #fff;
+/* Container */
+.pending-container {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+/* Title */
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  color: #1a1a1a;
+}
+
+/* IOS Minimalist Corporate Table */
+.ios-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  font-size: 14px;
+}
+
+/* Header */
+.ios-table thead th {
+  background: #f5f7fa;
+  color: #4a4a4a;
+  font-weight: 600;
+  text-align: center;
+  padding: 14px;
+  border-bottom: 1px solid #e1e4e8;
+  letter-spacing: 0.3px;
+}
+
+/* Body rows */
+.ios-table tbody tr {
+  background: #ffffff;
+  border-bottom: 1px solid #f1f1f1;
+  transition: background 0.2s ease;
+}
+
+.ios-table tbody tr:hover {
+  background: #f9fbff;
+}
+
+/* Cells */
+.ios-table td {
+  padding: 12px 14px;
+  color: #2c2c2c;
+}
+
+/* Status badge */
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.status-approved {
+  background: #d1f2d8;
+  color: #1d7a34;
+  font-weight: 700; /* Bold Approved */
+}
+
+.status-pending {
+  background: #fff2bf;
+  color: #8a6d1e;
+}
+
+.status-denied {
+  background: #ffd7d7;
+  color: #a12a2a;
+}
+
+/* Button (Action) */
+.action-btn {
+  background: #007aff;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.action-btn:hover {
+  background: #0066d6;
+}
+
+/* Buttons */
+.btn-approve {
+  background: #28a745; /* Green */
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.btn-approve:hover {
+  background: #218838;
+}
+
+.btn-reject {
+  background: #dc3545; /* Red */
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.btn-reject:hover {
+  background: #c82333;
+}
+
+/* Status Colors */
+.status-pending {
+  color: #d32f2f;         /* Red text */
+  font-weight: 600;
+}
+
+.status-approved {
+  color: #1b8f3b;         /* Green */
+  font-weight: 700;
+}
+
+.status-rejected {
+  color: #6a11af;         /* Purple */
+  font-weight: 700;
 }
