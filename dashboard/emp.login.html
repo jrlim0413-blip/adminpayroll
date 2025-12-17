@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body {
+  margin:0;
+  font-family:'Inter', sans-serif;
+  background:#f4f6f9;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.login-card {
+  background:#fff;
+  padding:36px 28px;
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.12);
+  width:320px;
+  text-align:center;
+  position:relative;
+}
+.login-card h2 {
+  margin-bottom:28px;
+  font-weight:700;
+  color:#0a2a43;
+  font-size:18px;
+}
+.login-card input {
+  width:90%;
+  padding:10px;
+  margin-bottom:16px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:14px;
+}
+.login-card input:focus { border-color:#0d3a5f; outline:none; }
+.login-card button {
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#0a2a43;
+  color:white;
+  font-weight:600;
+  font-size:14px;
+}
+.login-card button:hover { background:#0d3a5f; }
+#errorMsg { color:#e53e3e; font-size:12px; margin-bottom:6px; }
+
+/* LOADING OVERLAY */
+#loadingOverlay {
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(255,255,255,0.8);
+  backdrop-filter:blur(4px);
+  justify-content:center;
+  align-items:center;
+  z-index:999;
+}
+
+/* ULTRA PREMIUM 3D GLASS CUBE */
+.cube-loader {
+  width:100px;
+  height:100px;
+  perspective:1000px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  position:relative;
+}
+
+/* Floating shadow */
+.cube-loader::after {
+  content:"";
+  position:absolute;
+  bottom:-18px;
+  width:70px;
+  height:14px;
+  background:rgba(0,0,0,0.25);
+  border-radius:50%;
+  filter:blur(8px);
+  animation:floatShadow 1.8s infinite ease-in-out;
+}
+@keyframes floatShadow {
+  0%,100% { transform:scale(1); opacity:0.35; }
+  50% { transform:scale(0.75); opacity:0.2; }
+}
+
+.cube-loader .cube {
+  width:60px;
+  height:60px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.1);
+  border:2px solid rgba(255,255,255,0.4);
+  backdrop-filter:blur(10px);
+
+  /* glow edges */
+  box-shadow:
+    0 0 25px rgba(0,140,255,0.6),
+    0 0 35px rgba(0,180,255,0.5),
+    inset 0 0 25px rgba(255,255,255,0.4),
+    inset 0 0 35px rgba(0,200,255,0.3);
+
+  /* crystal highlight */
+  background:linear-gradient(145deg,
+    rgba(255,255,255,0.25),
+    rgba(0,150,255,0.2),
+    rgba(255,255,255,0.18)
+  );
+
+  transform-style:preserve-3d;
+  animation:mechanicalFlip 1.8s infinite cubic-bezier(.68,-0.55,.27,1.55);
+}
+
+@keyframes mechanicalFlip {
+  0% { transform:rotateX(0) rotateY(0) rotateZ(0) translateY(0); }
+  20% { transform:rotateX(180deg) rotateY(0) rotateZ(4deg) translateY(-6px); }
+  50% { transform:rotateX(180deg) rotateY(180deg) rotateZ(-4deg) translateY(0); }
+  80% { transform:rotateX(0) rotateY(180deg) rotateZ(3deg) translateY(-4px); }
+  100% { transform:rotateX(0) rotateY(0) rotateZ(0) translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div id="loadingOverlay">
+  <div class="cube-loader">
+    <div class="cube"></div>
+  </div>
+</div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+  </div>
+</div>
+</div>
+
+<div class="login-card">
+  <h2>Employee Login</h2>
+  <div id="errorMsg"></div>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+</div>
+
+<script>
+function showLoading(state) {
+  document.getElementById('loadingOverlay').style.display = state ? 'flex' : 'none';
+}
+
+function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const error = document.getElementById('errorMsg');
+
+  if (!username || !password) {
+    error.textContent = 'Please enter username and password.';
+    return;
+  }
+
+  showLoading(true);
+
+  fetch("https://script.google.com/macros/s/AKfycbzxIw4N1eMDOvvyX_NqgBxW1NrzwSo-bvz6xn9Fw2nhmZPiXreP0RfZU9HsTK0Ezk0SlQ/exec", {
+    method: "POST",
+    body: new URLSearchParams({
+      action: "employeeLogin",
+      username: username,
+      password: password
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    showLoading(false);
+
+   if (data.success) {
+
+    // Save full employee data
+    localStorage.setItem("employeeUser", JSON.stringify(data.employee));
+
+    // Save Employee ID separately for filtering
+    // Assuming your backend returns something like:
+    // data.employee.ID or data.employee.employeeID
+    const empID = data.employee.ID || data.employee.employeeID || data.employee.id;
+
+    if (empID) {
+        localStorage.setItem("employee_id", empID);
+    }
+
+    // Redirect
+    window.location.href = "employee.html";
+}
+ else {
+        error.textContent = data.message || "Invalid username or password.";
+    }
+})
+
+  .catch(err => {
+    showLoading(false);
+    console.error(err);
+    error.textContent = "Server error, try again.";
+  });
+}
+
+
+</script>
+
+</body>
+</html>
