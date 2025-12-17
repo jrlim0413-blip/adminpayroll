@@ -8,6 +8,7 @@
 <link rel="stylesheet" type="text/css" href="payroll-print.css">
 <!-- CryptoJS for AES decryption -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
 <style>
  
 
@@ -69,7 +70,7 @@
   <div class="ios-right">
     <div class="ios-tabs" id="attendancelogs">
       <!-- Only Attendance Logs is a main tab -->
-      <div class="ios-tab ios-tab--simple tab" data-tab="logs" data-target="logs" style = "margin-right: 90px;">Attendance Logs</div>
+      <div class="ios-tab ios-tab--simple tab" data-tab="logs" data-target="logs" style = "margin-right: 70px;">Attendance Logs</div>
 
       <!-- Adjustments dropdown -->
       <div class="ios-tab ios-tab--dropdown" data-dropdown="adjustmentsMenu">
@@ -77,7 +78,7 @@
         <div class="ios-dropdown" id="adjustmentsMenu">
           <a href="#" data-target="tab2">Addition & Deduction</a>
           <a href="#" data-target="tab6">Calendar ( Day-Offs )</a>
-          
+          <a href="#" data-target="tab7">Excuse & Overtime Requests</a>
         </div>
       </div>
 
@@ -129,7 +130,7 @@
 <div class="tab-content" id="tab2">
   <div class="filters">
     <span style="font-size: 24px; cursor: pointer;">🔍</span>
-    <input type="text" id="rateSearch" placeholder="Search employee...">
+    <input type="text" id="rateSearch" placeholder="Search employee by Employee Id">
     <button id="scanQRBtn" class="btn btn-success">📷 Scan QR to Add Employee</button>
   </div>
   <div class="table-container">
@@ -210,6 +211,33 @@
             </div>
           </div>
         </div>
+      
+        <div class="tab-content" id="tab7" style="padding: 20px;">
+          <div class="pending-wrapper">
+            <div class="pending-container">
+              <h2>Pending Requests</h2>
+
+              <table id="adminPendingTable" class="ios-table corporate-table">
+                <thead>
+                  <tr>
+                    <th>Employee ID</th>
+                    <th>Type</th>
+                    <th>Request Date</th>
+                    <th>Hours</th>
+                    <th>Reason</th>
+                    <th>Timestamp</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+
+    
 
 <div id="qrModal" class="modal">
   <div class="modal-content">
@@ -1463,7 +1491,7 @@ function openUpdateEmployeeModalById(btn) {
 
 document.getElementById("rateSearch").addEventListener("input",()=>{
   const search=document.getElementById("rateSearch").value.toLowerCase();
-  const filtered=window.employeeRates.filter(emp=>emp.name.toLowerCase().includes(search));
+  const filtered=window.employeeRates.filter(emp=>emp.id.toLowerCase().includes(search));
   renderRatesTable(filtered);
 });
 
@@ -2461,6 +2489,7 @@ document.querySelectorAll("[data-target]").forEach(link=>{
     if(targetId==="tab3") loadTab3Data(); // payroll na ito
     if(targetId==="tab4") loadTimeInArea();
     if(targetId==="tab5") load13thMonth();
+    if(targetId==="tab7") loadPendingRequests();
   });
 });
 
@@ -2931,8 +2960,161 @@ toggleSalary.addEventListener("click", () => {
 });
 
 
+function loadPendingRequests() {
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    headers: { 
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: new URLSearchParams({ action: "getPending" })
+  })
+  .then(res => res.json())
+  .then(data => {
+    // Validate response
+    if (!Array.isArray(data)) {
+      console.error("Invalid response:", data);
+      alert("Invalid data received from server.");
+      return;
+    }
+
+    const tbody = document.querySelector("#adminPendingTable tbody");
+    if (!tbody) {
+      console.error("❌ ERROR: <tbody> not found inside #adminPendingTable");
+      return;
+    }
+    tbody.innerHTML = "";
+
+    // helper functions
+    function parseToDate(value) {
+      if (!value && value !== 0) return null;
+
+      // if it's already a Date object
+      if (value instanceof Date) return value;
+
+      // if it's a number (Excel serial or epoch millis)
+      if (typeof value === "number") {
+        // Google Sheets sometimes returns a JS number that is days since 1899-12-30
+        // but Google Apps Script usually returns strings. We try epoch fallback:
+        // if number looks big (ms), treat as epoch ms
+        if (value > 1e12) return new Date(value);
+        // else treat as Excel/Sheets serial (days since 1899-12-30)
+        const epoch = new Date(Date.UTC(1899, 11, 30));
+        return new Date(epoch.getTime() + value * 24 * 60 * 60 * 1000);
+      }
+
+      // if it's a string, try to parse ISO or common formats
+      const s = String(value).trim();
+
+      // Try Date.parse first (handles ISO)
+      const parsed = Date.parse(s);
+      if (!isNaN(parsed)) return new Date(parsed);
+
+      // Try common slash format e.g. "12/6/2025 15:10:13"
+      const alt = new Date(s.replace(/-/g, '/'));
+      if (!isNaN(alt)) return alt;
+
+      // give up -> return null
+      return null;
+    }
+
+    function formatDateTime(value) {
+      const d = parseToDate(value);
+      if (!d) return value || "-";
+      // Example: 06 Dec 2025, 11:10 AM (Philippine locale)
+      return d.toLocaleString("en-PH", {
+        year: "numeric", month: "short", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", hour12: true
+      });
+    }
+
+    function formatDate(value) {
+      const d = parseToDate(value);
+      if (!d) return value || "-";
+      // Example: 06 Dec 2025
+      return d.toLocaleDateString("en-PH", {
+        year: "numeric", month: "short", day: "2-digit"
+      });
+    }
+
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+      const statusClass =
+      row.status === "Approved" ? "status-approved" :
+      row.status === "Rejected" ? "status-rejected" :
+      "status-pending"; // default: Pending = RED
+
+      tr.innerHTML = `
+        <td>${escapeHtml(row.employeeId || "")}</td>
+        <td>${escapeHtml(row.type || "")}</td>
+        <td>${escapeHtml(formatDate(row.requestDate || row.request_date || ""))}</td>
+        <td>${escapeHtml(row.hours != null ? row.hours : "-")}</td>
+        <td>${escapeHtml(row.reason || "")}</td>
+        <td>${escapeHtml(formatDateTime(row.timestamp || row.time || ""))}</td>
+        <td class="${statusClass}">${escapeHtml(row.status || "")}</td>
+        <td>
+          <button class="btn-approve" onclick="approveRequest('${row.rowId}')">Approve</button>
+          <button class="btn-reject" onclick="rejectRequest('${row.rowId}')">Reject</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error loading pending requests.");
+  });
+}
+
+// small helper to avoid HTML injection when inserting row values
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+function approveRequest(rowId) {
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      action: "approveRequest",
+      rowId: rowId
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      alert("Request Approved");
+      loadPendingRequests(); // reload table
+    }
+  });
+}
+
+function rejectRequest(rowId) {
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      action: "rejectRequest",
+      rowId: rowId
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      alert("Request Rejected");
+      loadPendingRequests(); // reload table
+    }
+  });
+}
+
+
 
 </script>
 </body>
 </html>
-
