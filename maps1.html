@@ -355,6 +355,89 @@ select option {
   color: #022;
 }
 
+.tab-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 6px 14px;
+  border-radius: 8px;
+  color: #bcd4e6;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.tab-btn.active {
+  background: rgba(14,165,164,0.15);
+  border-color: #0ea5a4;
+  color: #e0fffd;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.kpi {
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 10px;
+  transition: 0.2s;
+  background: rgba(255,255,255,0.06);
+}
+
+.kpi:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.kpi.active {
+  background: rgba(14,165,164,0.20);
+  border: 1px solid #0ea5a4;
+}
+
+.kpi .num {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.kpi .lbl {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Rotating Globe Loader */
+#globeLoader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(3px);
+  transition: opacity 0.5s;
+}
+
+.globe {
+  width: 180px;
+  height: 180px;
+  background: url('https://upload.wikimedia.org/wikipedia/commons/8/83/Equirectangular_projection_SW.jpg');
+  background-size: cover;
+  border-radius: 50%;
+  animation: spinGlobe 4s linear infinite;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+@keyframes spinGlobe {
+  from { background-position-x: 0; }
+  to   { background-position-x: -800px; }
+}
+
 
 </style>
 </head>
@@ -377,33 +460,82 @@ select option {
     </div>
   </div>
 
-  <div class="content">
-    <div class="side">
-      <div class="card">
-        <div class="header-row">
-          <div>
-            <div class="h-title">Attendance Logs</div>
-            <div class="h-sub">Latest check-ins from kiosks</div>
-          </div>
-          <div class="info-row">
-            <div class="kpi"><div class="num">2</div><div class="lbl">Total Today</div></div>
-            <div class="kpi"><div class="num">2</div><div class="lbl">Active Kiosks</div></div>
-          </div>
+ <div class="content">
+  <div class="side">
+    <div class="card">
+
+      <!-- HEADER: Title (Left) + KPIs as Tabs (Right) -->
+      <div class="header-row" style="display:flex; justify-content:space-between; align-items:flex-start;">
+        
+        <!-- Left -->
+        <div>
+          <div class="h-title" id="headerTitle">Attendance Logs</div>
+          <div class="h-sub" id="headerSubtitle">Latest check-ins from kiosks</div>
         </div>
 
-        <div class="table-wrap">
+        <!-- Right: KPI Tabs -->
+        <div class="info-row" style="display:flex; gap:10px;">
+          
+          <!-- ATTENDANCE TAB -->
+          <div class="kpi tab-btn active" data-tab="attendanceTab">
+            <div class="num">2</div>
+            <div class="lbl">Total Today</div>
+          </div>
+
+          <!-- ACTIVE KIOSK TAB -->
+          <div class="kpi tab-btn" data-tab="kioskTab">
+            <div class="num">2</div>
+            <div class="lbl">Active Kiosks</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TABLE AREA -->
+      <div class="table-wrap">
+
+        <!-- TAB 1 -->
+        <div class="tab-content active" id="attendanceTab">
           <table id="attendanceTable">
-            <thead><tr><th>Name</th><th>ID</th><th>Time</th><th>Location</th><th>Status</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>In/Out</th>
+                <th>Status</th>
+              </tr>
+            </thead>
             <tbody></tbody>
           </table>
         </div>
-       </div>
-     </div>
-    <div class="map-wrap card">
-      <div id="map"></div>
+
+        <!-- TAB 2 -->
+        <div class="tab-content" id="kioskTab">
+          <table id="kioskTable">
+            <thead>
+              <tr>
+                <th>Kiosk Code</th>
+                <th>Area</th>
+                <th>Name</th>
+                <th>Distance</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+      </div>
     </div>
   </div>
+
+  <div class="map-wrap card">
+    <div id="map"></div>
+  </div>
 </div>
+
+
 
 <!-- QR Drawer (IDs preserved) -->
 <div class="qr-drawer" id="qrDrawer">
@@ -509,6 +641,36 @@ select option {
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 
+document.querySelectorAll('.kpi.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+
+    // Remove active from all
+    document.querySelectorAll('.kpi.tab-btn').forEach(k => k.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+
+    // Show selected tab
+    const target = btn.dataset.tab;
+    document.getElementById(target).classList.add('active');
+
+    // Change header title + subtitle depending on tab
+    const title = document.getElementById("headerTitle");
+    const subtitle = document.getElementById("headerSubtitle");
+
+    if (target === "attendanceTab") {
+      title.textContent = "Attendance Logs";
+      subtitle.textContent = "Latest check-ins from kiosks";
+    } else {
+      title.textContent = "Active Kiosks";
+      subtitle.textContent = "Live status of all kiosk devices";
+    }
+  });
+});
+
+
+
 function goBack() { window.history.back(); }
 
 // Map
@@ -520,8 +682,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:50 })
 
 // Sample attendance data
 const attendanceData = [
-  { name:'Agent Marawi', id:'M001', time:'08:15 AM', location:'Marawi', lat:8.0, lng:124.2936, status:'active' },
-  { name:'Agent Cotabato', id:'C001', time:'08:20 AM', location:'Cotabato City', lat:7.2, lng:124.2467, status:'active' }
+  { name:'Jay Ryan Lim', id:'M001', time:'08:15 AM', location:'Marawi', lat:8.0, lng:124.2936, status:'active' },
+  { name:'Quennie Lim', id:'C001', time:'08:20 AM', location:'Cotabato City', lat:7.2, lng:124.2467, status:'active' }
 
 ];
 const tableBody = document.querySelector('#attendanceTable tbody');
@@ -534,6 +696,54 @@ attendanceData.forEach(agent=>{
   row.innerHTML=`<td>${agent.name}</td><td>${agent.id}</td><td>${agent.time}</td><td>${agent.location}</td><td>${agent.status.toUpperCase()}</td>`;
   row.addEventListener('click',()=>{ map.setView([agent.lat, agent.lng],10); marker.openPopup(); });
   tableBody.appendChild(row);
+});
+// --- Static kiosk data ---
+const kioskData = [
+  { code: 'K001', area: 'Marawi', agent: 'Agent Marawi', lat: 8.0, lng: 124.2936, status: 'active' },
+  { code: 'K002', area: 'Cotabato City', agent: 'Agent Cotabato', lat: 7.2, lng: 124.2467, status: 'active' },
+  { code: 'K003', area: 'Iligan', agent: '', lat: 8.2, lng: 124.2450, status: 'inactive' }
+];
+
+const kioskTableBody = document.querySelector('#kioskTable tbody');
+
+kioskData.forEach(kiosk => {
+  // Set marker color
+  let color = kiosk.status === 'active' ? 'green' : kiosk.status === 'inactive' ? 'red' : 'blue';
+
+  // Add marker to map
+  const marker = L.circleMarker([kiosk.lat, kiosk.lng], {
+    radius: 8,
+    color,
+    fillColor: color,
+    fillOpacity: 0.8
+  }).addTo(map);
+
+  marker.bindPopup(`
+    <b>${kiosk.code}</b><br>
+    Area: ${kiosk.area}<br>
+    Lat: ${kiosk.lat}<br>
+    Lng: ${kiosk.lng}<br>
+    Status: ${kiosk.status.toUpperCase()}
+  `);
+
+  // Add row to table
+  const row = document.createElement('tr');
+  row.classList.add(`status-${kiosk.status}`);
+  row.innerHTML = `
+    <td>${kiosk.code}</td>
+    <td>${kiosk.area}</td>
+    <td>${kiosk.lat}</td>
+    <td>${kiosk.lng}</td>
+    <td>${kiosk.status.toUpperCase()}</td>
+  `;
+
+  // Click on row zooms to marker
+  row.addEventListener('click', () => {
+    map.setView([kiosk.lat, kiosk.lng], 10);
+    marker.openPopup();
+  });
+
+  kioskTableBody.appendChild(row);
 });
 
 // QR Generator + Database save
@@ -981,7 +1191,6 @@ async function saveNewAgent() {
     return alert("Please fill all fields.");
   }
 
-  // Add timestamp automatically
   const timestamp = new Date().toLocaleString();
 
   try {
@@ -989,11 +1198,11 @@ async function saveNewAgent() {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
-        action: "addAgent",
+        action: "saveNewAgent",
         area: area,
-        agentName: name,
-        agentID: idNo,
-        contactNumber: contact,
+        name: name,
+        idNo: idNo,
+        contact: contact,
         timestamp: timestamp
       })
     });
@@ -1002,9 +1211,9 @@ async function saveNewAgent() {
 
     if (!data.success) throw new Error(data.message);
 
-    alert("Agent added successfully!");
-    
-    // Reset modal fields
+    alert("New agent saved successfully!");
+
+    // Reset fields
     document.getElementById('newAgentArea').selectedIndex = 0;
     document.getElementById('newAgentName').value = "";
     document.getElementById('newAgentID').value = "";
@@ -1015,9 +1224,10 @@ async function saveNewAgent() {
 
   } catch (err) {
     console.error(err);
-    alert("Error adding agent: " + err.message);
+    alert("Error saving new agent: " + err.message);
   }
 }
+
 
 async function loadAreasForAddAgent() {
   const selectElement = document.getElementById('newAgentArea');
